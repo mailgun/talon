@@ -1,0 +1,31 @@
+Content-Type: multipart/alternative;
+ boundary="===============3455449757443551301=="
+MIME-Version: 1.0
+Date: Mon, 2 Apr 2012 20:21:52 +0400
+Message-Id: <CAKsfaBW4hj0Gek6TwbR3erng4P1y0CZzJ0d=pXtCNnYnbe7PLg@mail.gmail.com>
+Subject: Re: Test
+From: Megan One <xxx@gmail.com>
+To: bob@example.com
+
+--===============3455449757443551301==
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+Hello
+
+On Mon, Apr 2, 2012 at 6:26 PM, Megan One <xxx@gmail.com> wrote:
+
+> Hi
+
+--===============3455449757443551301==
+MIME-Version: 1.0
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+Hello<br><br><div class="gmail_quote">On Mon, Apr 2, 2012 at 6:26 PM, Megan One <span dir="ltr">&lt;<a href="mailto:xxx@gmail.com">xxx@gmail.com</a>&gt;</span> wrote:<br><blockquote class="gmail_quote" style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">
+Hi
+
+</blockquote></div><br>
+
+--===============3455449757443551301==--

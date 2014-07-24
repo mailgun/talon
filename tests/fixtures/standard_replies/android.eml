@@ -1,0 +1,24 @@
+Content-Type: multipart/alternative;
+ boundary="===============0934372227844987316=="
+MIME-Version: 1.0
+Date: Mon, 2 Apr 2012 18:22:10 +0400
+Message-Id: <CAEAsyCZ-sCHxZtoKyM3JmT5gSYpZd5GwY-cVNiV8H329zgJT4g@mail.gmail.com>
+Subject: Re: Test
+From: Sergey Obykhov <bob@example.com>
+To: "bob@xxx.mailgun.org" <bob@xxx.mailgun.org>
+
+--===============0934372227844987316==
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+
+SGVsbG8KMDIuMDQuMjAxMiAxNDoyMCDQv9C+0LvRjNC30L7QstCw0YLQtdC70YwgImJvYkB4eHgubWFpbGd1bi5vcmciIDwKYm9iQHh4eC5tYWlsZ3VuLm9yZz4g0L3QsNC/0LjRgdCw0Ls6Cgo+IEhpCj4KCg==
+
+--===============0934372227844987316==
+MIME-Version: 1.0
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: base64
+
+PHA+SGVsbG88L3A+CjxkaXYgY2xhc3M9ImdtYWlsX3F1b3RlIj4wMi4wNC4yMDEyIDE0OjIwINC/0L7Qu9GM0LfQvtCy0LDRgtC10LvRjCAmcXVvdDs8YSBocmVmPSJtYWlsdG86Ym9iQHh4eC5tYWlsZ3VuLm9yZyI+Ym9iQHh4eC5tYWlsZ3VuLm9yZzwvYT4mcXVvdDsgJmx0OzxhIGhyZWY9Im1haWx0bzpib2JAeHh4Lm1haWxndW4ub3JnIj5ib2JAeHh4Lm1haWxndW4ub3JnPC9hPiZndDsg0L3QsNC/0LjRgdCw0Ls6PGJyIHR5cGU9ImF0dHJpYnV0aW9uIj4KPGJsb2NrcXVvdGUgY2xhc3M9ImdtYWlsX3F1b3RlIiBzdHlsZT0ibWFyZ2luOjAgMCAwIC44ZXg7Ym9yZGVyLWxlZnQ6MXB4ICNjY2Mgc29saWQ7cGFkZGluZy1sZWZ0OjFleCI+SGk8YnI+CjwvYmxvY2txdW90ZT48L2Rpdj4KCg==
+
+--===============0934372227844987316==--

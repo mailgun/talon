@@ -1,0 +1,65 @@
+Content-Type: multipart/alternative;
+ boundary="===============7429987408351918371=="
+MIME-Version: 1.0
+To: bob@example.com
+Subject: Re: Test
+From: Megan Odin <xxx@aol.com>
+Message-Id: <8CEDEEFBEF4733B-1E5C-73DF@webmail-d070.sysops.aol.com>
+Date: Mon, 2 Apr 2012 09:57:58 -0400 (EDT)
+
+--===============7429987408351918371==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+
+Hello
+
+
+
+-----Original Message-----
+From: bob <bob@example.com>
+To: xxx <xxx@gmail.com>; xxx <xxx@hotmail.com>; xxx <xxx@yahoo.com>; xxx <xxx@aol.com>; xxx <xxx@comcast.net>; xxx <xxx@nyc.rr.com>
+Sent: Mon, Apr 2, 2012 5:49 pm
+Subject: Test
+
+
+Hi
+
+ 
+
+--===============7429987408351918371==
+Content-Type: text/html; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+
+<font color='black' size='2' face='arial'>Hello<br>
+
+<br>
+<br>
+
+<div style="font-family:arial,helvetica;font-size:10pt;color:black">-----Original Message-----<br>
+From: bob &lt;bob@example.com&gt;<br>
+To: xxx &lt;xxx@gmail.com&gt;; xxx &lt;xxx@hotmail.com&gt;; xxx &lt;xxx@yahoo.com&gt;; xxx &lt;xxx@aol.com&gt;; xxx &lt;xxx@comcast.net&gt;; xxx &lt;xxx@nyc.rr.com&gt;<br>
+Sent: Mon, Apr 2, 2012 5:49 pm<br>
+Subject: Test<br>
+
+<br>
+
+
+
+
+
+
+
+<div id="AOLMsgPart_0_4d68a632-fe65-4f6d-ace2-292ac1b91f1f" style="margin: 0px;font-family: Tahoma, Verdana, Arial, Sans-Serif;font-size: 12px;color: #000;background-color: #fff;">
+
+<pre style="font-size: 9pt;"><tt>Hi
+</tt></pre>
+</div>
+ <!-- end of AOLMsgPart_0_4d68a632-fe65-4f6d-ace2-292ac1b91f1f -->
+
+
+
+</div>
+</font>
+--===============7429987408351918371==--

@@ -1,0 +1,85 @@
+Subject: Test
+From: me@example.com
+To: you@example.com
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary=0016364c440b2e8b63049acd5370
+X-Mailgun-Tag: tag
+X-Mailgun-Mailing-List-Id: 1q
+
+--0016364c440b2e8b63049acd5370
+Content-Type: text/plain; charset=ISO-8859-1
+
+Hello
+
+From: xxx@xxx.mailgun.org [mailto:xxx@xxx.mailgun.org]
+Sent: March-09-12 4:22 PM
+To: Dan Le
+Subject: The manager has commented on your Loop
+
+Hi dan.le@example.com<mailto:dan.le@example.com>,
+
+The manager's comment:
+"Hello Allan! Did you ask for some MIME? "
+
+Loop details:
+
+xxx at Dan
+I'm not happy
+""
+
+Your Loop is here<http://dev.xxx.com/loop/view/4f50f20e160839c95a000bb3?_uid=4f3541a7ac63e655040008e3>.
+
+We will be in touch again with any further updates,
+
+xxx
+
+If you did not sign up to receive emails from us you can use the link below to unsubscribe. We apologize for any inconvenience.
+
+Unsubscribe<http://dev.xxx.com/user/unsubscribe/dan.le@example.com?verify=4a400554148256338956101abdf06406>
+
+--0016364c440b2e8b63049acd5370
+Content-Type: text/html; charset=ISO-8859-1
+
+<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns:m="http://schemas.microsoft.com/office/2004/12/omml" xmlns="http://www.w3.org/TR/REC-html40"><head><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=us-ascii"><meta name=Generator content="Microsoft Word 14 (filtered medium)"><style><!--
+/* Font Definitions */
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+@font-face
+	{font-family:Tahoma;
+	panose-1:2 11 6 4 3 5 4 4 2 4;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:purple;
+	text-decoration:underline;}
+span.EmailStyle17
+	{mso-style-type:personal-reply;
+	font-family:"Calibri","sans-serif";
+	color:#1F497D;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-family:"Calibri","sans-serif";
+	mso-fareast-language:EN-US;}
+@page WordSection1
+	{size:612.0pt 792.0pt;
+	margin:72.0pt 72.0pt 72.0pt 72.0pt;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext="edit" spidmax="1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext="edit">
+<o:idmap v:ext="edit" data="1" />
+</o:shapelayout></xml><![endif]--></head><body lang=EN-CA link=blue vlink=purple><div class=WordSection1><p class=MsoNormal><span style='font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497D'>Allo! Follow up MIME!<o:p></o:p></span></p><p class=MsoNormal><span style='font-size:11.0pt;font-family:"Calibri","sans-serif";color:#1F497D'><o:p>&nbsp;</o:p></span></p><p class=MsoNormal><b><span lang=EN-US style='font-size:10.0pt;font-family:"Tahoma","sans-serif"'>From:</span></b><span lang=EN-US style='font-size:10.0pt;font-family:"Tahoma","sans-serif"'> xxx@xxx.mailgun.org [mailto:xxx@xxx.mailgun.org] <br><b>Sent:</b> March-09-12 4:22 PM<br><b>To:</b> Dan Le<br><b>Subject:</b> The manager has commented on your Loop<o:p></o:p></span></p><p class=MsoNormal><o:p>&nbsp;</o:p></p><p class=MsoNormal>Hi <a href="mailto:dan.le@example.com">dan.le@example.com</a>,<br><br>The manager's comment:<br>&quot;Hello Allan! Did you ask for some MIME? &quot;<br><br>Loop details:<br><br>xxx at Dan<br>I'm not happy<br>&quot;&quot;<br><br>Your Loop is <a href="http://dev.xxx.com/loop/view/4f50f20e160839c95a000bb3?_uid=4f3541a7ac63e655040008e3">here</a>.<br><br>We will be in touch again with any further updates,<br><br>xxx<br><br>If you did not sign up to receive emails from us you can use the link below to unsubscribe. We apologize for any inconvenience.<br><br><a href="http://dev.xxx.com/user/unsubscribe/dan.le@example.com?verify=4a400554148256338956101abdf06406">Unsubscribe</a> <o:p></o:p></p></div></body></html>
+
+--0016364c440b2e8b63049acd5370--

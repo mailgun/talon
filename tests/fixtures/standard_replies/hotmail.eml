@@ -1,0 +1,50 @@
+Content-Type: multipart/alternative;
+ boundary="===============5499446768842282638=="
+MIME-Version: 1.0
+Message-Id: <DUB102-W192C6E94759954C4885B92B14C0@phx.gbl>
+From: Alexey Q <xxx@hotmail.com>
+To: <bob@xxx.mailgun.org>
+Subject: RE: Test
+Date: Mon, 2 Apr 2012 21:47:37 +0800
+X-Originalarrivaltime: 02 Apr 2012 13:47:37.0935 (UTC)
+ FILETIME=[2A6C0DF0:01CD10D7]
+
+--===============5499446768842282638==
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+
+Hello
+
+> Subject: Test
+> From: bob@xxx.mailgun.org
+> To: xxx@gmail.com; xxx@hotmail.com; xxx@yahoo.com; xxx@aol.com; xxx@comcast.net; xxx@nyc.rr.com
+> Date: Mon, 2 Apr 2012 17:44:22 +0400
+> 
+> Hi
+ 		 	   		  
+--===============5499446768842282638==
+MIME-Version: 1.0
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+<html>
+<head>
+<style><!--
+.hmmessage P
+{
+margin:0px;
+padding:0px
+}
+body.hmmessage
+{
+font-size: 10pt;
+font-family:Tahoma
+}
+--></style></head>
+<body class='hmmessage'><div dir='ltr'>
+Hello<br><br><div><div id="SkyDrivePlaceholder"></div>&gt; Subject: Test<br>&gt; From: bob@xxx.mailgun.org<br>&gt; To: xxx@gmail.com; xxx@hotmail.com; xxx@yahoo.com; xxx@aol.com; xxx@comcast.net; xxx@nyc.rr.com<br>&gt; Date: Mon, 2 Apr 2012 17:44:22 +0400<br>&gt; <br>&gt; Hi<br></div> 		 	   		  </div></body>
+
+</html>
+--===============5499446768842282638==--
