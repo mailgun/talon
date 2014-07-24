@@ -49,9 +49,9 @@ To extract a reply from html:
     reply = quotations.extract_from_html(html)
     # reply == "<html><body><p>Reply</p></body></html>"
 
-| Often the best way is the easiest one. Here’s how you can extract
+Often the best way is the easiest one. Here’s how you can extract
 signature from email message without any
-| machine learning fancy stuff:
+machine learning fancy stuff:
 
 .. code:: python
 
