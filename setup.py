@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 
 setup(name='talon',
-      version='1.0.1',
+      version='1.0.2',
       description=("Mailgun library "
                    "to extract message quotations and signatures."),
       long_description=open("README.rst").read(),
