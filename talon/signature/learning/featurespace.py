@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-""" The module provides functions for convertion of a message body/body lines
+""" The module provides functions for conversion of a message body/body lines
 into classifiers features space.
 
 The body and the message sender string are converted into unicode before
@@ -47,9 +47,9 @@ def apply_features(body, features):
     '''Applies features to message body lines.
 
     Returns list of lists. Each of the lists corresponds to the body line
-    and is constituted by the numbers of features occurances (0 or 1).
+    and is constituted by the numbers of features occurrences (0 or 1).
     E.g. if element j of list i equals 1 this means that
-    feature j occured in line i (counting from the last line of the body).
+    feature j occurred in line i (counting from the last line of the body).
     '''
     # collect all non empty lines
     lines = [line for line in body.splitlines() if line.strip()]
@@ -66,7 +66,7 @@ def build_pattern(body, features):
     '''Converts body into a pattern i.e. a point in the features space.
 
     Applies features to the body lines and sums up the results.
-    Elements of the pattern indicate how many times a certain feature occured
+    Elements of the pattern indicate how many times a certain feature occurred
     in the last lines of the body.
     '''
     line_patterns = apply_features(body, features)
