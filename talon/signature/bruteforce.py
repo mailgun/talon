@@ -49,7 +49,7 @@ RE_PHONE_SIGNATURE = re.compile(r'''
 # c - could be signature line
 # d - line starts with dashes (could be signature or list item)
 # l - long line
-RE_SIGNATURE_CANDIDAATE = re.compile(r'''
+RE_SIGNATURE_CANDIDATE = re.compile(r'''
     (?P<candidate>c+d)[^d]
     |
     (?P<candidate>c+d)$
@@ -184,5 +184,5 @@ def _process_marked_candidate_indexes(candidate, markers):
     >>> _process_marked_candidate_indexes([9, 12, 14, 15, 17], 'clddc')
     [15, 17]
     """
-    match = RE_SIGNATURE_CANDIDAATE.match(markers[::-1])
+    match = RE_SIGNATURE_CANDIDATE.match(markers[::-1])
     return candidate[-match.end('candidate'):] if match else []

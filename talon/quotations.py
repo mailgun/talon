@@ -81,7 +81,7 @@ SPLITTER_PATTERNS = [
 RE_LINK = re.compile('<(http://[^>]*)>')
 RE_NORMALIZED_LINK = re.compile('@@(http://[^>@]*)@@')
 
-RE_PARANTHESIS_LINK = re.compile("\(https?://")
+RE_PARENTHESIS_LINK = re.compile("\(https?://")
 
 SPLITTER_MAX_LINES = 4
 MAX_LINES_COUNT = 1000
@@ -169,8 +169,8 @@ def process_marked_lines(lines, markers, return_flags=[False, -1, -1]):
         # long links could break sequence of quotation lines but they shouldn't
         # be considered an inline reply
         links = (
-            RE_PARANTHESIS_LINK.search(lines[inline_reply.start() - 1]) or
-            RE_PARANTHESIS_LINK.match(lines[inline_reply.start()].strip()))
+            RE_PARENTHESIS_LINK.search(lines[inline_reply.start() - 1]) or
+            RE_PARENTHESIS_LINK.match(lines[inline_reply.start()].strip()))
         if not links:
             return_flags[:] = [False, -1, -1]
             return lines
@@ -197,7 +197,7 @@ def preprocess(msg_body, delimiter, content_type='text/plain'):
     """Prepares msg_body for being stripped.
 
     Replaces link brackets so that they couldn't be taken for quotation marker.
-    Splits line in two if splitter pattern preceeded by some text on the same
+    Splits line in two if splitter pattern preceded by some text on the same
     line (done only for 'On <date> <person> wrote:' pattern).
     """
     # normalize links i.e. replace '<', '>' wrapping the link with some symbols
@@ -213,7 +213,7 @@ def preprocess(msg_body, delimiter, content_type='text/plain'):
     msg_body = re.sub(RE_LINK, link_wrapper, msg_body)
 
     def splitter_wrapper(splitter):
-        """Wrapps splitter with new line"""
+        """Wraps splitter with new line"""
         if splitter.start() and msg_body[splitter.start() - 1] != '\n':
             return '%s%s' % (delimiter, splitter.group())
         else:
@@ -268,7 +268,7 @@ def extract_from_html(msg_body):
     then converting html to text,
     then extracting quotations from text,
     then checking deleted checkpoints,
-    then deleting neccessary tags.
+    then deleting necessary tags.
     """
 
     if msg_body.strip() == '':
