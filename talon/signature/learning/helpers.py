@@ -94,7 +94,7 @@ def binary_regex_match(prog):
 
 
 def flatten_list(list_to_flatten):
-    """Simple list comprehesion to flatten list.
+    """Simple list comprehension to flatten list.
 
     >>> flatten_list([[1, 2], [3, 4, 5]])
     [1, 2, 3, 4, 5]
@@ -155,7 +155,7 @@ def extract_names(sender):
 
 
 def categories_percent(s, categories):
-    '''Returns category characters persent.
+    '''Returns category characters percent.
 
     >>> categories_percent("qqq ggg hhh", ["Po"])
     0.0
@@ -177,7 +177,7 @@ def categories_percent(s, categories):
 
 
 def punctuation_percent(s):
-    '''Returns punctuation persent.
+    '''Returns punctuation percent.
 
     >>> punctuation_percent("qqq ggg hhh")
     0.0
