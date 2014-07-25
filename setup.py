@@ -26,7 +26,8 @@ setup(name='talon',
           "html2text",
           "nose==1.2.1",
           "mock",
-          "coverage"
+          "coverage",
+          "flanker"
           ]
       )
 
