@@ -73,6 +73,9 @@ SPLITTER_PATTERNS = [
     re.compile("(\d+/\d+/\d+|\d+\.\d+\.\d+).*@", re.VERBOSE),
     RE_ON_DATE_SMB_WROTE,
     re.compile('(_+\r?\n)?[\s]*(:?[*]?From|Date):[*]? .*'),
+    re.compile('(_+\r?\n)?[\s]*(:?[*]?Van|Datum):[*]? .*'),
+    re.compile('(_+\r?\n)?[\s]*(:?[*]?De|Date):[*]? .*'),
+    re.compile('(_+\r?\n)?[\s]*(:?[*]?Von|Datum):[*]? .*'),
     re.compile('\S{3,10}, \d\d? \S{3,10} 20\d\d,? \d\d?:\d\d(:\d\d)?'
                '( \S+){3,6}@\S+:')
     ]
