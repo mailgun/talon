@@ -71,6 +71,11 @@ the power of machine learning algorithms:
 
 .. code:: python
 
+    import talon
+    # don't forget to init the library first
+    # it loads machine learning classifiers
+    talon.init()
+
     from talon import signature
 
 
