@@ -33,10 +33,35 @@ On 11-Apr-2011, at 6:54 PM, Roman Tkachenko <romant@example.com> wrote:
     eq_("Test reply", quotations.extract_from_plain(msg_body))
 
 
+def test_pattern_on_date_somebody_wrote_german():
+    msg_body = """Test reply
+
+Am 25.11.2014 um 14:59 schrieb "Roman Tkachenko" <romant@example.com>:
+
+>
+> Test
+>
+> Roman"""
+
+    eq_("Test reply", quotations.extract_from_plain(msg_body))
+
+
 def test_pattern_on_date_somebody_wrote_date_with_slashes():
     msg_body = """Test reply
 
 On 04/19/2011 07:10 AM, Roman Tkachenko wrote:
+
+>
+> Test.
+>
+> Roman"""
+    eq_("Test reply", quotations.extract_from_plain(msg_body))
+
+
+def test_pattern_on_date_somebody_wrote_date_with_dots_german():
+    msg_body = """Test reply
+
+Am 25.11.2014 14:59 schrieb Roman Tkachenko:
 
 >
 > Test.
@@ -110,6 +135,22 @@ Test"""
     msg_body = """Test reply
 
  -----Original Message-----
+
+Test"""
+
+    eq_("Test reply", quotations.extract_from_plain(msg_body))
+
+    msg_body = """Test reply
+
+ -----Urspr=C3=BCngliche Nachricht-----
+
+Test"""
+
+    eq_("Test reply", quotations.extract_from_plain(msg_body))
+
+    msg_body = u"""Test reply
+
+ -----Ursprüngliche Nachricht-----
 
 Test"""
 
@@ -215,6 +256,19 @@ From: somebody@example.com
 Sent: March-19-11 5:42 PM
 To: Somebody
 Subject: The manager has commented on your Loop
+
+Blah-blah-blah
+"""
+    eq_("Allo! Follow up MIME!", quotations.extract_from_plain(msg_body))
+
+
+def test_pattern_from_block_german():
+    msg_body = """Allo! Follow up MIME!
+
+Von: somebody@example.com
+Gesendet: Dienstag‎, ‎25‎. ‎November‎ ‎2014 ‎14‎:‎59
+An: Somebody
+Betreff: The manager has commented on your Loop
 
 Blah-blah-blah
 """
