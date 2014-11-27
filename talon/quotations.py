@@ -69,7 +69,8 @@ RE_EMPTY_QUOTATION = re.compile(
 SPLITTER_PATTERNS = [
     # ------Original Message------ or ---- Reply Message ----
     re.compile("[\s]*[-]+[ ]*(Original|Reply) Message[ ]*[-]+", re.I),
-    re.compile(u"[\s]*[-]+[ ]*(Urspr(ü|=C3=BC)ngliche|Antwort) Nachricht[ ]*[-]+", re.I),
+    # same but in German, ------Ursprüngliche Nachricht------ or ---- Antwort Nachricht ----
+    re.compile(u"[\s]*[-]+[ ]*(Ursprüngliche|Antwort) Nachricht[ ]*[-]+", re.I),
     # <date> <person>
     re.compile("(\d+/\d+/\d+|\d+\.\d+\.\d+).*@", re.VERBOSE),
     RE_ON_DATE_SMB_WROTE,
