@@ -26,7 +26,7 @@ RE_ON_DATE_SMB_WROTE = re.compile(
     r'''
     (
         -*  # could include dashes
-        [ ]?(On|Am)[ ]  # at least has there must be a space after on
+        [ ]?(On|Am)[ ]  # at least there must be a space after on
         .*(wrote|sent|schrieb)[^:]*  # some text before and after wrote except :
         :  # but a : must be at the end
     )
