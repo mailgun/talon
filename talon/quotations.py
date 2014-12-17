@@ -29,7 +29,7 @@ RE_ON_DATE_SMB_WROTE = re.compile(
         [ ]?(On|Am)[ ].*
         (.*\n){0,2}  # splitter takes 2 lines at most between on and wrote
         .*(wrote|sent|schrieb).*
-        (.*\n){0,2}.*:  # splitter takes again 2 lines at most between wrote and :
+        (.*\n){0,2}[^:]*:  # splitter takes again 2 lines at most between wrote and :, and : must be at the end
     )
     ''', re.VERBOSE)
 
@@ -68,13 +68,13 @@ RE_EMPTY_QUOTATION = re.compile(
     ''', re.VERBOSE)
 
 SPLITTER_PATTERNS = [
-    RE_ON_DATE_SMB_WROTE,
     # ------Original Message------ or ---- Reply Message ----
     re.compile("[\s]*[-]+[ ]*(Original|Reply) Message[ ]*[-]+", re.I),
     # same but in German, ------Ursprüngliche Nachricht------ or ---- Antwort Nachricht ----
     re.compile(u"[\s]*[-]+[ ]*(Ursprüngliche|Antwort) Nachricht[ ]*[-]+", re.I),
     # <date> <person>
     re.compile("(\d+/\d+/\d+|\d+\.\d+\.\d+|\d+\-\d+\-\d+).*@", re.VERBOSE),
+    RE_ON_DATE_SMB_WROTE,
     re.compile('(_+\r?\n)?[\s]*(:?[*]?From|Date):[*]? .*'),
     re.compile('(_+\r?\n)?[\s]*(:?[*]?Van|Datum):[*]? .*'),
     re.compile('(_+\r?\n)?[\s]*(:?[*]?De|Date):[*]? .*'),
