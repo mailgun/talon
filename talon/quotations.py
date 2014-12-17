@@ -26,7 +26,7 @@ RE_ON_DATE_SMB_WROTE = re.compile(
     r'''
     (
         -*  # could include dashes
-        [ ]?(On|Am)[ ].*,  # date part ends with comma
+        [ ]?(On|Am)[ ].*,*  # date part can end with comma
         (.*\n){0,2}  # splitter takes 4 lines at most
         .*(wrote|sent|schrieb):
     )
