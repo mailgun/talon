@@ -72,7 +72,7 @@ SPLITTER_PATTERNS = [
     # same but in German, ------Ursprüngliche Nachricht------ or ---- Antwort Nachricht ----
     re.compile(u"[\s]*[-]+[ ]*(Ursprüngliche|Antwort) Nachricht[ ]*[-]+", re.I),
     # <date> <person>
-    re.compile("(\d+/\d+/\d+|\d+\.\d+\.\d+).*@", re.VERBOSE),
+    re.compile("(\d+/\d+/\d+|\d+\.\d+\.\d+|\d+\-\d+\-\d+).*@", re.VERBOSE),
     RE_ON_DATE_SMB_WROTE,
     re.compile('(_+\r?\n)?[\s]*(:?[*]?From|Date):[*]? .*'),
     re.compile('(_+\r?\n)?[\s]*(:?[*]?Van|Datum):[*]? .*'),
