@@ -27,8 +27,9 @@ RE_ON_DATE_SMB_WROTE = re.compile(
     (
         -*  # could include dashes
         [ ]?(On|Am)[ ].*
-        (.*\n){0,2}  # splitter takes 4 lines at most
-        .*(wrote|sent|schrieb).*:
+        (.*\n){0,2}  # splitter takes 2 lines at most between on and wrote
+        .*(wrote|sent|schrieb).*
+        (.*\n){0,2}.*:  # splitter takes again 2 lines at most between wrote and :
     )
     ''', re.VERBOSE)
 
