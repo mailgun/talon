@@ -26,12 +26,11 @@ RE_ON_DATE_SMB_WROTE = re.compile(
     r'''
     (
         -*  # could include dashes
-        [ ]?(On|Am)[ ].*
-        (.*\n){0,2}  # splitter takes 2 lines at most between on and wrote
-        .*(wrote|sent|schrieb).*
-        (.*\n){0,2}[^:]*:  # splitter takes again 2 lines at most between wrote and :, and : must be at the end
+        [ ]?(On|Am)[ ]  # at least has there must be a space after on
+        .*(wrote|sent|schrieb)[^:]*  # some text before and after wrote except :
+        :  # but a : must be at the end
     )
-    ''', re.VERBOSE)
+    ''', re.VERBOSE | re.DOTALL)  # DOTALL to include newlines
 
 RE_QUOTATION = re.compile(
     r'''
