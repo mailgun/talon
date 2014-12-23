@@ -66,16 +66,32 @@ RE_EMPTY_QUOTATION = re.compile(
     e*
     ''', re.VERBOSE)
 
+# ------Original Message------ or ---- Reply Message ----
+# With variations in other languages.
+RE_ORIGINAL_MESSAGE = re.compile(u'[\s]*[-]+[ ]*({})[ ]*[-]+'.format(
+    u'|'.join((
+        # English
+        'Original Message', 'Reply Message',
+        # German
+        u'Ursprüngliche Nachricht', 'Antwort Nachricht',
+        # Danish
+        'Oprindelig meddelelse',
+    ))), re.I)
+
+RE_FROM_COLON_OR_DATE_COLON = re.compile('(_+\r?\n)?[\s]*(:?[*]?{}):[*]? .*'.format(
+    '|'.join((
+        # "From" in different languages.
+        'From', 'Van', 'De', 'Von', 'Fra',
+        # "Date" in different languages.
+        'Date', 'Datum',
+    ))), re.I)
+
 SPLITTER_PATTERNS = [
-    # ------Original Message------ or ---- Reply Message ----
-    re.compile("[\s]*[-]+[ ]*(Original|Reply) Message[ ]*[-]+", re.I),
+    RE_ORIGINAL_MESSAGE,
     # <date> <person>
     re.compile("(\d+/\d+/\d+|\d+\.\d+\.\d+).*@", re.VERBOSE),
     RE_ON_DATE_SMB_WROTE,
-    re.compile('(_+\r?\n)?[\s]*(:?[*]?From|Date):[*]? .*'),
-    re.compile('(_+\r?\n)?[\s]*(:?[*]?Van|Datum):[*]? .*'),
-    re.compile('(_+\r?\n)?[\s]*(:?[*]?De|Date):[*]? .*'),
-    re.compile('(_+\r?\n)?[\s]*(:?[*]?Von|Datum):[*]? .*'),
+    RE_FROM_COLON_OR_DATE_COLON,
     re.compile('\S{3,10}, \d\d? \S{3,10} 20\d\d,? \d\d?:\d\d(:\d\d)?'
                '( \S+){3,6}@\S+:')
     ]
