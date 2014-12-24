@@ -26,11 +26,11 @@ RE_ON_DATE_SMB_WROTE = re.compile(
     r'''
     (
         -*  # could include dashes
-        [ ]?On[ ].*,  # date part ends with comma
-        (.*\n){0,2}  # splitter takes 4 lines at most
-        .*(wrote|sent):
+        [ ]?(On|Am)[ ]  # at least there must be a space after on
+        .*(wrote|sent|schrieb)[^:]*  # some text before and after wrote except :
+        :  # but a : must be at the end
     )
-    ''', re.VERBOSE)
+    ''', re.I | re.VERBOSE | re.DOTALL)  # DOTALL to include newlines
 
 RE_QUOTATION = re.compile(
     r'''
@@ -69,13 +69,16 @@ RE_EMPTY_QUOTATION = re.compile(
 SPLITTER_PATTERNS = [
     # ------Original Message------ or ---- Reply Message ----
     re.compile("[\s]*[-]+[ ]*(Original|Reply) Message[ ]*[-]+", re.I),
+    # same but in German, ------Ursprüngliche Nachricht------ or ---- Antwort Nachricht ----
+    re.compile("[\s]*[-]+[ ]*(Urspr=C3=BCngliche|Antwort) Nachricht[ ]*[-]+", re.I),
+    re.compile(u"[\s]*[-]+[ ]*Ursprüngliche Nachricht[ ]*[-]+", re.I | re.UNICODE),
     # <date> <person>
-    re.compile("(\d+/\d+/\d+|\d+\.\d+\.\d+).*@", re.VERBOSE),
+    re.compile("(\d+/\d+/\d+|\d+\.\d+\.\d+|\d+\-\d+\-\d+).*@", re.VERBOSE),
     RE_ON_DATE_SMB_WROTE,
-    re.compile('(_+\r?\n)?[\s]*(:?[*]?From|Date):[*]? .*'),
-    re.compile('(_+\r?\n)?[\s]*(:?[*]?Van|Datum):[*]? .*'),
-    re.compile('(_+\r?\n)?[\s]*(:?[*]?De|Date):[*]? .*'),
-    re.compile('(_+\r?\n)?[\s]*(:?[*]?Von|Datum):[*]? .*'),
+    re.compile('(_+\r?\n)?[\s]*(:?[*]?From|Date):[*]? .*', re.I),
+    re.compile('(_+\r?\n)?[\s]*(:?[*]?Van|Datum):[*]? .*', re.I),
+    re.compile('(_+\r?\n)?[\s]*(:?[*]?De|Date):[*]? .*', re.I),
+    re.compile('(_+\r?\n)?[\s]*(:?[*]?Von|Datum):[*]? .*', re.I),
     re.compile('\S{3,10}, \d\d? \S{3,10} 20\d\d,? \d\d?:\d\d(:\d\d)?'
                '( \S+){3,6}@\S+:')
     ]
