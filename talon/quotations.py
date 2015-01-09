@@ -78,7 +78,7 @@ SPLITTER_PATTERNS = [
     re.compile('(_+\r?\n)?[\s]*(:?[*]?From|Date):[*]? .*', re.I),
     re.compile('(_+\r?\n)?[\s]*(:?[*]?Van|Datum):[*]? .*', re.I),
     re.compile('(_+\r?\n)?[\s]*(:?[*]?De|Date):[*]? .*', re.I),
-    re.compile('(_+\r?\n)?[\s]*(:?[*]?Von|Datum):[*]? .*', re.I),
+    re.compile('(_+\r?\n)?[\s]*(:?[*]?Von|Gesendet|Datum):[*]? .*', re.I),
     re.compile('\S{3,10}, \d\d? \S{3,10} 20\d\d,? \d\d?:\d\d(:\d\d)?'
                '( \S+){3,6}@\S+:')
     ]
