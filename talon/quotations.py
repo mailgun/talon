@@ -23,14 +23,14 @@ log = logging.getLogger(__name__)
 RE_FWD = re.compile("^[-]+[ ]*Forwarded message[ ]*[-]+$", re.I | re.M)
 
 RE_ON_DATE_SMB_WROTE = re.compile(
-    r'''
+    ur'''
     (
         -*  # could include dashes
-        [ ]?(On|Am)[ ]  # at least there must be a space after on
-        .*(wrote|sent|schrieb)[^:]*  # some text before and after wrote except :
+        [ ]?(On|Am|El)[ ]  # at least there must be a space after on
+        .*(wrote|sent|schrieb|escribió)[^:]*  # some text before and after wrote except :
         :  # but a : must be at the end
     )
-    ''', re.I | re.VERBOSE | re.DOTALL)  # DOTALL to include newlines
+    ''', re.I | re.U | re.VERBOSE | re.DOTALL)  # DOTALL to include newlines
 
 RE_QUOTATION = re.compile(
     r'''
