@@ -7,7 +7,8 @@ The body and the message sender string are converted into unicode before
 applying features to them.
 """
 
-from talon.signature.constants import SIGNATURE_MAX_LINES
+from talon.signature.constants import (SIGNATURE_MAX_LINES,
+                                       TOO_LONG_SIGNATURE_LINE)
 from talon.signature.learning.helpers import *
 
 
@@ -20,7 +21,7 @@ def features(sender=''):
         # This one is not from paper.
         # Line is too long.
         # This one is less aggressive than `Line is too short`
-        lambda line: 1 if len(line) > 60 else 0,
+        lambda line: 1 if len(line) > TOO_LONG_SIGNATURE_LINE else 0,
         # Line contains email pattern.
         binary_regex_search(RE_EMAIL),
         # Line contains url.
