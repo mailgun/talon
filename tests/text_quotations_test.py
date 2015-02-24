@@ -255,10 +255,10 @@ def test_french_multiline_from_block():
     eq_('Lorem ipsum', quotations.extract_from_plain(
     u"""Lorem ipsum
 
-De: Brendan xxx [mailto:brendan.xxx@xxx.com]
-Envoyé: vendredi 23 janvier 2015 16:39
-À: Camille XXX
-Objet: Follow Up
+De : Brendan xxx [mailto:brendan.xxx@xxx.com]
+Envoyé : vendredi 23 janvier 2015 16:39
+À : Camille XXX
+Objet : Follow Up
 
 Blah-blah-blah
 """))

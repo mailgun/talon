@@ -97,12 +97,12 @@ RE_ORIGINAL_MESSAGE = re.compile(u'[\s]*[-]+[ ]*({})[ ]*[-]+'.format(
         'Oprindelig meddelelse',
     ))), re.I)
 
-RE_FROM_COLON_OR_DATE_COLON = re.compile('(_+\r?\n)?[\s]*(:?[*]?{}):[*]? .*'.format(
-    '|'.join((
+RE_FROM_COLON_OR_DATE_COLON = re.compile(u'(_+\r?\n)?[\s]*(:?[*]?{})[\s]?:[*]? .*'.format(
+    u'|'.join((
         # "From" in different languages.
         'From', 'Van', 'De', 'Von', 'Fra',
         # "Date" in different languages.
-        'Date', 'Datum',
+        'Date', 'Datum', u'Envoyé'
     ))), re.I)
 
 SPLITTER_PATTERNS = [
