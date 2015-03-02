@@ -23,14 +23,33 @@ log = logging.getLogger(__name__)
 RE_FWD = re.compile("^[-]+[ ]*Forwarded message[ ]*[-]+$", re.I | re.M)
 
 RE_ON_DATE_SMB_WROTE = re.compile(
-    r'''
-    (
-        -*  # could include dashes
-        [ ]?On[ ].*,  # date part ends with comma
-        (.*\n){0,2}  # splitter takes 4 lines at most
-        .*(wrote|sent):
-    )
-    ''', re.VERBOSE)
+    u'(-*[ ]?({0})[ ].*({1})(.*\n){{0,2}}.*({2}):)'.format(
+        # Beginning of the line
+        u'|'.join((
+            # English
+            'On',
+            # French
+            'Le',
+            # Polish
+            'W dniu'
+        )),
+        # Date and sender separator
+        u'|'.join((
+            # most languages separate date and sender address by comma
+            ',',
+            # polish date and sender address separator
+            u'użytkownik'
+        )),
+        # Ending of the line
+        u'|'.join((
+            # English
+            'wrote', 'sent',
+            # French
+            u'a écrit',
+            # Polish
+            u'napisał'
+        ))
+    ))
 
 RE_QUOTATION = re.compile(
     r'''
@@ -78,12 +97,12 @@ RE_ORIGINAL_MESSAGE = re.compile(u'[\s]*[-]+[ ]*({})[ ]*[-]+'.format(
         'Oprindelig meddelelse',
     ))), re.I)
 
-RE_FROM_COLON_OR_DATE_COLON = re.compile('(_+\r?\n)?[\s]*(:?[*]?{}):[*]? .*'.format(
-    '|'.join((
+RE_FROM_COLON_OR_DATE_COLON = re.compile(u'(_+\r?\n)?[\s]*(:?[*]?{})[\s]?:[*]? .*'.format(
+    u'|'.join((
         # "From" in different languages.
         'From', 'Van', 'De', 'Von', 'Fra',
         # "Date" in different languages.
-        'Date', 'Datum',
+        'Date', 'Datum', u'Envoyé'
     ))), re.I)
 
 SPLITTER_PATTERNS = [

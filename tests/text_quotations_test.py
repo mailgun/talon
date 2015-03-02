@@ -202,6 +202,24 @@ On 04/19/2011 07:10 AM, Roman Tkachenko wrote:
     eq_("Hi", quotations.extract_from_plain(msg_body))
 
 
+def test_short_quotation_with_newline():
+    msg_body = """Btw blah blah...
+
+On Tue, Jan 27, 2015 at 12:42 PM -0800, "Company" <christine.XXX@XXX.com> wrote:
+
+Hi Mark,
+Blah blah? 
+Thanks,Christine 
+
+On Jan 27, 2015, at 11:55 AM, Mark XXX <mark@XXX.com> wrote:
+
+Lorem ipsum?
+Mark
+
+Sent from Acompli"""
+    eq_("Btw blah blah...", quotations.extract_from_plain(msg_body))
+
+
 def test_pattern_date_email_with_unicode():
     msg_body = """Replying ok
 2011/4/7 Nathan \xd0\xb8ova <support@example.com>
@@ -231,6 +249,36 @@ An: Somebody
 Betreff: The manager has commented on your Loop
 
 Blah-blah-blah
+"""))
+
+def test_french_multiline_from_block():
+    eq_('Lorem ipsum', quotations.extract_from_plain(
+    u"""Lorem ipsum
+
+De : Brendan xxx [mailto:brendan.xxx@xxx.com]
+Envoyé : vendredi 23 janvier 2015 16:39
+À : Camille XXX
+Objet : Follow Up
+
+Blah-blah-blah
+"""))
+
+def test_french_from_block():
+    eq_('Lorem ipsum', quotations.extract_from_plain(
+    u"""Lorem ipsum
+
+Le 23 janv. 2015 à 22:03, Brendan xxx <brendan.xxx@xxx.com<mailto:brendan.xxx@xxx.com>> a écrit:
+
+Bonjour!"""))
+
+def test_polish_from_block():
+    eq_('Lorem ipsum', quotations.extract_from_plain(
+    u"""Lorem ipsum
+
+W dniu 28 stycznia 2015 01:53 użytkownik Zoe xxx <zoe.xxx@xxx.com>
+napisał:
+
+Blah!
 """))
 
 def test_danish_from_block():
