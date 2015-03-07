@@ -5,7 +5,6 @@ import os
 
 from PyML import SparseDataSet
 
-from talon.utils import to_unicode
 from talon.signature.learning import dataset as d
 
 from talon.signature.learning.featurespace import features
