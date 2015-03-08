@@ -52,29 +52,6 @@ def test_match_names():
         ok_(RE_NAME.match(name), "{} should be matched".format(name))
 
 
-def test_sender_with_name():
-    ok_lines = ['Sergey Obukhov <serobnic@example.com>',
-                '\tSergey  <serobnic@example.com>',
-                ('"Doe, John (TX)"'
-                 '<DowJ@example.com>@EXAMPLE'
-                 '<IMCEANOTES-+22Doe+2C+20John+20'
-                 '+28TX+29+22+20+3CDoeJ+40example+2Ecom+3E'
-                 '+40EXAMPLE@EXAMPLE.com>'),
-                ('Company Sleuth <csleuth@email.xxx.com>'
-                 '@EXAMPLE <XXX-Company+20Sleuth+20+3Ccsleuth'
-                 '+40email+2Exxx+2Ecom+3E+40EXAMPLE@EXAMPLE.com>'),
-                ('Doe III, John '
-                 '</O=EXAMPLE/OU=NA/CN=RECIPIENTS/CN=jDOE5>')]
-    for line in ok_lines:
-        ok_(RE_SENDER_WITH_NAME.match(line),
-            '{} should be matched'.format(line))
-
-    nok_lines = ['', '<serobnic@xxx.ru>', 'Sergey serobnic@xxx.ru']
-    for line in nok_lines:
-        assert_false(RE_SENDER_WITH_NAME.match(line),
-                     '{} should not be matched'.format(line))
-
-
 # Now test helpers functions
 def test_binary_regex_search():
     eq_(1, h.binary_regex_search(re.compile("12"))("12"))

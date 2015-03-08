@@ -40,14 +40,6 @@ RE_SIGNATURE_WORDS = rc(('(T|t)hank.*,|(B|b)est|(R|r)egards|'
 # Line contains a pattern like Vitor R. Carvalho or William W. Cohen.
 RE_NAME = rc('[A-Z][a-z]+\s\s?[A-Z][\.]?\s\s?[A-Z][a-z]+')
 
-# Pattern to match if e.g. 'Sender:' header field has sender names.
-SENDER_WITH_NAME_PATTERN = '([\s]*[\S]+,?)+[\s]*<.*>.*'
-RE_SENDER_WITH_NAME = rc(SENDER_WITH_NAME_PATTERN)
-
-# Reply line clue line endings, as in regular expression:
-# " wrote:$" or " writes:$"
-RE_CLUE_LINE_END = rc('.*(W|w)rotes?:$')
-
 INVALID_WORD_START = rc('\(|\+|[\d]')
 
 BAD_SENDER_NAMES = [
