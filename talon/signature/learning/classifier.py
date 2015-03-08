@@ -5,32 +5,27 @@ The classifier could be used to detect if a certain line of the message
 body belongs to the signature.
 """
 
-import os
-import sys
-
-from PyML import SparseDataSet, SVM
+from numpy import genfromtxt
+from sklearn.svm import LinearSVC
+from sklearn.externals import joblib
 
 
 def init():
-    '''Inits classifier with optimal options.'''
-    return SVM(C=10, optimization='liblinear')
+    """Inits classifier with optimal options."""
+    return LinearSVC(C=10.0)
 
 
 def train(classifier, train_data_filename, save_classifier_filename=None):
-    '''Trains and saves classifier so that it could be easily loaded later.'''
-    data = SparseDataSet(train_data_filename, labelsColumn=-1)
-    classifier.train(data)
+    """Trains and saves classifier so that it could be easily loaded later."""
+    file_data = genfromtxt(train_data_filename, delimiter=",")
+    train_data, labels = file_data[:, :-1], file_data[:, -1]
+    classifier.fit(train_data, labels)
+
     if save_classifier_filename:
-        classifier.save(save_classifier_filename)
+        joblib.dump(classifier, save_classifier_filename)
     return classifier
 
 
 def load(saved_classifier_filename, train_data_filename):
-    """Loads saved classifier.
-
-    Classifier should be loaded with the same data it was trained against
-    """
-    train_data = SparseDataSet(train_data_filename, labelsColumn=-1)
-    classifier = init()
-    classifier.load(saved_classifier_filename, train_data)
-    return classifier
+    """Loads saved classifier. """
+    return joblib.load(saved_classifier_filename)

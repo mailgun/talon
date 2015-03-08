@@ -3,7 +3,7 @@
 import logging
 
 import regex as re
-from PyML import SparseDataSet
+import numpy
 
 from talon.signature.learning.featurespace import features, build_pattern
 from talon.utils import get_delimiter
@@ -32,8 +32,8 @@ RE_REVERSE_SIGNATURE = re.compile(r'''
 
 def is_signature_line(line, sender, classifier):
     '''Checks if the line belongs to signature. Returns True or False.'''
-    data = SparseDataSet([build_pattern(line, features(sender))])
-    return classifier.decisionFunc(data, 0) > 0
+    data = numpy.array(build_pattern(line, features(sender)))
+    return classifier.predict(data) > 0
 
 
 def extract(body, sender):

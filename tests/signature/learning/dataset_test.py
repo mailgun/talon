@@ -3,7 +3,7 @@
 from ... import *
 import os
 
-from PyML import SparseDataSet
+from numpy import genfromtxt
 
 from talon.signature.learning import dataset as d
 
@@ -41,10 +41,13 @@ def test_build_extraction_dataset():
     d.build_extraction_dataset(os.path.join(EMAILS_DIR, 'P'),
                                os.path.join(TMP_DIR,
                                             'extraction.data'), 1)
-    test_data = SparseDataSet(os.path.join(TMP_DIR, 'extraction.data'),
-                              labelsColumn=-1)
+
+    filename = os.path.join(TMP_DIR, 'extraction.data')
+    file_data = genfromtxt(filename, delimiter=",")
+    test_data = file_data[:, :-1]
+
     # the result is a loadable signature extraction dataset
     # 32 comes from 3 emails in emails/P folder, 11 lines checked to be
     # a signature, one email has only 10 lines
-    eq_(test_data.size(), 32)
-    eq_(len(features('')), test_data.numFeatures)
+    eq_(test_data.shape[0], 32)
+    eq_(len(features('')), test_data.shape[1])
