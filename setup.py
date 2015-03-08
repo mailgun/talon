@@ -15,7 +15,7 @@ setup(name='talon',
       zip_safe=True,
       install_requires=[
           "lxml==2.3.3",
-          "regex==0.1.20110315",  # handling of .* changes from version 0 to 1
+          "regex>=1",
           "html2text",
           "nose==1.2.1",
           "mock",

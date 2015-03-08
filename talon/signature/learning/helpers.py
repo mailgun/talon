@@ -17,7 +17,7 @@ from talon.signature.constants import SIGNATURE_MAX_LINES
 rc = re.compile
 
 RE_EMAIL = rc('@')
-RE_RELAX_PHONE = rc('.*(\(? ?[\d]{2,3} ?\)?.{,3}){2,}')
+RE_RELAX_PHONE = rc('(\(? ?[\d]{2,3} ?\)?.{,3}?){2,}')
 RE_URL = rc(r'''https?://|www\.[\S]+\.[\S]''')
 
 # Taken from:
