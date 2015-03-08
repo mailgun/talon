@@ -12,8 +12,7 @@ from copy import deepcopy
 from lxml import html, etree
 import html2text
 
-from talon.constants import RE_DELIMITER
-from talon.utils import random_token, get_delimiter
+from talon.utils import get_delimiter
 from talon import html_quotations
 
 
@@ -151,7 +150,7 @@ def extract_from(msg_body, content_type='text/plain'):
             return extract_from_plain(msg_body)
         elif content_type == 'text/html':
             return extract_from_html(msg_body)
-    except Exception, e:
+    except Exception:
         log.exception('ERROR extracting message')
 
     return msg_body
@@ -344,7 +343,7 @@ def extract_from_html(msg_body):
     html_tree_copy = deepcopy(html_tree)
 
     number_of_checkpoints = html_quotations.add_checkpoint(html_tree, 0)
-    quotation_checkpoints = [False for i in xrange(number_of_checkpoints)]
+    quotation_checkpoints = [False] * number_of_checkpoints
     msg_with_checkpoints = html.tostring(html_tree)
 
     h = html2text.HTML2Text()

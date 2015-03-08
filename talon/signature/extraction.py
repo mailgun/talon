@@ -1,14 +1,10 @@
 # -*- coding: utf-8 -*-
 
-import os
 import logging
 
 import regex as re
 from PyML import SparseDataSet
 
-from talon.constants import RE_DELIMITER
-from talon.signature.constants import (SIGNATURE_MAX_LINES,
-                                       TOO_LONG_SIGNATURE_LINE)
 from talon.signature.learning.featurespace import features, build_pattern
 from talon.utils import get_delimiter
 from talon.signature.bruteforce import get_signature_candidate
@@ -61,7 +57,7 @@ def extract(body, sender):
                 text = delimiter.join(text)
                 if text.strip():
                     return (text, delimiter.join(signature))
-    except Exception, e:
+    except Exception:
         log.exception('ERROR when extracting signature with classifiers')
 
     return (body, None)
