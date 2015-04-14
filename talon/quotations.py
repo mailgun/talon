@@ -31,7 +31,9 @@ RE_ON_DATE_SMB_WROTE = re.compile(
             # French
             'Le',
             # Polish
-            'W dniu'
+            'W dniu',
+            # Dutch
+            'Op'
         )),
         # Date and sender separator
         u'|'.join((
@@ -47,9 +49,26 @@ RE_ON_DATE_SMB_WROTE = re.compile(
             # French
             u'a écrit',
             # Polish
-            u'napisał'
+            u'napisał',
+            # Dutch
+            'schreef','verzond'
         ))
     ))
+# Special case for languages where text is translated like this: 'on {date} wrote {somebody}:'
+RE_ON_DATE_WROTE_SMB = re.compile(
+    u'(-*[ ]?({0}).*(.*\n){{0,2}}.*({1}).*:)'.format(
+        # Beginning of the line
+        u'|'.join((
+        	# Dutch
+            'Op'
+        )),
+        # Ending of the line
+        u'|'.join((
+            # Dutch
+            'schreef'
+        ))
+    )
+    )
 
 RE_QUOTATION = re.compile(
     r'''
@@ -110,6 +129,7 @@ SPLITTER_PATTERNS = [
     # <date> <person>
     re.compile("(\d+/\d+/\d+|\d+\.\d+\.\d+).*@", re.VERBOSE),
     RE_ON_DATE_SMB_WROTE,
+    RE_ON_DATE_WROTE_SMB,
     RE_FROM_COLON_OR_DATE_COLON,
     re.compile('\S{3,10}, \d\d? \S{3,10} 20\d\d,? \d\d?:\d\d(:\d\d)?'
                '( \S+){3,6}@\S+:')
