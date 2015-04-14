@@ -51,7 +51,7 @@ RE_ON_DATE_SMB_WROTE = re.compile(
             # Polish
             u'napisał',
             # Dutch
-            'schreef','verzond'
+            'schreef','verzond','geschreven'
         ))
     ))
 # Special case for languages where text is translated like this: 'on {date} wrote {somebody}:'
