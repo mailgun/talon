@@ -298,7 +298,7 @@ def extract_from_plain(msg_body):
 
     # don't process too long messages
     if len(lines) > MAX_LINES_COUNT:
-        return stripped_text
+        lines = stripped_text.split('\n', MAX_LINES_COUNT)
 
     markers = mark_message_lines(lines)
     lines = process_marked_lines(lines, markers)
