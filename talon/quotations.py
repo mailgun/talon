@@ -56,7 +56,7 @@ RE_ON_DATE_SMB_WROTE = re.compile(
     ))
 # Special case for languages where text is translated like this: 'on {date} wrote {somebody}:'
 RE_ON_DATE_WROTE_SMB = re.compile(
-    u'(-*[ ]?({0})[ ].*(.*\n){{0,2}}.*({1})[ ].*:)'.format(
+    u'(-*[ ]?({0})[ ].*(.*\n){{0,2}}.*({1})[ ]*.*:)'.format(
         # Beginning of the line
         	'Op',
         # Ending of the line
