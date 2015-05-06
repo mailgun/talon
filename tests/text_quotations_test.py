@@ -618,7 +618,7 @@ def test_standard_replies():
         with open(filename) as f:
             message = email.message_from_file(f)
             body = email.iterators.typed_subpart_iterator(message, subtype='plain').next()
-            text = ''.join(email.iterators.body_line_iterator(body))
+            text = ''.join(email.iterators.body_line_iterator(body, True))
 
             stripped_text = quotations.extract_from_plain(text)
             reply_text_fn = filename[:-4] + '_reply_text'

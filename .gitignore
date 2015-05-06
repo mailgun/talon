@@ -49,3 +49,6 @@ tramp
 
 # Trial temp
 _trial_temp
+
+# OSX
+.DS_Store

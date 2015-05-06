@@ -18,8 +18,10 @@ setup(name='talon',
           "regex>=1",
           "html2text",
           "nose>=1.2.1",
+          "numpy",
           "mock",
           "coverage",
-          "scikit-learn",
+          "scipy",
+          "scikit-learn==0.16.1", # pickled versions of classifier, else rebuild
           ]
       )
