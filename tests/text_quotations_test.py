@@ -624,7 +624,7 @@ def test_standard_replies():
             reply_text_fn = filename[:-4] + '_reply_text'
             if os.path.isfile(reply_text_fn):
                 with open(reply_text_fn) as f:
-                    reply_text = f.read()
+                    reply_text = f.read().strip()
             else:
                 reply_text = 'Hello'
             yield eq_, reply_text, stripped_text, \
