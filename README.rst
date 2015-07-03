@@ -89,7 +89,7 @@ the power of machine learning algorithms:
     # text == "Thanks Sasha, I can't go any higher and is why I limited it to the\nhomepage."
     # signature == "John Doe\nvia mobile"
 
-For machine learning talon currently uses `PyML`_ library to build SVM
+For machine learning talon currently uses the `scikit-learn`_ library to build SVM
 classifiers. The core of machine learning algorithm lays in
 ``talon.signature.learning package``. It defines a set of features to
 apply to a message (``featurespace.py``), how data sets are built
@@ -102,7 +102,21 @@ of features to the dataset we provide files ``classifier`` and
 used to load trained classifier. Those files should be regenerated every
 time the feature/data set is changed.
 
-.. _PyML: http://pyml.sourceforge.net/
+To regenerate the model files, you can run
+
+.. code:: sh
+
+    python train.py
+
+or
+
+.. code:: python
+    
+    from talon.signature import EXTRACTOR_FILENAME, EXTRACTOR_DATA
+    from talon.signature.learning.classifier import train, init
+    train(init(), EXTRACTOR_DATA, EXTRACTOR_FILENAME)
+
+.. _scikit-learn: http://scikit-learn.org
 .. _ENRON: https://www.cs.cmu.edu/~enron/
 
 Research
