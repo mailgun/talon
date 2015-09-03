@@ -2,10 +2,6 @@
 
 from .. import *
 
-import os
-
-from flanker import mime
-
 from talon.signature import bruteforce
 
 

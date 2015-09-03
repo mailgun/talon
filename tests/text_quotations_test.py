@@ -5,8 +5,7 @@ from . fixtures import *
 
 import os
 
-from flanker import mime
-
+import email.iterators
 from talon import quotations
 
 
@@ -614,22 +613,21 @@ def test_preprocess_postprocess_2_links():
 def test_standard_replies():
     for filename in os.listdir(STANDARD_REPLIES):
         filename = os.path.join(STANDARD_REPLIES, filename)
-        if os.path.isdir(filename):
+        if not filename.endswith('.eml') or os.path.isdir(filename):
             continue
         with open(filename) as f:
-            msg = f.read()
-            m = mime.from_string(msg)
-            for part in m.walk():
-                if part.content_type == 'text/plain':
-                    text = part.body
-                    stripped_text = quotations.extract_from_plain(text)
-                    reply_text_fn = filename[:-4] + '_reply_text'
-                    if os.path.isfile(reply_text_fn):
-                        with open(reply_text_fn) as f:
-                            reply_text = f.read()
-                    else:
-                        reply_text = 'Hello'
-                    eq_(reply_text, stripped_text,
-                        "'%(reply)s' != %(stripped)s for %(fn)s" %
-                        {'reply': reply_text, 'stripped': stripped_text,
-                         'fn': filename})
+            message = email.message_from_file(f)
+            body = email.iterators.typed_subpart_iterator(message, subtype='plain').next()
+            text = ''.join(email.iterators.body_line_iterator(body, True))
+
+            stripped_text = quotations.extract_from_plain(text)
+            reply_text_fn = filename[:-4] + '_reply_text'
+            if os.path.isfile(reply_text_fn):
+                with open(reply_text_fn) as f:
+                    reply_text = f.read().strip()
+            else:
+                reply_text = 'Hello'
+            yield eq_, reply_text, stripped_text, \
+                "'%(reply)s' != %(stripped)s for %(fn)s" % \
+                {'reply': reply_text, 'stripped': stripped_text,
+                 'fn': filename}

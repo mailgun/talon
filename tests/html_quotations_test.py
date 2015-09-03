@@ -4,7 +4,6 @@ from . import *
 from . fixtures import *
 
 import regex as re
-from flanker import mime
 
 from talon import quotations
 
@@ -224,10 +223,7 @@ def test_reply_shares_div_with_from_block():
 
 
 def test_reply_quotations_share_block():
-    msg = mime.from_string(REPLY_QUOTATIONS_SHARE_BLOCK)
-    html_part = list(msg.walk())[1]
-    assert html_part.content_type == 'text/html'
-    stripped_html = quotations.extract_from_html(html_part.body)
+    stripped_html = quotations.extract_from_plain(REPLY_QUOTATIONS_SHARE_BLOCK)
     ok_(stripped_html)
     ok_('From' not in stripped_html)
 

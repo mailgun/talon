@@ -4,8 +4,6 @@ from .. import *
 
 import os
 
-from PyML import SparseDataSet
-
 from talon.signature.learning import dataset
 from talon import signature
 from talon.signature import extraction as e

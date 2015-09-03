@@ -3,8 +3,6 @@
 from . import *
 from . fixtures import *
 
-from flanker import mime
-
 from talon import quotations
 
 
