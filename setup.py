@@ -14,7 +14,7 @@ setup(name='talon',
       include_package_data=True,
       zip_safe=True,
       install_requires=[
-          "lxml==2.3.3",
+          "lxml>=2.3.3",
           "regex>=1",
           "html2text",
           "numpy",
