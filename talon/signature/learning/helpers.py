@@ -134,7 +134,7 @@ def extract_names(sender):
     >>> extract_names('')
     []
     """
-    sender = to_unicode(sender)
+    sender = to_unicode(sender, precise=True)
     # Remove non-alphabetical characters
     sender = "".join([char if char.isalpha() else ' ' for char in sender])
     # Remove too short words and words from "black" list i.e.
@@ -161,7 +161,7 @@ def categories_percent(s, categories):
     50.0
     '''
     count = 0
-    s = to_unicode(s)
+    s = to_unicode(s, precise=True)
     for c in s:
         if unicodedata.category(c) in categories:
             count += 1
@@ -181,7 +181,7 @@ def punctuation_percent(s):
 
 def capitalized_words_percent(s):
     '''Returns capitalized words percent.'''
-    s = to_unicode(s)
+    s = to_unicode(s, precise=True)
     words = re.split('\s', s)
     words = [w for w in words if w.strip()]
     capitalized_words_counter = 0

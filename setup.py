@@ -20,6 +20,8 @@ setup(name='talon',
           "numpy",
           "scipy",
           "scikit-learn==0.16.1", # pickled versions of classifier, else rebuild
+          'chardet>=1.0.1',
+          'cchardet>=0.3.5',
           ],
       tests_require=[
           "mock",
