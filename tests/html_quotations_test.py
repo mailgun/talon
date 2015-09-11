@@ -49,6 +49,24 @@ def test_quotation_splitter_outside_blockquote():
         RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body)))
 
 
+def test_regular_blockquote():
+    msg_body = """Reply
+<blockquote>Regular</blockquote>
+
+<div>
+  On 11-Apr-2011, at 6:54 PM, Bob &lt;bob@example.com&gt; wrote:
+</div>
+
+<blockquote>
+  <div>
+    <blockquote>Nested</blockquote>
+  </div>
+</blockquote>
+"""
+    eq_("<html><body><p>Reply</p><blockquote>Regular</blockquote><div></div></body></html>",
+        RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body)))
+
+
 def test_no_blockquote():
     msg_body = """
 <html>

@@ -138,9 +138,10 @@ def cut_by_id(html_message):
 
 
 def cut_blockquote(html_message):
-    ''' Cuts blockquote with wrapping elements. '''
-    quote = html_message.find('.//blockquote')
-    if quote is not None:
+    ''' Cuts the last non-nested blockquote with wrapping elements. '''
+    quote = html_message.xpath('(.//blockquote)[not(ancestor::blockquote)][last()]')
+    if quote:
+        quote = quote[0]
         quote.getparent().remove(quote)
         return True
 
