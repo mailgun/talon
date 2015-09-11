@@ -32,7 +32,9 @@ RE_ON_DATE_SMB_WROTE = re.compile(
             # Polish
             'W dniu',
             # Dutch
-            'Op'
+            'Op',
+            # German
+            'Am'
         )),
         # Date and sender separator
         u'|'.join((
@@ -50,18 +52,26 @@ RE_ON_DATE_SMB_WROTE = re.compile(
             # Polish
             u'napisał',
             # Dutch
-            'schreef','verzond','geschreven'
+            'schreef','verzond','geschreven',
+            # German
+            'schrieb'
         ))
     ))
 # Special case for languages where text is translated like this: 'on {date} wrote {somebody}:'
 RE_ON_DATE_WROTE_SMB = re.compile(
-    u'(-*[ ]?({0})[ ].*(.*\n){{0,2}}.*({1})[ ].*:)'.format(
+    u'(-*[ ]?({0})[ ].*(.*\n){{0,2}}.*({1})[ ]*.*:)'.format(
         # Beginning of the line
+        u'|'.join((
         	'Op',
+        	#German
+        	'Am'
+        )),
         # Ending of the line
         u'|'.join((
             # Dutch
-            'schreef','verzond','geschreven'
+            'schreef','verzond','geschreven',
+            # German
+            'schrieb'
         ))
     )
     )
@@ -297,7 +307,8 @@ def extract_from_plain(msg_body):
 
     # don't process too long messages
     if len(lines) > MAX_LINES_COUNT:
-        return stripped_text
+		lines = stripped_text.split('\n', MAX_LINES_COUNT)
+
 
     markers = mark_message_lines(lines)
     lines = process_marked_lines(lines, markers)
