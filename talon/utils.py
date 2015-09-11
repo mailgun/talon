@@ -2,11 +2,10 @@
 
 import logging
 from random import shuffle
+import chardet
+import cchardet
 
 from talon.constants import RE_DELIMITER
-
-
-log = logging.getLogger(__name__)
 
 
 def safe_format(format_string, *args, **kwargs):
@@ -42,10 +41,42 @@ def to_unicode(str_or_unicode, precise=False):
         u'привет'
     If `precise` flag is True, tries to guess the correct encoding first.
     """
-    encoding = detect_encoding(str_or_unicode) if precise else 'utf-8'
+    encoding = quick_detect_encoding(str_or_unicode) if precise else 'utf-8'
     if isinstance(str_or_unicode, str):
         return unicode(str_or_unicode, encoding, 'replace')
     return str_or_unicode
+
+
+def detect_encoding(string):
+    """
+    Tries to detect the encoding of the passed string.
+
+    Defaults to UTF-8.
+    """
+    try:
+        detected = chardet.detect(string)
+        if detected:
+            return detected.get('encoding') or 'utf-8'
+    except Exception, e:
+        print 11111111111, e
+        pass
+    return 'utf-8'
+
+
+def quick_detect_encoding(string):
+    """
+    Tries to detect the encoding of the passed string.
+
+    Uses cchardet. Fallbacks to detect_encoding.
+    """
+    try:
+        detected = cchardet.detect(string)
+        if detected:
+            return detected.get('encoding') or detect_encoding(string)
+    except Exception, e:
+        print 222222222222, e
+        pass
+    return detect_encoding(string)
 
 
 def to_utf8(str_or_unicode):
