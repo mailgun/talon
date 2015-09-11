@@ -12,11 +12,11 @@ from talon import quotations
 @patch.object(quotations, 'MAX_LINES_COUNT', 1)
 def test_too_many_lines():
     msg_body = """Test reply
-
+Hi
 -----Original Message-----
 
 Test"""
-    eq_(msg_body, quotations.extract_from_plain(msg_body))
+    eq_("Test reply", quotations.extract_from_plain(msg_body))
 
 
 def test_pattern_on_date_somebody_wrote():
