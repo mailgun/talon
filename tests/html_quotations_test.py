@@ -264,7 +264,7 @@ RE_REPLY = re.compile(r"^Hi\. I am fine\.\s*\n\s*Thanks,\s*\n\s*Alex\s*$")
 def extract_reply_and_check(filename):
     f = open(filename)
 
-    msg_body = f.read().decode("utf-8")
+    msg_body = f.read()
     reply = quotations.extract_from_html(msg_body)
 
     h = html2text.HTML2Text()
