@@ -16,7 +16,7 @@ from talon.signature.constants import SIGNATURE_MAX_LINES
 
 rc = re.compile
 
-RE_EMAIL = rc('@')
+RE_EMAIL = rc('\S@\S')
 RE_RELAX_PHONE = rc('(\(? ?[\d]{2,3} ?\)?.{,3}?){2,}')
 RE_URL = rc(r'''https?://|www\.[\S]+\.[\S]''')
 
@@ -120,7 +120,7 @@ def contains_sender_names(sender):
     names = names or sender
     if names != '':
         return binary_regex_search(re.compile(names))
-    return lambda s: False
+    return lambda s: 0
 
 
 def extract_names(sender):
