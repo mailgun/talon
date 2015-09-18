@@ -6,7 +6,9 @@ from talon.signature.learning import featurespace as fs
 
 
 def test_apply_features():
-    s = '''John Doe
+    s = '''This is John Doe
+
+Tuesday @3pm suits. I'll chat to you then.
 
 VP Research and Development, Xxxx Xxxx Xxxxx
 
@@ -19,11 +21,12 @@ john@example.com'''
     # note that we don't consider the first line because signatures don't
     # usually take all the text, empty lines are not considered
     eq_(result, [[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                  [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
                  [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
 
-    with patch.object(fs, 'SIGNATURE_MAX_LINES', 4):
+    with patch.object(fs, 'SIGNATURE_MAX_LINES', 5):
         features = fs.features(sender)
         new_result = fs.apply_features(s, features)
         # result remains the same because we don't consider empty lines
