@@ -398,7 +398,6 @@ def extract_from_html(s):
                 quotation_checkpoints[checkpoint] = True
     else:
         if cut_quotations:
-            print 1111111111, replaced
             return _restore_CRLF(html.tostring(html_tree_copy), replaced)
         else:
             return s
