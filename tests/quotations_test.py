@@ -29,3 +29,15 @@ def test_crash_inside_extract_from():
 
 def test_empty_body():
     eq_('', quotations.extract_from_plain(''))
+
+
+def test__CRLF_to_LF():
+    eq_(('\n\r', True), quotations._CRLF_to_LF('\r\n\r'))
+    eq_(('\n\r', False), quotations._CRLF_to_LF('\n\r'))
+
+
+def test__restore_CRLF():
+    eq_('\n', quotations._restore_CRLF('\n', replaced=False))
+    eq_('\r\n', quotations._restore_CRLF('\n', replaced=True))    
+    # default
+    eq_('\r\n', quotations._restore_CRLF('\n'))
