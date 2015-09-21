@@ -28,8 +28,8 @@ def test_quotation_splitter_inside_blockquote():
 
 </blockquote>"""
 
-    eq_("<html><body><p>Reply</p></body></html>",
-        RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body)))
+    eq_("<html><body><p>Reply\n</p></body></html>",
+        quotations.extract_from_html(msg_body))
 
 
 def test_quotation_splitter_outside_blockquote():
@@ -310,3 +310,25 @@ def test_windows_mail_reply():
 
 def test_yandex_ru_reply():
     extract_reply_and_check("tests/fixtures/html_replies/yandex_ru.html")
+
+
+def test_CRLF():
+    """CR is not converted to '&#13;'
+    """
+    eq_('<html>\r\n</html>', quotations.extract_from_html('<html>\r\n</html>'))
+
+    msg_body = """Reply
+<blockquote>
+
+  <div>
+    On 11-Apr-2011, at 6:54 PM, Bob &lt;bob@example.com&gt; wrote:
+  </div>
+
+  <div>
+    Test
+  </div>
+
+</blockquote>"""
+    msg_body = msg_body.replace('\n', '\r\n')
+    eq_("<html><body><p>Reply\r\n</p></body></html>",
+        quotations.extract_from_html(msg_body))
