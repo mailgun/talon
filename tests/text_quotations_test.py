@@ -311,6 +311,33 @@ Emne: The manager has commented on your Loop
 Blah-blah-blah
 """))
 
+def test_swedish_from_block():
+    eq_('Allo! Follow up MIME!', quotations.extract_from_plain(
+    u"""Allo! Follow up MIME!
+Från: Anno Sportel [mailto:anno.spoel@hsbcssad.com]
+Skickat: den 26 augusti 2015 14:45
+Till: Isacson Leiff
+Ämne: RE: Week 36
+
+Blah-blah-blah
+"""))
+
+def test_swedish_from_line():
+    eq_('Lorem', quotations.extract_from_plain(
+    """Lorem
+Den 14 september, 2015 02:23:18, Valentino Rudy (valentino@rudy.be) skrev:
+
+Veniam laborum mlkshk kale chips authentic. Normcore mumblecore laboris, fanny pack readymade eu blog chia pop-up freegan enim master cleanse.
+"""))
+
+def test_norwegian_from_line():
+    eq_('Lorem', quotations.extract_from_plain(
+    u"""Lorem
+På 14 september 2015 på 02:23:18, Valentino Rudy (valentino@rudy.be) skrev:
+
+Veniam laborum mlkshk kale chips authentic. Normcore mumblecore laboris, fanny pack readymade eu blog chia pop-up freegan enim master cleanse.
+"""))
+
 def test_dutch_from_block():
     eq_('Gluten-free culpa lo-fi et nesciunt nostrud.', quotations.extract_from_plain(
     """Gluten-free culpa lo-fi et nesciunt nostrud. 
