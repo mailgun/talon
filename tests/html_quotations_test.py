@@ -28,8 +28,8 @@ def test_quotation_splitter_inside_blockquote():
 
 </blockquote>"""
 
-    eq_("<html><body><p>Reply\n</p></body></html>",
-        quotations.extract_from_html(msg_body))
+    eq_("<html><body><p>Reply</p></body></html>",
+        RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body)))
 
 
 def test_quotation_splitter_outside_blockquote():
@@ -45,7 +45,7 @@ def test_quotation_splitter_outside_blockquote():
   </div>
 </blockquote>
 """
-    eq_("<html><body><p>Reply</p><div></div></body></html>",
+    eq_("<html><body><p>Reply</p></body></html>",
         RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body)))
 
 
@@ -63,7 +63,7 @@ def test_regular_blockquote():
   </div>
 </blockquote>
 """
-    eq_("<html><body><p>Reply</p><blockquote>Regular</blockquote><div></div></body></html>",
+    eq_("<html><body><p>Reply</p><blockquote>Regular</blockquote></body></html>",
         RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body)))
 
 
@@ -133,6 +133,18 @@ def test_gmail_quote():
         RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body)))
 
 
+def test_gmail_quote_blockquote():
+    msg_body = """Message
+<blockquote class="gmail_quote">
+  <div class="gmail_default">
+    My name is William Shakespeare.
+    <br/>
+  </div>
+</blockquote>"""
+    eq_(RE_WHITESPACE.sub('', msg_body),
+        RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body)))
+
+
 def test_unicode_in_reply():
     msg_body = u"""Reply \xa0 \xa0 Text<br>
 
@@ -140,7 +152,7 @@ def test_unicode_in_reply():
   <br>
 </div>
 
-<blockquote class="gmail_quote">
+<blockquote>
   Quote
 </blockquote>""".encode("utf-8")
 
@@ -315,7 +327,10 @@ def test_yandex_ru_reply():
 def test_CRLF():
     """CR is not converted to '&#13;'
     """
-    eq_('<html>\r\n</html>', quotations.extract_from_html('<html>\r\n</html>'))
+    symbol = '&#13;'
+    extracted = quotations.extract_from_html('<html>\r\n</html>')
+    assert_false(symbol in extracted)
+    eq_('<html></html>', RE_WHITESPACE.sub('', extracted))
 
     msg_body = """Reply
 <blockquote>
@@ -330,5 +345,7 @@ def test_CRLF():
 
 </blockquote>"""
     msg_body = msg_body.replace('\n', '\r\n')
-    eq_("<html><body><p>Reply\r\n</p></body></html>",
-        quotations.extract_from_html(msg_body))
+    extracted = quotations.extract_from_html(msg_body)
+    assert_false(symbol in extracted)    
+    eq_("<html><body><p>Reply</p></body></html>",
+        RE_WHITESPACE.sub('', extracted))

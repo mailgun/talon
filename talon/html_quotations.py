@@ -76,7 +76,7 @@ def delete_quotation_tags(html_note, counter, quotation_checkpoints):
 
 def cut_gmail_quote(html_message):
     ''' Cuts the outermost block element with class gmail_quote. '''
-    gmail_quote = html_message.cssselect('.gmail_quote')
+    gmail_quote = html_message.cssselect('div.gmail_quote')
     if gmail_quote:
         gmail_quote[0].getparent().remove(gmail_quote[0])
         return True
@@ -138,8 +138,12 @@ def cut_by_id(html_message):
 
 
 def cut_blockquote(html_message):
-    ''' Cuts the last non-nested blockquote with wrapping elements. '''
-    quote = html_message.xpath('(.//blockquote)[not(ancestor::blockquote)][last()]')
+    ''' Cuts the last non-nested blockquote with wrapping elements.'''
+    quote = html_message.xpath(
+        '(.//blockquote)'
+        '[not(@class="gmail_quote") and not(ancestor::blockquote)]'
+        '[last()]')
+
     if quote:
         quote = quote[0]
         quote.getparent().remove(quote)
