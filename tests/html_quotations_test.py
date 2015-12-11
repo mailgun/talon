@@ -300,6 +300,10 @@ def test_ms_outlook_2007_reply():
     extract_reply_and_check("tests/fixtures/html_replies/ms_outlook_2007.html")
 
 
+def test_ms_outlook_2010_reply():
+    extract_reply_and_check("tests/fixtures/html_replies/ms_outlook_2010.html")
+
+
 def test_thunderbird_reply():
     extract_reply_and_check("tests/fixtures/html_replies/thunderbird.html")
 
