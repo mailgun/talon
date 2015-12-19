@@ -5,9 +5,7 @@ from . fixtures import *
 
 import regex as re
 
-from talon import quotations
-
-import html2text
+from talon import quotations, utils as u
 
 
 RE_WHITESPACE = re.compile("\s")
@@ -270,26 +268,15 @@ def test_reply_separated_by_hr():
             '', quotations.extract_from_html(REPLY_SEPARATED_BY_HR)))
 
 
-RE_REPLY = re.compile(r"^Hi\. I am fine\.\s*\n\s*Thanks,\s*\n\s*Alex\s*$")
-
-
 def extract_reply_and_check(filename):
     f = open(filename)
 
     msg_body = f.read()
     reply = quotations.extract_from_html(msg_body)
+    plain_reply = u.html_to_text(reply)
 
-    h = html2text.HTML2Text()
-    h.body_width = 0
-    plain_reply = h.handle(reply)
-
-    #remove &nbsp; spaces
-    plain_reply = plain_reply.replace(u'\xa0', u' ')
-
-    if RE_REPLY.match(plain_reply):
-        eq_(1, 1)
-    else:
-        eq_("Hi. I am fine.\n\nThanks,\nAlex", plain_reply)
+    eq_(RE_WHITESPACE.sub('', "Hi. I am fine.\n\nThanks,\nAlex"),
+        RE_WHITESPACE.sub('', plain_reply))
 
 
 def test_gmail_reply():

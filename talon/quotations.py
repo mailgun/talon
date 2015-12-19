@@ -10,11 +10,8 @@ import logging
 from copy import deepcopy
 
 from lxml import html, etree
-import lxml
-from lxml.cssselect import CSSSelector
-import html2text
 
-from talon.utils import get_delimiter
+from talon.utils import get_delimiter, html_to_text
 from talon import html_quotations
 
 
@@ -426,56 +423,3 @@ def register_xpath_extensions():
     ns.prefix = 'mg'
     ns['text_content'] = text_content
     ns['tail'] = tail
-
-
-def html_to_text(string):
-    """
-    Dead-simple HTML-to-text converter:
-        >>> html_to_text("one<br>two<br>three")
-        >>> u"one\ntwo\nthree"
-
-    NOTES:
-        1. the string is expected to contain UTF-8 encoded HTML!
-        2. returns utf-8 encoded str (not unicode)
-    """
-    retval = None
-    try:
-        # append 'utf-8' encoding declaration to HTML string if the first 4KB of the message does not
-        # contain the charset spec:
-        if string.lower().find('html; charset=', 0, 4096) == -1:
-            string = '''<meta http-equiv="Content-Type" content="text/html; charset=utf-8">''' + string
-        tree = lxml.html.fromstring(string.replace("\n", ""))
-
-        for style in CSSSelector('style')(tree):
-            style.getparent().remove(style)
-
-        for c in tree.xpath('//comment()'):
-            c.getparent().remove(c)
-
-        blocktags  = ['div', 'p', 'ul', 'li', 'h1', 'h2', 'h3']
-        hardbreaks = ['br', 'hr', 'tr']
-        text   = ""
-        for el in tree.iter():
-            el_text = (el.text or '') + (el.tail or '')
-            if len(el_text) > 1:
-                if el.tag in blocktags:
-                    text += "\n"
-                if el.tag == 'li':
-                    text += "  * "
-                text += el_text.strip() + " "
-
-                # add href to the output
-                # href = el.attrib.get('href', None)
-                # if href:
-                #     text += "(%s) " % href
-
-            if el.tag in hardbreaks and len(text) > 0 and text[-1] != "\n":
-                text += "\n"
-
-        # remove excessive newlines that often happen due to tons of divs:
-        retval = re.sub("\n{2,10}", "\n\n", text).strip()
-        if isinstance(retval, unicode):
-            retval = retval.encode('utf-8')
-    except Exception as e:
-        pass
-    return retval
