@@ -10,9 +10,8 @@ import logging
 from copy import deepcopy
 
 from lxml import html, etree
-import html2text
 
-from talon.utils import get_delimiter
+from talon.utils import get_delimiter, html_to_text
 from talon import html_quotations
 
 
@@ -108,7 +107,7 @@ RE_EMPTY_QUOTATION = re.compile(
     (
         # quotation border: splitter line or a number of quotation marker lines
         (?:
-            s
+            (?:se*)+
             |
             (?:me*){2,}
         )
@@ -139,7 +138,7 @@ RE_FROM_COLON_OR_DATE_COLON = re.compile(u'(_+\r?\n)?[\s]*(:?[*]?{})[\s]?:[*]? .
 SPLITTER_PATTERNS = [
     RE_ORIGINAL_MESSAGE,
     # <date> <person>
-    re.compile("(\d+/\d+/\d+|\d+\.\d+\.\d+).*@", re.VERBOSE),
+    re.compile("(\d+/\d+/\d+|\d+\.\d+\.\d+).*@", re.S),
     RE_ON_DATE_SMB_WROTE,
     RE_ON_DATE_WROTE_SMB,
     RE_FROM_COLON_OR_DATE_COLON,
@@ -321,7 +320,7 @@ def extract_from_plain(msg_body):
     return msg_body
 
 
-def extract_from_html(s):
+def extract_from_html(msg_body):
     """
     Extract not quoted message from provided html message body
     using tags and plain text algorithm.
@@ -337,49 +336,32 @@ def extract_from_html(s):
     then checking deleted checkpoints,
     then deleting necessary tags.
     """
+    if msg_body.strip() == '':
+        return msg_body
 
-    if s.strip() == '':
-        return s
-
-    # replace CRLF with LF temporaraly otherwise CR will be converted to '&#13;'
-    # when doing deepcopy on html tree
-    msg_body, replaced = _CRLF_to_LF(s)
-
+    msg_body = msg_body.replace('\r\n', '').replace('\n', '')
     html_tree = html.document_fromstring(
         msg_body,
         parser=html.HTMLParser(encoding="utf-8")
     )
-
     cut_quotations = (html_quotations.cut_gmail_quote(html_tree) or
                       html_quotations.cut_blockquote(html_tree) or
                       html_quotations.cut_microsoft_quote(html_tree) or
                       html_quotations.cut_by_id(html_tree) or
                       html_quotations.cut_from_block(html_tree)
                       )
-
     html_tree_copy = deepcopy(html_tree)
 
     number_of_checkpoints = html_quotations.add_checkpoint(html_tree, 0)
     quotation_checkpoints = [False] * number_of_checkpoints
     msg_with_checkpoints = html.tostring(html_tree)
-
-    h = html2text.HTML2Text()
-    h.body_width = 0  # generate plain text without wrap
-
-    # html2text adds unnecessary star symbols. Remove them.
-    # Mask star symbols
-    msg_with_checkpoints = msg_with_checkpoints.replace('*', '3423oorkg432')
-    plain_text = h.handle(msg_with_checkpoints)
-    # Remove created star symbols
-    plain_text = plain_text.replace('*', '')
-    # Unmask saved star symbols
-    plain_text = plain_text.replace('3423oorkg432', '*')
+    plain_text = html_to_text(msg_with_checkpoints)
     plain_text = preprocess(plain_text, '\n', content_type='text/html')
     lines = plain_text.splitlines()
 
     # Don't process too long messages
     if len(lines) > MAX_LINES_COUNT:
-        return s
+        return msg_body
 
     # Collect checkpoints on each line
     line_checkpoints = [
@@ -396,7 +378,6 @@ def extract_from_html(s):
     return_flags = []
     process_marked_lines(lines, markers, return_flags)
     lines_were_deleted, first_deleted, last_deleted = return_flags
-
     if lines_were_deleted:
         #collect checkpoints from deleted lines
         for i in xrange(first_deleted, last_deleted):
@@ -404,9 +385,9 @@ def extract_from_html(s):
                 quotation_checkpoints[checkpoint] = True
     else:
         if cut_quotations:
-            return _restore_CRLF(html.tostring(html_tree_copy), replaced)
+            return html.tostring(html_tree_copy)
         else:
-            return s
+            return msg_body
 
     # Remove tags with quotation checkpoints
     html_quotations.delete_quotation_tags(
@@ -442,37 +423,3 @@ def register_xpath_extensions():
     ns.prefix = 'mg'
     ns['text_content'] = text_content
     ns['tail'] = tail
-
-
-def _restore_CRLF(s, replaced=True):
-    """Restore CRLF if previously CRLF was replaced with LF
-
-    >>> _restore_CRLF('a\nb')
-    'a\r\nb'
-    >>> _restore_CRLF('a\nb', replaced=False)
-    'a\nb'
-    """
-    if replaced:
-        return s.replace('\n', '\r\n')
-    return s
-
-
-def _CRLF_to_LF(s):
-    """Replace CRLF with LF
-
-    >>> s, changed = _CRLF_to_LF('a\r\n'b)
-    >>> s
-    'a\nb'
-    >>> changed
-    True
-
-    >>> s, changed = _CRLF_to_LF('a\n'b)
-    >>> s
-    'a\nb'
-    >>> changed
-    False
-    """
-    delimiter = get_delimiter(s)
-    if delimiter == '\r\n':
-        return s.replace(delimiter, '\n'), True
-    return s, False

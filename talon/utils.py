@@ -4,6 +4,10 @@ import logging
 from random import shuffle
 import chardet
 import cchardet
+import regex as re
+
+from lxml import html
+from lxml.cssselect import CSSSelector
 
 from talon.constants import RE_DELIMITER
 
@@ -58,7 +62,6 @@ def detect_encoding(string):
         if detected:
             return detected.get('encoding') or 'utf-8'
     except Exception, e:
-        print 11111111111, e
         pass
     return 'utf-8'
 
@@ -74,7 +77,6 @@ def quick_detect_encoding(string):
         if detected:
             return detected.get('encoding') or detect_encoding(string)
     except Exception, e:
-        print 222222222222, e
         pass
     return detect_encoding(string)
 
@@ -105,3 +107,81 @@ def get_delimiter(msg_body):
         delimiter = '\n'
 
     return delimiter
+
+
+def html_to_text(string):
+    """
+    Dead-simple HTML-to-text converter:
+        >>> html_to_text("one<br>two<br>three")
+        >>> "one\ntwo\nthree"
+
+    NOTES:
+        1. the string is expected to contain UTF-8 encoded HTML!
+        2. returns utf-8 encoded str (not unicode)
+    """
+    s = _prepend_utf8_declaration(string)
+    s = s.replace("\n", "")
+
+    tree = html.fromstring(s)
+
+    for style in CSSSelector('style')(tree):
+        style.getparent().remove(style)
+
+    for c in tree.xpath('//comment()'):
+        c.getparent().remove(c)
+
+    text   = ""
+    for el in tree.iter():
+        el_text = (el.text or '') + (el.tail or '')
+        if len(el_text) > 1:
+            if el.tag in _BLOCKTAGS:
+                text += "\n"
+            if el.tag == 'li':
+                text += "  * "
+            text += el_text.strip() + " "
+
+            # add href to the output
+            href = el.attrib.get('href')
+            if href:
+                text += "(%s) " % href
+
+        if el.tag in _HARDBREAKS and text and not text.endswith("\n"):
+            text += "\n"
+
+    retval = _rm_excessive_newlines(text)
+    return _encode_utf8(retval)
+
+
+def _contains_charset_spec(s):
+    """Return True if the first 4KB contain charset spec
+    """
+    return s.lower().find('html; charset=', 0, 4096) != -1
+
+
+def _prepend_utf8_declaration(s):
+    """Prepend 'utf-8' encoding declaration if the first 4KB don't have any
+    """
+    return s if _contains_charset_spec(s) else _UTF8_DECLARATION + s
+
+
+def _rm_excessive_newlines(s):
+    """Remove excessive newlines that often happen due to tons of divs
+    """
+    return _RE_EXCESSIVE_NEWLINES.sub("\n\n", s).strip()
+
+
+def _encode_utf8(s):
+    """Encode in 'utf-8' if unicode
+    """
+    return s.encode('utf-8') if isinstance(s, unicode) else s
+
+
+_UTF8_DECLARATION = ('<meta http-equiv="Content-Type" content="text/html;'
+                     'charset=utf-8">')
+
+
+_BLOCKTAGS  = ['div', 'p', 'ul', 'li', 'h1', 'h2', 'h3']
+_HARDBREAKS = ['br', 'hr', 'tr']
+
+
+_RE_EXCESSIVE_NEWLINES = re.compile("\n{2,10}")

@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 
 setup(name='talon',
-      version='1.0.9',
+      version='1.2.0',
       description=("Mailgun library "
                    "to extract message quotations and signatures."),
       long_description=open("README.rst").read(),
@@ -16,7 +16,6 @@ setup(name='talon',
       install_requires=[
           "lxml>=2.3.3",
           "regex>=1",
-          "html2text",
           "numpy",
           "scipy",
           "scikit-learn==0.16.1", # pickled versions of classifier, else rebuild
