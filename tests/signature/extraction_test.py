@@ -127,7 +127,7 @@ def test_handles_unicode():
 @patch.object(signature.extraction, 'has_signature')
 def test_signature_extract_crash(has_signature):
     has_signature.side_effect = Exception('Bam!')
-    msg_body = u'Blah\r\n--\r\n\r\nСергей'
+    msg_body = 'Blah\r\n--\r\n\r\nСергей'
     eq_((msg_body, None), signature.extract(msg_body, 'Сергей'))
 
 

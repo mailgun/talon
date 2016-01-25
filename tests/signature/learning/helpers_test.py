@@ -151,7 +151,7 @@ def test_extract_names():
         ['David', 'DECOSTER', 'Domicile']
         }
 
-    for sender, expected_names in senders_names.items():
+    for sender, expected_names in list(senders_names.items()):
         extracted_names = h.extract_names(sender)
         # check that extracted names could be compiled
         try:

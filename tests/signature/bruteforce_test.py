@@ -128,10 +128,10 @@ Envoyé sans fil par mon terminal mobile BlackBerry sur le réseau de Bell."""
     eq_(('Heeyyoooo.', msg_body[len('Heeyyoooo.\n'):]),
         bruteforce.extract_signature(msg_body))
 
-    msg_body = u"""Blah
+    msg_body = """Blah
 Enviado desde mi oficina mÃ³vil BlackBerryÂ® de Telcel"""
 
-    eq_(('Blah', u'Enviado desde mi oficina mÃ³vil BlackBerryÂ® de Telcel'),
+    eq_(('Blah', 'Enviado desde mi oficina mÃ³vil BlackBerryÂ® de Telcel'),
         bruteforce.extract_signature(msg_body))
 
 

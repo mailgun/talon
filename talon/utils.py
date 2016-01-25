@@ -37,7 +37,7 @@ def safe_format(format_string, *args, **kwargs):
 
     # ignore other errors
     except:
-        return u''
+        return ''
 
 
 def to_unicode(str_or_unicode, precise=False):
@@ -115,7 +115,21 @@ def get_delimiter(msg_body):
     return delimiter
 
 
-def html_tree_to_text(tree):
+def html_to_text(string):
+    """
+    Dead-simple HTML-to-text converter:
+        >>> html_to_text("one<br>two<br>three")
+        >>> "one\ntwo\nthree"
+
+    NOTES:
+        1. the string is expected to contain UTF-8 encoded HTML!
+        2. returns utf-8 encoded str (not unicode)
+    """
+    s = _prepend_utf8_declaration(string)
+    s = s.replace(b"\n", b"")
+
+    tree = html.fromstring(s)
+
     for style in CSSSelector('style')(tree):
         style.getparent().remove(style)
 
