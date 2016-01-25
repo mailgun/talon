@@ -516,7 +516,7 @@ def test_mark_message_lines():
              '> Hi',
              '',
              'Signature']
-    eq_('tessemet', quotations.mark_message_lines(lines))
+    eq_(b'tessemet', quotations.mark_message_lines(lines))
 
     lines = ['Just testing the email reply',
              '',
@@ -530,7 +530,7 @@ def test_mark_message_lines():
              'wrote:',
              '',
              'Tarmo Lehtpuu has posted the following message on']
-    eq_('tettessset', quotations.mark_message_lines(lines))
+    eq_(b'tettessset', quotations.mark_message_lines(lines))
 
 
 def test_process_marked_lines():
@@ -696,8 +696,9 @@ def test_standard_replies():
         with open(filename) as f:
             message = email.message_from_file(f)
             body = next(email.iterators.typed_subpart_iterator(message, subtype='plain'))
-            text = ''.join(body_iterator(body, True))
-
+            text = ''.join(email.iterators.body_line_iterator(body, True))
+            if not text:
+              text = ''.join(email.iterators.body_line_iterator(body, False))
             stripped_text = quotations.extract_from_plain(text)
             reply_text_fn = filename[:-4] + '_reply_text'
             if os.path.isfile(reply_text_fn):

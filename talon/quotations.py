@@ -86,7 +86,7 @@ RE_ON_DATE_WROTE_SMB = re.compile(
     )
 
 RE_QUOTATION = re.compile(
-    r'''
+    rb'''
     (
         # quotation border: splitter line or a number of quotation marker lines
         (?:
@@ -107,7 +107,7 @@ RE_QUOTATION = re.compile(
     ''', re.VERBOSE)
 
 RE_EMPTY_QUOTATION = re.compile(
-    r'''
+    rb'''
     (
         # quotation border: splitter line or a number of quotation marker lines
         (?:
@@ -225,11 +225,11 @@ def mark_message_lines(lines):
     i = 0
     while i < len(lines):
         if not lines[i].strip():
-            markers[i] = 'e'  # empty line
+            markers[i] = ord('e')  # empty line
         elif QUOT_PATTERN.match(lines[i]):
-            markers[i] = 'm'  # line with quotation marker
+            markers[i] = ord('m')  # line with quotation marker
         elif RE_FWD.match(lines[i]):
-            markers[i] = 'f'  # ---- Forwarded message ----
+            markers[i] = ord('f')  # ---- Forwarded message ----
         else:
             # in case splitter is spread across several lines
             splitter = is_splitter('\n'.join(lines[i:i + SPLITTER_MAX_LINES]))
@@ -238,13 +238,13 @@ def mark_message_lines(lines):
                 # append as many splitter markers as lines in splitter
                 splitter_lines = splitter.group().splitlines()
                 for j in range(len(splitter_lines)):
-                    markers[i + j] = 's'
+                    markers[i + j] = ord('s')
 
                 # skip splitter lines
                 i += len(splitter_lines) - 1
             else:
                 # probably the line from the last message in the conversation
-                markers[i] = 't'
+                markers[i] = ord('t')
         i += 1
 
     return ''.join(markers)
@@ -263,17 +263,17 @@ def process_marked_lines(lines, markers, return_flags=[False, -1, -1]):
     """
     markers = ''.join(markers)
     # if there are no splitter there should be no markers
-    if 's' not in markers and not re.search('(me*){3}', markers):
-        markers = markers.replace('m', 't')
+    if b's' not in markers and not re.search(b'(me*){3}', markers):
+        markers = markers.replace(b'm', b't')
 
-    if re.match('[te]*f', markers):
+    if re.match(b'[te]*f', markers):
         return_flags[:] = [False, -1, -1]
         return lines
 
     # inlined reply
     # use lookbehind assertions to find overlapping entries e.g. for 'mtmtm'
     # both 't' entries should be found
-    for inline_reply in re.finditer('(?<=m)e*((?:t+e*)+)m', markers):
+    for inline_reply in re.finditer(b'(?<=m)e*((?:t+e*)+)m', markers):
         # long links could break sequence of quotation lines but they shouldn't
         # be considered an inline reply
         links = (
@@ -284,7 +284,7 @@ def process_marked_lines(lines, markers, return_flags=[False, -1, -1]):
             return lines
 
     # cut out text lines coming after splitter if there are no markers there
-    quotation = re.search('(se*)+((t|f)+e*)+', markers)
+    quotation = re.search(b'(se*)+((t|f)+e*)+', markers)
     if quotation:
         return_flags[:] = [True, quotation.start(), len(lines)]
         return lines[:quotation.start()]
