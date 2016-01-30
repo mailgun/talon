@@ -536,35 +536,34 @@ def test_mark_message_lines():
 def test_process_marked_lines():
     # quotations and last message lines are mixed
     # consider all to be a last message
-    markers = 'tsemmtetm'
-    lines = [str(i) for i in range(len(markers))]
+    markers = b'tsemmtetm'
     lines = [str(i) for i in range(len(markers))]
 
     eq_(lines, quotations.process_marked_lines(lines, markers))
 
     # no splitter => no markers
-    markers = 'tmm'
+    markers = b'tmm'
     lines = ['1', '2', '3']
     eq_(['1', '2', '3'], quotations.process_marked_lines(lines, markers))
 
     # text after splitter without markers is quotation
-    markers = 'tst'
+    markers = b'tst'
     lines = ['1', '2', '3']
     eq_(['1'], quotations.process_marked_lines(lines, markers))
 
     # message + quotation + signature
-    markers = 'tsmt'
+    markers = b'tsmt'
     lines = ['1', '2', '3', '4']
     eq_(['1', '4'], quotations.process_marked_lines(lines, markers))
 
     # message + <quotation without markers> + nested quotation
-    markers = 'tstsmt'
+    markers = b'tstsmt'
     lines = ['1', '2', '3', '4', '5', '6']
     eq_(['1'], quotations.process_marked_lines(lines, markers))
 
     # test links wrapped with paranthesis
     # link starts on the marker line
-    markers = 'tsmttem'
+    markers = b'tsmttem'
     lines = ['text',
              'splitter',
              '>View (http://example.com',
@@ -575,7 +574,7 @@ def test_process_marked_lines():
     eq_(lines[:1], quotations.process_marked_lines(lines, markers))
 
     # link starts on the new line
-    markers = 'tmmmtm'
+    markers = b'tmmmtm'
     lines = ['text',
              '>'
              '>',
@@ -586,7 +585,7 @@ def test_process_marked_lines():
     eq_(lines[:1], quotations.process_marked_lines(lines, markers))
 
     # check all "inline" replies
-    markers = 'tsmtmtm'
+    markers = b'tsmtmtm'
     lines = ['text',
              'splitter',
              '>',
@@ -597,7 +596,7 @@ def test_process_marked_lines():
     eq_(lines, quotations.process_marked_lines(lines, markers))
 
     # inline reply with link not wrapped in paranthesis
-    markers = 'tsmtm'
+    markers = b'tsmtm'
     lines = ['text',
              'splitter',
              '>',
@@ -606,7 +605,7 @@ def test_process_marked_lines():
     eq_(lines, quotations.process_marked_lines(lines, markers))
 
     # inline reply with link wrapped in paranthesis
-    markers = 'tsmtm'
+    markers = b'tsmtm'
     lines = ['text',
              'splitter',
              '>',

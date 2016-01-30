@@ -200,14 +200,14 @@ def test_get_signature_candidate():
 def test_mark_candidate_indexes():
     with patch.object(bruteforce, 'TOO_LONG_SIGNATURE_LINE', 3):
         # spaces are not considered when checking line length
-        eq_('clc',
+        eq_(b'clc',
             bruteforce._mark_candidate_indexes(
                 ['BR,  ', 'long', 'Bob'],
                 [0, 1, 2]))
 
         # only candidate lines are marked
         # if line has only dashes it's a candidate line
-        eq_('ccdc',
+        eq_(b'ccdc',
             bruteforce._mark_candidate_indexes(
                 ['-', 'long', '-', '- i', 'Bob'],
                 [0, 2, 3, 4]))
@@ -216,20 +216,20 @@ def test_mark_candidate_indexes():
 def test_process_marked_candidate_indexes():
     eq_([2, 13, 15],
         bruteforce._process_marked_candidate_indexes(
-            [2, 13, 15], 'dcc'))
+            [2, 13, 15], b'dcc'))
 
     eq_([15],
         bruteforce._process_marked_candidate_indexes(
-            [2, 13, 15], 'ddc'))
+            [2, 13, 15], b'ddc'))
 
     eq_([13, 15],
         bruteforce._process_marked_candidate_indexes(
-            [13, 15], 'cc'))
+            [13, 15], b'cc'))
 
     eq_([15],
         bruteforce._process_marked_candidate_indexes(
-            [15], 'lc'))
+            [15], b'lc'))
 
     eq_([15],
         bruteforce._process_marked_candidate_indexes(
-            [13, 15], 'ld'))
+            [13, 15], b'ld'))

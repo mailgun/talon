@@ -165,7 +165,7 @@ def test_unicode_in_reply():
 
 <blockquote>
   Quote
-</blockquote>""".encode("utf-8")
+</blockquote>"""
 
     eq_("<html><head></head><body>Reply&#160;&#160;Text<br><div><br></div>"
         "</body></html>",
@@ -373,8 +373,8 @@ reply
 </blockquote>"""
     msg_body = msg_body.replace('\n', '\r\n')
     extracted = quotations.extract_from_html(msg_body)
-    assert_false(symbol in extracted)    
-    # Keep new lines otherwise "My reply" becomes one word - "Myreply" 
+    assert_false(symbol in extracted)
+    # Keep new lines otherwise "My reply" becomes one word - "Myreply"
     eq_("<html><head></head><body>My\nreply\n</body></html>", extracted)
 
 

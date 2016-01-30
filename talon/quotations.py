@@ -489,7 +489,7 @@ def _extract_from_html(msg_body):
     if _readable_text_empty(html_tree_copy):
         return msg_body
 
-    return html.tostring(html_tree_copy)
+    return _html_tostring(html_tree_copy)
 
 
 def split_emails(msg):
@@ -598,3 +598,6 @@ def register_xpath_extensions():
     ns.prefix = 'mg'
     ns['text_content'] = text_content
     ns['tail'] = tail
+
+def _html_tostring(html_tree):
+  return html.tostring(html_tree).decode('utf-8')

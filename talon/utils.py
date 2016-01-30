@@ -115,21 +115,7 @@ def get_delimiter(msg_body):
     return delimiter
 
 
-def html_to_text(string):
-    """
-    Dead-simple HTML-to-text converter:
-        >>> html_to_text("one<br>two<br>three")
-        >>> "one\ntwo\nthree"
-
-    NOTES:
-        1. the string is expected to contain UTF-8 encoded HTML!
-        2. returns utf-8 encoded str (not unicode)
-    """
-    s = _prepend_utf8_declaration(string)
-    s = s.replace("\n", "")
-
-    tree = html.fromstring(s)
-
+def html_tree_to_text(tree):
     for style in CSSSelector('style')(tree):
         style.getparent().remove(style)
 

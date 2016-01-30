@@ -135,7 +135,7 @@ def test_mark_lines():
     with patch.object(bruteforce, 'SIGNATURE_MAX_LINES', 2):
         # we analyse the 2nd line as well though it's the 6th line
         # (starting from the bottom) because we don't count empty line
-        eq_('ttset',
+        eq_(b'ttset',
             e._mark_lines(['Bob Smith',
                           'Bob Smith',
                           'Bob Smith',
@@ -145,7 +145,7 @@ def test_mark_lines():
     with patch.object(bruteforce, 'SIGNATURE_MAX_LINES', 3):
         # we don't analyse the 1st line because
         # signature cant start from the 1st line
-        eq_('tset',
+        eq_(b'tset',
             e._mark_lines(['Bob Smith',
                           'Bob Smith',
                           '',
@@ -154,20 +154,20 @@ def test_mark_lines():
 
 def test_process_marked_lines():
     # no signature found
-    eq_((list(range(5)), None), e._process_marked_lines(list(range(5)), 'telt'))
+    eq_((list(range(5)), None), e._process_marked_lines(list(range(5)), b'telt'))
 
     # signature in the middle of the text
-    eq_((list(range(9)), None), e._process_marked_lines(list(range(9)), 'tesestelt'))
+    eq_((list(range(9)), None), e._process_marked_lines(list(range(9)), b'tesestelt'))
 
     # long line splits signature
     eq_((list(range(7)), [7, 8]),
-        e._process_marked_lines(list(range(9)), 'tsslsless'))
+        e._process_marked_lines(list(range(9)), b'tsslsless'))
 
     eq_((list(range(20)), [20]),
-        e._process_marked_lines(list(range(21)), 'ttttttstttesllelelets'))
+        e._process_marked_lines(list(range(21)), b'ttttttstttesllelelets'))
 
     # some signature lines could be identified as text
-    eq_(([0], list(range(1, 9))), e._process_marked_lines(list(range(9)), 'tsetetest'))
+    eq_(([0], list(range(1, 9))), e._process_marked_lines(list(range(9)), b'tsetetest'))
 
     eq_(([], list(range(5))),
-        e._process_marked_lines(list(range(5)), "ststt"))
+        e._process_marked_lines(list(range(5)), b"ststt"))

@@ -18,7 +18,7 @@ EXTRACTOR = None
 
 # regex signature pattern for reversed lines
 # assumes that all long lines have been excluded
-RE_REVERSE_SIGNATURE = re.compile(r'''
+RE_REVERSE_SIGNATURE = re.compile(br'''
 # signature should consists of blocks like this
 (?:
    # it could end with empty line
@@ -81,7 +81,7 @@ def _mark_lines(lines, sender):
     candidate = get_signature_candidate(lines)
 
     # at first consider everything to be text no signature
-    markers = bytearray('t'*len(lines))
+    markers = bytearray('t'*len(lines), 'utf-8')
 
     # mark lines starting from bottom up
     # mark only lines that belong to candidate
@@ -92,9 +92,9 @@ def _mark_lines(lines, sender):
         # relative to lines not candidate
         j = len(lines) - len(candidate) + i
         if not line.strip():
-            markers[j] = 'e'
+            markers[j] = ord(b'e')
         elif is_signature_line(line, sender, EXTRACTOR):
-            markers[j] = 's'
+            markers[j] = ord(b's')
 
     return markers
 
