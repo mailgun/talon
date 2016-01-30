@@ -79,7 +79,7 @@ Haha
 </body>"""
     text = u.html_to_text(html)
     eq_(b"Hello world! \n\n  * One! \n  * Two \nHaha", text)
-    eq_(u"привет!", u.html_to_text("<b>привет!</b>").decode('utf8'))
+    eq_("привет!".encode('utf-8'), u.html_to_text("<b>привет!</b>"))
 
     html = '<body><br/><br/>Hi</body>'
     eq_ (b'Hi', u.html_to_text(html))
