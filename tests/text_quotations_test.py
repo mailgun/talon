@@ -54,6 +54,18 @@ On 04/19/2011 07:10 AM, Roman Tkachenko wrote:
     eq_("Test reply", quotations.extract_from_plain(msg_body))
 
 
+def test_date_time_email_splitter():
+    msg_body = """Test reply
+
+2014-10-17 11:28 GMT+03:00 Postmaster <
+postmaster@sandboxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.mailgun.org>:
+
+> First from site
+>
+    """
+    eq_("Test reply", quotations.extract_from_plain(msg_body))
+
+
 def test_pattern_on_date_somebody_wrote_allows_space_in_front():
     msg_body = """Thanks Thanmai
  On Mar 8, 2012 9:59 AM, "Example.com" <
