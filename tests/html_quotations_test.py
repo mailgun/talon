@@ -340,3 +340,10 @@ def test_CRLF():
     assert_false(symbol in extracted)    
     eq_("<html><body><p>Reply</p></body></html>",
         RE_WHITESPACE.sub('', extracted))
+
+
+def test_gmail_forwarded_msg():
+    msg_body = """<div dir="ltr"><br><div class="gmail_quote">---------- Forwarded message ----------<br>From: <b class="gmail_sendername">Bob</b> <span dir="ltr">&lt;<a href="mailto:bob@example.com">bob@example.com</a>&gt;</span><br>Date: Fri, Feb 11, 2010 at 5:59 PM<br>Subject: Bob WFH today<br>To: Mary &lt;<a href="mailto:mary@example.com">mary@example.com</a>&gt;<br><br><br><div dir="ltr">eom</div>
+</div><br></div>"""
+    extracted = quotations.extract_from_html(msg_body)
+    eq_(RE_WHITESPACE.sub('', msg_body), RE_WHITESPACE.sub('', extracted))

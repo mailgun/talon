@@ -12,6 +12,7 @@ CHECKPOINT_PATTERN = re.compile(CHECKPOINT_PREFIX + '\d+' + CHECKPOINT_SUFFIX)
 
 # HTML quote indicators (tag ids)
 QUOTE_IDS = ['OLK_SRC_BODY_SECTION']
+RE_FWD = re.compile("^[-]+[ ]*Forwarded message[ ]*[-]+$", re.I | re.M)
 
 
 def add_checkpoint(html_note, counter):
@@ -77,7 +78,7 @@ def delete_quotation_tags(html_note, counter, quotation_checkpoints):
 def cut_gmail_quote(html_message):
     ''' Cuts the outermost block element with class gmail_quote. '''
     gmail_quote = html_message.cssselect('div.gmail_quote')
-    if gmail_quote:
+    if gmail_quote and not RE_FWD.match(gmail_quote[0].text):
         gmail_quote[0].getparent().remove(gmail_quote[0])
         return True
 
@@ -172,6 +173,7 @@ def cut_from_block(html_message):
             parent_div_is_all_content = (
                 maybe_body is not None and maybe_body.tag == 'body' and
                 len(maybe_body.getchildren()) == 1)
+
             if not parent_div_is_all_content:
                 block.getparent().remove(block)
                 return True
@@ -185,6 +187,10 @@ def cut_from_block(html_message):
          "//*[starts-with(mg:tail(), 'Date:')]"))
     if block:
         block = block[0]
+
+        if RE_FWD.match(block.getparent().text or ''):
+            return False
+        
         while(block.getnext() is not None):
             block.getparent().remove(block.getnext())
         block.getparent().remove(block)
