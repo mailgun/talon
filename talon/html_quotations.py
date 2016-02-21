@@ -195,3 +195,9 @@ def cut_from_block(html_message):
             block.getparent().remove(block.getnext())
         block.getparent().remove(block)
         return True
+
+def cut_zimbra_quote(html_message):
+    zDivider = html_message.xpath('//hr[@data-marker="__DIVIDER__"]')
+    if zDivider:
+        zDivider[0].getparent().remove(zDivider[0])
+        return True
