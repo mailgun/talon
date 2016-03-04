@@ -32,6 +32,19 @@ On 11-Apr-2011, at 6:54 PM, Roman Tkachenko <romant@example.com> wrote:
     eq_("Test reply", quotations.extract_from_plain(msg_body))
 
 
+def test_pattern_sent_from_samsung_smb_wrote():
+    msg_body = """Test reply
+
+Sent from Samsung MobileName <address@example.com> wrote:
+
+>
+> Test
+>
+> Roman"""
+
+    eq_("Test reply", quotations.extract_from_plain(msg_body))
+
+
 def test_pattern_on_date_wrote_somebody():
     eq_('Lorem', quotations.extract_from_plain(
     """Lorem

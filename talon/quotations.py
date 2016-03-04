@@ -148,7 +148,9 @@ SPLITTER_PATTERNS = [
     re.compile("\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}\s+GMT.*@", re.S),
     # Thu, 26 Jun 2014 14:00:51 +0400 Bob <bob@example.com>:
     re.compile('\S{3,10}, \d\d? \S{3,10} 20\d\d,? \d\d?:\d\d(:\d\d)?'
-               '( \S+){3,6}@\S+:')
+               '( \S+){3,6}@\S+:'),
+    # Sent from Samsung MobileName <address@example.com> wrote:
+    re.compile('Sent from Samsung .*@.*> wrote')
     ]
 
 
