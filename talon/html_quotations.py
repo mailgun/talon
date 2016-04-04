@@ -78,7 +78,7 @@ def delete_quotation_tags(html_note, counter, quotation_checkpoints):
 def cut_gmail_quote(html_message):
     ''' Cuts the outermost block element with class gmail_quote. '''
     gmail_quote = html_message.cssselect('div.gmail_quote')
-    if gmail_quote and not RE_FWD.match(gmail_quote[0].text):
+    if gmail_quote and (gmail_quote[0].text is None or not RE_FWD.match(gmail_quote[0].text)):
         gmail_quote[0].getparent().remove(gmail_quote[0])
         return True
 
