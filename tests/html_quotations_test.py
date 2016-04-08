@@ -131,6 +131,17 @@ def test_gmail_quote():
         RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body)))
 
 
+def test_gmail_quote_compact():
+    msg_body = 'Reply' \
+               '<div class="gmail_quote">' \
+               '<div class="gmail_quote">On 11-Apr-2011, at 6:54 PM, Bob &lt;bob@example.com&gt; wrote:' \
+               '<div>Test</div>' \
+               '</div>' \
+               '</div>'
+    eq_("<html><body><p>Reply</p></body></html>",
+        RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body)))
+
+
 def test_gmail_quote_blockquote():
     msg_body = """Message
 <blockquote class="gmail_quote">
