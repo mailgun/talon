@@ -175,7 +175,21 @@ def cut_from_block(html_message):
                 len(maybe_body.getchildren()) == 1)
 
             if not parent_div_is_all_content:
-                block.getparent().remove(block)
+                parent = block.getparent()
+                next_sibling = block.getnext()
+
+                # remove all tags after found From block
+                # (From block and quoted message are in separate divs)
+                while next_sibling is not None:
+                    parent.remove(block)
+                    block = next_sibling
+                    next_sibling = block.getnext()
+
+                # remove the last sibling (or the
+                # From block if no siblings)
+                if block is not None:
+                    parent.remove(block)
+
                 return True
         else:
             return False
