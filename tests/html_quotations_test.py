@@ -279,6 +279,26 @@ def test_reply_separated_by_hr():
             '', quotations.extract_from_html(REPLY_SEPARATED_BY_HR)))
 
 
+def test_from_block_and_quotations_in_separate_divs():
+    msg_body = '''
+Reply
+<div>
+  <hr/>
+  <div>
+    <font>
+      <b>From: bob@example.com</b>
+      <b>Date: Thu, 24 Mar 2016 08:07:12 -0700</b>
+    </font>
+  </div>
+  <div>
+    Quoted message
+  </div>
+</div>
+'''
+    eq_('<html><body><p>Reply</p><div><hr></div></body></html>',
+        RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body)))
+
+
 def extract_reply_and_check(filename):
     f = open(filename)
 
