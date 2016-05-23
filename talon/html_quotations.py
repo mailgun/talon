@@ -86,9 +86,12 @@ def cut_gmail_quote(html_message):
 def cut_microsoft_quote(html_message):
     ''' Cuts splitter block and all following blocks. '''
     splitter = html_message.xpath(
-        #outlook 2007, 2010
+        #outlook 2007, 2010 (international)
         "//div[@style='border:none;border-top:solid #B5C4DF 1.0pt;"
         "padding:3.0pt 0cm 0cm 0cm']|"
+        #outlook 2007, 2010 (american)
+        "//div[@style='border:none;border-top:solid #B5C4DF 1.0pt;"
+        "padding:3.0pt 0in 0in 0in']|"
         #windows mail
         "//div[@style='padding-top: 5px; "
         "border-top-color: rgb(229, 229, 229); "
