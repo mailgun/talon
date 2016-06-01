@@ -116,18 +116,8 @@ or
     from talon.signature.learning.classifier import train, init
     train(init(), EXTRACTOR_DATA, EXTRACTOR_FILENAME)
 
-Open-source Dataset
--------------------------
-
-Recently we started a `kuntzcamera`_ project to create an open-source, annotated dataset of raw emails. In the project we
-used a subset of `ENRON`_ data, cleansed of private, health and financial information by `EDRM`_. At the moment over 190
-emails are annotated. Any contribution and collaboration on the project are welcome. Once the dataset is ready we plan to
-start using it for talon.
-
 .. _scikit-learn: http://scikit-learn.org
 .. _ENRON: https://www.cs.cmu.edu/~enron/
-.. _EDRM: http://www.edrm.net/resources/data-sets/edrm-enron-email-data-set
-.. _kuntzcamera: https://github.com/mailgun/kuntzcamera
 
 Research
 --------
