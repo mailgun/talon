@@ -1,5 +1,3 @@
-recursive-include tests *
-recursive-include talon *
 recursive-exclude tests *.pyc *~
 recursive-exclude talon *.pyc *~
 include train.data
