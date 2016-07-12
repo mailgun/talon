@@ -1,5 +1,6 @@
 # coding:utf-8
 
+from __future__ import absolute_import
 import logging
 from random import shuffle
 import chardet
@@ -10,6 +11,7 @@ from lxml import html
 from lxml.cssselect import CSSSelector
 
 from talon.constants import RE_DELIMITER
+import six
 
 
 def safe_format(format_string, *args, **kwargs):
@@ -28,7 +30,7 @@ def safe_format(format_string, *args, **kwargs):
     except (UnicodeEncodeError, UnicodeDecodeError):
         format_string = to_utf8(format_string)
         args = [to_utf8(p) for p in args]
-        kwargs = {k: to_utf8(v) for k, v in kwargs.iteritems()}
+        kwargs = {k: to_utf8(v) for k, v in six.iteritems(kwargs)}
         return format_string.format(*args, **kwargs)
 
     # ignore other errors
@@ -47,7 +49,7 @@ def to_unicode(str_or_unicode, precise=False):
     """
     encoding = quick_detect_encoding(str_or_unicode) if precise else 'utf-8'
     if isinstance(str_or_unicode, str):
-        return unicode(str_or_unicode, encoding, 'replace')
+        return six.text_type(str_or_unicode, encoding, 'replace')
     return str_or_unicode
 
 
@@ -61,7 +63,7 @@ def detect_encoding(string):
         detected = chardet.detect(string)
         if detected:
             return detected.get('encoding') or 'utf-8'
-    except Exception, e:
+    except Exception as e:
         pass
     return 'utf-8'
 
@@ -76,7 +78,7 @@ def quick_detect_encoding(string):
         detected = cchardet.detect(string)
         if detected:
             return detected.get('encoding') or detect_encoding(string)
-    except Exception, e:
+    except Exception as e:
         pass
     return detect_encoding(string)
 
@@ -87,7 +89,7 @@ def to_utf8(str_or_unicode):
     >>> utils.to_utf8(u'hi')
         'hi'
     """
-    if isinstance(str_or_unicode, unicode):
+    if isinstance(str_or_unicode, six.text_type):
         return str_or_unicode.encode("utf-8", "ignore")
     return str(str_or_unicode)
 
@@ -173,7 +175,7 @@ def _rm_excessive_newlines(s):
 def _encode_utf8(s):
     """Encode in 'utf-8' if unicode
     """
-    return s.encode('utf-8') if isinstance(s, unicode) else s
+    return s.encode('utf-8') if isinstance(s, six.text_type) else s
 
 
 _UTF8_DECLARATION = ('<meta http-equiv="Content-Type" content="text/html;'

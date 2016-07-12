@@ -1,9 +1,11 @@
 # coding:utf-8
 
+from __future__ import absolute_import
 from . import *
 
 from talon import utils as u
 import cchardet
+import six
 
 
 def test_get_delimiter():
@@ -14,10 +16,10 @@ def test_get_delimiter():
 
 def test_unicode():
     eq_ (u'hi', u.to_unicode('hi'))
-    eq_ (type(u.to_unicode('hi')), unicode )
-    eq_ (type(u.to_unicode(u'hi')), unicode )
-    eq_ (type(u.to_unicode('привет')), unicode )
-    eq_ (type(u.to_unicode(u'привет')), unicode )
+    eq_ (type(u.to_unicode('hi')), six.text_type )
+    eq_ (type(u.to_unicode(u'hi')), six.text_type )
+    eq_ (type(u.to_unicode('привет')), six.text_type )
+    eq_ (type(u.to_unicode(u'привет')), six.text_type )
     eq_ (u"привет", u.to_unicode('привет'))
     eq_ (u"привет", u.to_unicode(u'привет'))
     # some latin1 stuff

@@ -5,6 +5,7 @@ The module's functions operate on message bodies trying to extract
 original messages (without quoted messages)
 """
 
+from __future__ import absolute_import
 import regex as re
 import logging
 from copy import deepcopy
@@ -13,6 +14,7 @@ from lxml import html, etree
 
 from talon.utils import get_delimiter, html_to_text
 from talon import html_quotations
+from six.moves import range
 
 
 log = logging.getLogger(__name__)
@@ -207,7 +209,7 @@ def mark_message_lines(lines):
             if splitter:
                 # append as many splitter markers as lines in splitter
                 splitter_lines = splitter.group().splitlines()
-                for j in xrange(len(splitter_lines)):
+                for j in range(len(splitter_lines)):
                     markers[i + j] = 's'
 
                 # skip splitter lines
@@ -388,7 +390,7 @@ def extract_from_html(msg_body):
     lines_were_deleted, first_deleted, last_deleted = return_flags
     if lines_were_deleted:
         #collect checkpoints from deleted lines
-        for i in xrange(first_deleted, last_deleted):
+        for i in range(first_deleted, last_deleted):
             for checkpoint in line_checkpoints[i]:
                 quotation_checkpoints[checkpoint] = True
     else:

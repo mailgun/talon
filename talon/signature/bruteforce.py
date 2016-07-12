@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import logging
 
 import regex as re
@@ -111,7 +112,7 @@ def extract_signature(msg_body):
 
             return (stripped_body.strip(),
                     signature.strip())
-    except Exception, e:
+    except Exception as e:
         log.exception('ERROR extracting signature')
         return (msg_body, None)
 

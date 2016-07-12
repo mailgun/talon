@@ -3,6 +3,7 @@ The module's functions operate on message bodies trying to extract original
 messages (without quoted messages) from html
 """
 
+from __future__ import absolute_import
 import regex as re
 
 
