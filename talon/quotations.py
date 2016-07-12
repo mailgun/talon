@@ -193,7 +193,7 @@ def mark_message_lines(lines):
     >>> mark_message_lines(['answer', 'From: foo@bar.com', '', '> question'])
     'tsem'
     """
-    markers = bytearray(len(lines))
+    markers = ['e' for _ in lines]
     i = 0
     while i < len(lines):
         if not lines[i].strip():
@@ -219,7 +219,7 @@ def mark_message_lines(lines):
                 markers[i] = 't'
         i += 1
 
-    return markers
+    return ''.join(markers)
 
 
 def process_marked_lines(lines, markers, return_flags=[False, -1, -1]):
@@ -233,6 +233,7 @@ def process_marked_lines(lines, markers, return_flags=[False, -1, -1]):
     return_flags = [were_lines_deleted, first_deleted_line,
                     last_deleted_line]
     """
+    markers = ''.join(markers)
     # if there are no splitter there should be no markers
     if 's' not in markers and not re.search('(me*){3}', markers):
         markers = markers.replace('m', 't')
