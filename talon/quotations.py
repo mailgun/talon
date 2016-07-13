@@ -15,6 +15,7 @@ from lxml import html, etree
 from talon.utils import get_delimiter, html_to_text
 from talon import html_quotations
 from six.moves import range
+import six
 
 
 log = logging.getLogger(__name__)
@@ -345,11 +346,41 @@ def extract_from_html(msg_body):
     then extracting quotations from text,
     then checking deleted checkpoints,
     then deleting necessary tags.
+
+    Returns a unicode string.
     """
-    if msg_body.strip() == '':
+    if isinstance(msg_body, six.text_type):
+        msg_body = msg_body.encode('utf8')
+    elif not isinstance(msg_body, bytes):
+        msg_body = msg_body.encode('ascii')
+
+    result = _extract_from_html(msg_body)
+    if isinstance(result, bytes):
+        result = result.decode('utf8')
+
+    return result
+
+
+def _extract_from_html(msg_body):
+    """
+    Extract not quoted message from provided html message body
+    using tags and plain text algorithm.
+
+    Cut out the 'blockquote', 'gmail_quote' tags.
+    Cut Microsoft quotations.
+
+    Then use plain text algorithm to cut out splitter or
+    leftover quotation.
+    This works by adding checkpoint text to all html tags,
+    then converting html to text,
+    then extracting quotations from text,
+    then checking deleted checkpoints,
+    then deleting necessary tags.
+    """
+    if msg_body.strip() == b'':
         return msg_body
 
-    msg_body = msg_body.replace('\r\n', '').replace('\n', '')
+    msg_body = msg_body.replace(b'\r\n', b'').replace(b'\n', b'')
     html_tree = html.document_fromstring(
         msg_body,
         parser=html.HTMLParser(encoding="utf-8")
