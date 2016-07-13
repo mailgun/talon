@@ -121,8 +121,11 @@ def html_to_text(string):
         1. the string is expected to contain UTF-8 encoded HTML!
         2. returns utf-8 encoded str (not unicode)
     """
+    if isinstance(string, six.text_type):
+        string = string.encode('utf8')
+
     s = _prepend_utf8_declaration(string)
-    s = s.replace("\n", "")
+    s = s.replace(b"\n", b"")
 
     tree = html.fromstring(s)
 
@@ -157,7 +160,7 @@ def html_to_text(string):
 def _contains_charset_spec(s):
     """Return True if the first 4KB contain charset spec
     """
-    return s.lower().find('html; charset=', 0, 4096) != -1
+    return s.lower().find(b'html; charset=', 0, 4096) != -1
 
 
 def _prepend_utf8_declaration(s):
@@ -178,8 +181,8 @@ def _encode_utf8(s):
     return s.encode('utf-8') if isinstance(s, six.text_type) else s
 
 
-_UTF8_DECLARATION = ('<meta http-equiv="Content-Type" content="text/html;'
-                     'charset=utf-8">')
+_UTF8_DECLARATION = (b'<meta http-equiv="Content-Type" content="text/html;'
+                     b'charset=utf-8">')
 
 
 _BLOCKTAGS  = ['div', 'p', 'ul', 'li', 'h1', 'h2', 'h3']
