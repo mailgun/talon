@@ -59,6 +59,7 @@ def detect_encoding(string):
 
     Defaults to UTF-8.
     """
+    assert isinstance(string, bytes)
     try:
         detected = chardet.detect(string)
         if detected:
@@ -74,6 +75,7 @@ def quick_detect_encoding(string):
 
     Uses cchardet. Fallbacks to detect_encoding.
     """
+    assert isinstance(string, bytes)
     try:
         detected = cchardet.detect(string)
         if detected:
