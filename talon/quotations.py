@@ -280,10 +280,15 @@ def preprocess(msg_body, delimiter, content_type='text/plain'):
     Replaces link brackets so that they couldn't be taken for quotation marker.
     Splits line in two if splitter pattern preceded by some text on the same
     line (done only for 'On <date> <person> wrote:' pattern).
+
+    Converts msg_body into a unicode.
     """
     # normalize links i.e. replace '<', '>' wrapping the link with some symbols
     # so that '>' closing the link couldn't be mistakenly taken for quotation
     # marker.
+    if isinstance(msg_body, bytes):
+        msg_body = msg_body.decode('utf8')
+
     def link_wrapper(link):
         newline_index = msg_body[:link.start()].rfind("\n")
         if msg_body[newline_index + 1] == ">":
