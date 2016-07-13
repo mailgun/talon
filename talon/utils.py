@@ -48,7 +48,7 @@ def to_unicode(str_or_unicode, precise=False):
     If `precise` flag is True, tries to guess the correct encoding first.
     """
     encoding = quick_detect_encoding(str_or_unicode) if precise else 'utf-8'
-    if isinstance(str_or_unicode, str):
+    if not isinstance(str_or_unicode, six.text_type):
         return six.text_type(str_or_unicode, encoding, 'replace')
     return str_or_unicode
 
