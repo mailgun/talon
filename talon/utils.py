@@ -89,7 +89,7 @@ def to_utf8(str_or_unicode):
     >>> utils.to_utf8(u'hi')
         'hi'
     """
-    if isinstance(str_or_unicode, six.text_type):
+    if not isinstance(str_or_unicode, six.text_type):
         return str_or_unicode.encode("utf-8", "ignore")
     return str(str_or_unicode)
 
