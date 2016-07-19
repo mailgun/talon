@@ -77,6 +77,31 @@ def test_basic():
         signature.extract(msg_body, 'Sergey'))
 
 
+def test_capitalized():
+    msg_body = """Hi Mary,
+
+Do you still need a DJ for your wedding? I've included a video demo of one of our DJs available for your wedding date.
+
+DJ Doe 
+http://example.com
+Password: SUPERPASSWORD
+
+Would you like to check out more?
+
+
+At your service,
+
+John Smith
+Doe Inc
+555-531-7967"""
+
+    sig = """John Smith
+Doe Inc
+555-531-7967"""
+
+    eq_(sig, signature.extract(msg_body, 'Doe')[1])
+
+
 def test_over_2_text_lines_after_signature():
     body = """Blah
 

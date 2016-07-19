@@ -192,10 +192,11 @@ def test_punctuation_percent(categories_percent):
 def test_capitalized_words_percent():
     eq_(0.0, h.capitalized_words_percent(''))
     eq_(100.0, h.capitalized_words_percent('Example Corp'))
-    eq_(50.0, h.capitalized_words_percent('Qqq qqq QQQ 123 sss'))
+    eq_(50.0, h.capitalized_words_percent('Qqq qqq Aqs 123 sss'))
     eq_(100.0, h.capitalized_words_percent('Cell 713-444-7368'))
     eq_(100.0, h.capitalized_words_percent('8th Floor'))
     eq_(0.0, h.capitalized_words_percent('(212) 230-9276'))
+    eq_(50.0, h.capitalized_words_percent('Password: REMARKABLE'))
 
 
 def test_has_signature():
