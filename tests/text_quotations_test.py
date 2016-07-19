@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import absolute_import
 from . import *
 from . fixtures import *
 
@@ -7,6 +8,9 @@ import os
 
 import email.iterators
 from talon import quotations
+import six
+from six.moves import range
+from six import StringIO
 
 
 @patch.object(quotations, 'MAX_LINES_COUNT', 1)
@@ -138,7 +142,7 @@ def _check_pattern_original_message(original_message_indicator):
 -----{}-----
 
 Test"""
-    eq_('Test reply', quotations.extract_from_plain(msg_body.format(unicode(original_message_indicator))))
+    eq_('Test reply', quotations.extract_from_plain(msg_body.format(six.text_type(original_message_indicator))))
 
 def test_english_original_message():
     _check_pattern_original_message('Original Message')
@@ -662,6 +666,15 @@ def test_preprocess_postprocess_2_links():
     eq_(msg_body, quotations.extract_from_plain(msg_body))
 
 
+def body_iterator(msg, decode=False):
+    for subpart in msg.walk():
+        payload = subpart.get_payload(decode=decode)
+        if isinstance(payload, six.text_type):
+            yield payload
+        else:
+            yield payload.decode('utf8')
+
+
 def test_standard_replies():
     for filename in os.listdir(STANDARD_REPLIES):
         filename = os.path.join(STANDARD_REPLIES, filename)
@@ -669,8 +682,8 @@ def test_standard_replies():
             continue
         with open(filename) as f:
             message = email.message_from_file(f)
-            body = email.iterators.typed_subpart_iterator(message, subtype='plain').next()
-            text = ''.join(email.iterators.body_line_iterator(body, True))
+            body = next(email.iterators.typed_subpart_iterator(message, subtype='plain'))
+            text = ''.join(body_iterator(body, True))
 
             stripped_text = quotations.extract_from_plain(text)
             reply_text_fn = filename[:-4] + '_reply_text'

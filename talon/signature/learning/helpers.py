@@ -6,6 +6,7 @@
 
 """
 
+from __future__ import absolute_import
 import unicodedata
 import regex as re
 

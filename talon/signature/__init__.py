@@ -20,6 +20,7 @@ trained against, don't forget to regenerate:
 * signature/data/classifier
 """
 
+from __future__ import absolute_import
 import os
 
 from . import extraction

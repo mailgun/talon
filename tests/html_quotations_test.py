@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import absolute_import
 from . import *
 from . fixtures import *
 
@@ -305,6 +306,7 @@ def extract_reply_and_check(filename):
     msg_body = f.read()
     reply = quotations.extract_from_html(msg_body)
     plain_reply = u.html_to_text(reply)
+    plain_reply = plain_reply.decode('utf8')
 
     eq_(RE_WHITESPACE.sub('', "Hi. I am fine.\n\nThanks,\nAlex"),
         RE_WHITESPACE.sub('', plain_reply))

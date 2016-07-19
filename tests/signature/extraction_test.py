@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import absolute_import
 from .. import *
 
 import os
@@ -8,6 +9,7 @@ from talon.signature.learning import dataset
 from talon import signature
 from talon.signature import extraction as e
 from talon.signature import bruteforce
+from six.moves import range
 
 
 def test_message_shorter_SIGNATURE_MAX_LINES():
@@ -127,20 +129,20 @@ def test_mark_lines():
 
 def test_process_marked_lines():
     # no signature found
-    eq_((range(5), None), e._process_marked_lines(range(5), 'telt'))
+    eq_((list(range(5)), None), e._process_marked_lines(list(range(5)), 'telt'))
 
     # signature in the middle of the text
-    eq_((range(9), None), e._process_marked_lines(range(9), 'tesestelt'))
+    eq_((list(range(9)), None), e._process_marked_lines(list(range(9)), 'tesestelt'))
 
     # long line splits signature
-    eq_((range(7), [7, 8]),
-        e._process_marked_lines(range(9), 'tsslsless'))
+    eq_((list(range(7)), [7, 8]),
+        e._process_marked_lines(list(range(9)), 'tsslsless'))
 
-    eq_((range(20), [20]),
-        e._process_marked_lines(range(21), 'ttttttstttesllelelets'))
+    eq_((list(range(20)), [20]),
+        e._process_marked_lines(list(range(21)), 'ttttttstttesllelelets'))
 
     # some signature lines could be identified as text
-    eq_(([0], range(1, 9)), e._process_marked_lines(range(9), 'tsetetest'))
+    eq_(([0], list(range(1, 9))), e._process_marked_lines(list(range(9)), 'tsetetest'))
 
-    eq_(([], range(5)),
-        e._process_marked_lines(range(5), "ststt"))
+    eq_(([], list(range(5))),
+        e._process_marked_lines(list(range(5)), "ststt"))

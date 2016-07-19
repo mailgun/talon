@@ -1,5 +1,6 @@
 # coding:utf-8
 
+from __future__ import absolute_import
 import logging
 from random import shuffle
 import chardet
@@ -10,6 +11,7 @@ from lxml import html
 from lxml.cssselect import CSSSelector
 
 from talon.constants import RE_DELIMITER
+import six
 
 
 def safe_format(format_string, *args, **kwargs):
@@ -28,7 +30,7 @@ def safe_format(format_string, *args, **kwargs):
     except (UnicodeEncodeError, UnicodeDecodeError):
         format_string = to_utf8(format_string)
         args = [to_utf8(p) for p in args]
-        kwargs = {k: to_utf8(v) for k, v in kwargs.iteritems()}
+        kwargs = {k: to_utf8(v) for k, v in six.iteritems(kwargs)}
         return format_string.format(*args, **kwargs)
 
     # ignore other errors
@@ -45,9 +47,9 @@ def to_unicode(str_or_unicode, precise=False):
         u'привет'
     If `precise` flag is True, tries to guess the correct encoding first.
     """
-    encoding = quick_detect_encoding(str_or_unicode) if precise else 'utf-8'
-    if isinstance(str_or_unicode, str):
-        return unicode(str_or_unicode, encoding, 'replace')
+    if not isinstance(str_or_unicode, six.text_type):
+        encoding = quick_detect_encoding(str_or_unicode) if precise else 'utf-8'
+        return six.text_type(str_or_unicode, encoding, 'replace')
     return str_or_unicode
 
 
@@ -57,11 +59,12 @@ def detect_encoding(string):
 
     Defaults to UTF-8.
     """
+    assert isinstance(string, bytes)
     try:
         detected = chardet.detect(string)
         if detected:
             return detected.get('encoding') or 'utf-8'
-    except Exception, e:
+    except Exception as e:
         pass
     return 'utf-8'
 
@@ -72,11 +75,12 @@ def quick_detect_encoding(string):
 
     Uses cchardet. Fallbacks to detect_encoding.
     """
+    assert isinstance(string, bytes)
     try:
         detected = cchardet.detect(string)
         if detected:
             return detected.get('encoding') or detect_encoding(string)
-    except Exception, e:
+    except Exception as e:
         pass
     return detect_encoding(string)
 
@@ -87,7 +91,7 @@ def to_utf8(str_or_unicode):
     >>> utils.to_utf8(u'hi')
         'hi'
     """
-    if isinstance(str_or_unicode, unicode):
+    if not isinstance(str_or_unicode, six.text_type):
         return str_or_unicode.encode("utf-8", "ignore")
     return str(str_or_unicode)
 
@@ -119,8 +123,11 @@ def html_to_text(string):
         1. the string is expected to contain UTF-8 encoded HTML!
         2. returns utf-8 encoded str (not unicode)
     """
+    if isinstance(string, six.text_type):
+        string = string.encode('utf8')
+
     s = _prepend_utf8_declaration(string)
-    s = s.replace("\n", "")
+    s = s.replace(b"\n", b"")
 
     tree = html.fromstring(s)
 
@@ -155,7 +162,7 @@ def html_to_text(string):
 def _contains_charset_spec(s):
     """Return True if the first 4KB contain charset spec
     """
-    return s.lower().find('html; charset=', 0, 4096) != -1
+    return s.lower().find(b'html; charset=', 0, 4096) != -1
 
 
 def _prepend_utf8_declaration(s):
@@ -173,11 +180,11 @@ def _rm_excessive_newlines(s):
 def _encode_utf8(s):
     """Encode in 'utf-8' if unicode
     """
-    return s.encode('utf-8') if isinstance(s, unicode) else s
+    return s.encode('utf-8') if isinstance(s, six.text_type) else s
 
 
-_UTF8_DECLARATION = ('<meta http-equiv="Content-Type" content="text/html;'
-                     'charset=utf-8">')
+_UTF8_DECLARATION = (b'<meta http-equiv="Content-Type" content="text/html;'
+                     b'charset=utf-8">')
 
 
 _BLOCKTAGS  = ['div', 'p', 'ul', 'li', 'h1', 'h2', 'h3']

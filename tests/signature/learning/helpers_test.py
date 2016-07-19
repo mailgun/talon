@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import absolute_import
 from ... import *
 
 import regex as re
 
 from talon.signature.learning import helpers as h
 from talon.signature.learning.helpers import *
+from six.moves import range
 
 # First testing regex constants.
 VALID = '''
@@ -154,7 +156,7 @@ def test_extract_names():
         # check that extracted names could be compiled
         try:
             re.compile("|".join(extracted_names))
-        except Exception, e:
+        except Exception as e:
             ok_(False, ("Failed to compile extracted names {}"
                         "\n\nReason: {}").format(extracted_names, e))
         if expected_names:
@@ -204,7 +206,7 @@ def test_has_signature():
                         'sender@example.com'))
     assert_false(h.has_signature('http://www.example.com/555-555-5555',
                                  'sender@example.com'))
-    long_line = ''.join(['q' for e in xrange(28)])
+    long_line = ''.join(['q' for e in range(28)])
     assert_false(h.has_signature(long_line + ' sender', 'sender@example.com'))
     # wont crash on an empty string
     assert_false(h.has_signature('', ''))

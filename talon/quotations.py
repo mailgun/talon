@@ -5,6 +5,7 @@ The module's functions operate on message bodies trying to extract
 original messages (without quoted messages)
 """
 
+from __future__ import absolute_import
 import regex as re
 import logging
 from copy import deepcopy
@@ -13,6 +14,8 @@ from lxml import html, etree
 
 from talon.utils import get_delimiter, html_to_text
 from talon import html_quotations
+from six.moves import range
+import six
 
 
 log = logging.getLogger(__name__)
@@ -191,7 +194,7 @@ def mark_message_lines(lines):
     >>> mark_message_lines(['answer', 'From: foo@bar.com', '', '> question'])
     'tsem'
     """
-    markers = bytearray(len(lines))
+    markers = ['e' for _ in lines]
     i = 0
     while i < len(lines):
         if not lines[i].strip():
@@ -207,7 +210,7 @@ def mark_message_lines(lines):
             if splitter:
                 # append as many splitter markers as lines in splitter
                 splitter_lines = splitter.group().splitlines()
-                for j in xrange(len(splitter_lines)):
+                for j in range(len(splitter_lines)):
                     markers[i + j] = 's'
 
                 # skip splitter lines
@@ -217,7 +220,7 @@ def mark_message_lines(lines):
                 markers[i] = 't'
         i += 1
 
-    return markers
+    return ''.join(markers)
 
 
 def process_marked_lines(lines, markers, return_flags=[False, -1, -1]):
@@ -231,6 +234,7 @@ def process_marked_lines(lines, markers, return_flags=[False, -1, -1]):
     return_flags = [were_lines_deleted, first_deleted_line,
                     last_deleted_line]
     """
+    markers = ''.join(markers)
     # if there are no splitter there should be no markers
     if 's' not in markers and not re.search('(me*){3}', markers):
         markers = markers.replace('m', 't')
@@ -276,10 +280,15 @@ def preprocess(msg_body, delimiter, content_type='text/plain'):
     Replaces link brackets so that they couldn't be taken for quotation marker.
     Splits line in two if splitter pattern preceded by some text on the same
     line (done only for 'On <date> <person> wrote:' pattern).
+
+    Converts msg_body into a unicode.
     """
     # normalize links i.e. replace '<', '>' wrapping the link with some symbols
     # so that '>' closing the link couldn't be mistakenly taken for quotation
     # marker.
+    if isinstance(msg_body, bytes):
+        msg_body = msg_body.decode('utf8')
+
     def link_wrapper(link):
         newline_index = msg_body[:link.start()].rfind("\n")
         if msg_body[newline_index + 1] == ">":
@@ -342,11 +351,41 @@ def extract_from_html(msg_body):
     then extracting quotations from text,
     then checking deleted checkpoints,
     then deleting necessary tags.
+
+    Returns a unicode string.
     """
-    if msg_body.strip() == '':
+    if isinstance(msg_body, six.text_type):
+        msg_body = msg_body.encode('utf8')
+    elif not isinstance(msg_body, bytes):
+        msg_body = msg_body.encode('ascii')
+
+    result = _extract_from_html(msg_body)
+    if isinstance(result, bytes):
+        result = result.decode('utf8')
+
+    return result
+
+
+def _extract_from_html(msg_body):
+    """
+    Extract not quoted message from provided html message body
+    using tags and plain text algorithm.
+
+    Cut out the 'blockquote', 'gmail_quote' tags.
+    Cut Microsoft quotations.
+
+    Then use plain text algorithm to cut out splitter or
+    leftover quotation.
+    This works by adding checkpoint text to all html tags,
+    then converting html to text,
+    then extracting quotations from text,
+    then checking deleted checkpoints,
+    then deleting necessary tags.
+    """
+    if msg_body.strip() == b'':
         return msg_body
 
-    msg_body = msg_body.replace('\r\n', '').replace('\n', '')
+    msg_body = msg_body.replace(b'\r\n', b'').replace(b'\n', b'')
     html_tree = html.document_fromstring(
         msg_body,
         parser=html.HTMLParser(encoding="utf-8")
@@ -388,7 +427,7 @@ def extract_from_html(msg_body):
     lines_were_deleted, first_deleted, last_deleted = return_flags
     if lines_were_deleted:
         #collect checkpoints from deleted lines
-        for i in xrange(first_deleted, last_deleted):
+        for i in range(first_deleted, last_deleted):
             for checkpoint in line_checkpoints[i]:
                 quotation_checkpoints[checkpoint] = True
     else:
