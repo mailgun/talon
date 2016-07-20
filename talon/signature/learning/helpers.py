@@ -185,12 +185,13 @@ def capitalized_words_percent(s):
     s = to_unicode(s, precise=True)
     words = re.split('\s', s)
     words = [w for w in words if w.strip()]
+    words = [w for w in words if len(w) > 2]    
     capitalized_words_counter = 0
     valid_words_counter = 0
     for word in words:
         if not INVALID_WORD_START.match(word):
             valid_words_counter += 1
-            if word[0].isupper():
+            if word[0].isupper() and not word[1].isupper():
                 capitalized_words_counter += 1
     if valid_words_counter > 0 and len(words) > 1:
         return 100 * float(capitalized_words_counter) / valid_words_counter
