@@ -164,6 +164,8 @@ RE_PARENTHESIS_LINK = re.compile("\(https?://")
 
 SPLITTER_MAX_LINES = 4
 MAX_LINES_COUNT = 1000
+# an extensive research shows that exceeding this limit
+# leads to excessive processing time
 MAX_HTML_LEN = 2794202
 
 QUOT_PATTERN = re.compile('^>+ ?')
