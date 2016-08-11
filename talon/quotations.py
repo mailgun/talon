@@ -164,6 +164,9 @@ RE_PARENTHESIS_LINK = re.compile("\(https?://")
 
 SPLITTER_MAX_LINES = 4
 MAX_LINES_COUNT = 1000
+# an extensive research shows that exceeding this limit
+# leads to excessive processing time
+MAX_HTML_LEN = 2794202
 
 QUOT_PATTERN = re.compile('^>+ ?')
 NO_QUOT_LINE = re.compile('^[^>].*[\S].*')
@@ -382,6 +385,9 @@ def _extract_from_html(msg_body):
     then checking deleted checkpoints,
     then deleting necessary tags.
     """
+    if len(msg_body) > MAX_HTML_LEN:
+        return msg_body
+
     if msg_body.strip() == b'':
         return msg_body
 
