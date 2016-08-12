@@ -391,7 +391,7 @@ def _extract_from_html(msg_body):
     if msg_body.strip() == b'':
         return msg_body
 
-    msg_body = msg_body.replace(b'\r\n', b'').replace(b'\n', b'')
+    msg_body = msg_body.replace(b'\r\n', b'\n')
     html_tree = html.document_fromstring(
         msg_body,
         parser=html.HTMLParser(encoding="utf-8")
