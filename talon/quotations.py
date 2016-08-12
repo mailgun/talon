@@ -12,7 +12,7 @@ from copy import deepcopy
 
 from lxml import html, etree
 
-from talon.utils import get_delimiter, html_to_text
+from talon.utils import get_delimiter, html_tree_to_text
 from talon import html_quotations
 from six.moves import range
 import six
@@ -407,8 +407,7 @@ def _extract_from_html(msg_body):
 
     number_of_checkpoints = html_quotations.add_checkpoint(html_tree, 0)
     quotation_checkpoints = [False] * number_of_checkpoints
-    msg_with_checkpoints = html.tostring(html_tree)
-    plain_text = html_to_text(msg_with_checkpoints)
+    plain_text = html_tree_to_text(html_tree)
     plain_text = preprocess(plain_text, '\n', content_type='text/html')
     lines = plain_text.splitlines()
 
@@ -431,23 +430,29 @@ def _extract_from_html(msg_body):
     return_flags = []
     process_marked_lines(lines, markers, return_flags)
     lines_were_deleted, first_deleted, last_deleted = return_flags
+
+    if not lines_were_deleted and not cut_quotations:
+        return msg_body
+
     if lines_were_deleted:
         #collect checkpoints from deleted lines
         for i in range(first_deleted, last_deleted):
             for checkpoint in line_checkpoints[i]:
                 quotation_checkpoints[checkpoint] = True
-    else:
-        if cut_quotations:
-            return html.tostring(html_tree_copy)
-        else:
-            return msg_body
 
-    # Remove tags with quotation checkpoints
-    html_quotations.delete_quotation_tags(
-        html_tree_copy, 0, quotation_checkpoints
-    )
+        # Remove tags with quotation checkpoints
+        html_quotations.delete_quotation_tags(
+            html_tree_copy, 0, quotation_checkpoints
+        )
+
+    if _readable_text_empty(html_tree_copy):
+        return msg_body
 
     return html.tostring(html_tree_copy)
+
+
+def _readable_text_empty(html_tree):
+    return not bool(html_tree_to_text(html_tree).strip())
 
 
 def is_splitter(line):

@@ -392,3 +392,21 @@ def test_too_large_html():
                '</div>'
     eq_(RE_WHITESPACE.sub('', msg_body),
         RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body)))
+
+
+def test_readable_html_empty():
+    msg_body = """
+<blockquote>
+  Reply
+  <div>
+    On 11-Apr-2011, at 6:54 PM, Bob &lt;bob@example.com&gt; wrote:
+  </div>
+
+  <div>
+    Test
+  </div>
+
+</blockquote>"""
+
+    eq_(RE_WHITESPACE.sub('', msg_body),
+        RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body)))
