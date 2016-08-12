@@ -112,25 +112,7 @@ def get_delimiter(msg_body):
 
     return delimiter
 
-
-def html_to_text(string):
-    """
-    Dead-simple HTML-to-text converter:
-        >>> html_to_text("one<br>two<br>three")
-        >>> "one\ntwo\nthree"
-
-    NOTES:
-        1. the string is expected to contain UTF-8 encoded HTML!
-        2. returns utf-8 encoded str (not unicode)
-    """
-    if isinstance(string, six.text_type):
-        string = string.encode('utf8')
-
-    s = _prepend_utf8_declaration(string)
-    s = s.replace(b"\n", b"")
-
-    tree = html.fromstring(s)
-
+def html_tree_to_text(tree):
     for style in CSSSelector('style')(tree):
         style.getparent().remove(style)
 
@@ -157,6 +139,26 @@ def html_to_text(string):
 
     retval = _rm_excessive_newlines(text)
     return _encode_utf8(retval)
+
+
+def html_to_text(string):
+    """
+    Dead-simple HTML-to-text converter:
+        >>> html_to_text("one<br>two<br>three")
+        >>> "one\ntwo\nthree"
+
+    NOTES:
+        1. the string is expected to contain UTF-8 encoded HTML!
+        2. returns utf-8 encoded str (not unicode)
+    """
+    if isinstance(string, six.text_type):
+        string = string.encode('utf8')
+
+    s = _prepend_utf8_declaration(string)
+    s = s.replace(b"\n", b"")
+
+    tree = html.fromstring(s)
+    return html_tree_to_text(tree)
 
 
 def _contains_charset_spec(s):
