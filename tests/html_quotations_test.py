@@ -356,7 +356,8 @@ def test_CRLF():
     assert_false(symbol in extracted)
     eq_('<html></html>', RE_WHITESPACE.sub('', extracted))
 
-    msg_body = """Reply
+    msg_body = """My
+reply
 <blockquote>
 
   <div>
@@ -371,8 +372,8 @@ def test_CRLF():
     msg_body = msg_body.replace('\n', '\r\n')
     extracted = quotations.extract_from_html(msg_body)
     assert_false(symbol in extracted)    
-    eq_("<html><body><p>Reply</p></body></html>",
-        RE_WHITESPACE.sub('', extracted))
+    # Keep new lines otherwise "My reply" becomes one word - "Myreply" 
+    eq_("<html><body><p>My\nreply\n</p></body></html>", extracted)
 
 
 def test_gmail_forwarded_msg():
