@@ -117,7 +117,13 @@ def html_tree_to_text(tree):
         style.getparent().remove(style)
 
     for c in tree.xpath('//comment()'):
-        c.getparent().remove(c)
+        parent = c.getparent()
+
+        # comment with no parent does not impact produced text
+        if not parent:
+            continue
+
+        parent.remove(c)
 
     text   = ""
     for el in tree.iter():

@@ -6,6 +6,7 @@ from . import *
 from talon import utils as u
 import cchardet
 import six
+from lxml import html
 
 
 def test_get_delimiter():
@@ -107,3 +108,9 @@ font: 13px 'Lucida Grande', Arial, sans-serif;
 <p>TEXT 2 <!-- COMMENT 2 --></p>
 </div>"""
     eq_(b'TEXT 1 \nTEXT 2', u.html_to_text(html))
+
+
+def test_comment_no_parent():
+    s = "<!-- COMMENT 1 --> no comment"
+    d = html.document_fromstring(s)
+    eq_("no comment", u.html_tree_to_text(d))
