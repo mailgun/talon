@@ -7,8 +7,10 @@ import chardet
 import cchardet
 import regex as re
 
-from lxml import html
+from lxml.html import html5parser
 from lxml.cssselect import CSSSelector
+
+import html5lib
 
 from talon.constants import RE_DELIMITER
 import six
@@ -120,7 +122,7 @@ def html_tree_to_text(tree):
         parent = c.getparent()
 
         # comment with no parent does not impact produced text
-        if not parent:
+        if parent is None:
             continue
 
         parent.remove(c)
@@ -162,9 +164,16 @@ def html_to_text(string):
 
     s = _prepend_utf8_declaration(string)
     s = s.replace(b"\n", b"")
-
-    tree = html.fromstring(s)
+    tree = html_fromstring(s)
     return html_tree_to_text(tree)
+
+
+def html_fromstring(s):
+    return html5parser.fromstring(s, parser=_HTML5LIB_PARSER)
+
+
+def html_document_fromstring(s):
+    return html5parser.document_fromstring(s, parser=_HTML5LIB_PARSER)
 
 
 def _contains_charset_spec(s):
@@ -198,5 +207,15 @@ _UTF8_DECLARATION = (b'<meta http-equiv="Content-Type" content="text/html;'
 _BLOCKTAGS  = ['div', 'p', 'ul', 'li', 'h1', 'h2', 'h3']
 _HARDBREAKS = ['br', 'hr', 'tr']
 
-
 _RE_EXCESSIVE_NEWLINES = re.compile("\n{2,10}")
+
+# html5lib is a pure-python library that conforms to the WHATWG HTML spec
+# and is not vulnarable to certain attacks common for XML libraries
+_HTML5LIB_PARSER = html5lib.HTMLParser(
+    # build lxml tree
+    html5lib.treebuilders.getTreeBuilder("lxml"),
+    # remove namespace value from inside lxml.html.html5paser element tag
+    # otherwise it yields something like "{http://www.w3.org/1999/xhtml}div"
+    # instead of "div", throwing the algo off
+    namespaceHTMLElements=False
+)

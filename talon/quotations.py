@@ -12,7 +12,8 @@ from copy import deepcopy
 
 from lxml import html, etree
 
-from talon.utils import get_delimiter, html_tree_to_text
+from talon.utils import (get_delimiter, html_tree_to_text,
+                         html_document_fromstring)
 from talon import html_quotations
 from six.moves import range
 import six
@@ -392,10 +393,7 @@ def _extract_from_html(msg_body):
         return msg_body
 
     msg_body = msg_body.replace(b'\r\n', b'\n')
-    html_tree = html.document_fromstring(
-        msg_body,
-        parser=html.HTMLParser(encoding="utf-8")
-    )
+    html_tree = html_document_fromstring(msg_body)
     cut_quotations = (html_quotations.cut_gmail_quote(html_tree) or
                       html_quotations.cut_zimbra_quote(html_tree) or
                       html_quotations.cut_blockquote(html_tree) or
@@ -468,7 +466,7 @@ def is_splitter(line):
 
 def text_content(context):
     '''XPath Extension function to return a node text content.'''
-    return context.context_node.text_content().strip()
+    return context.context_node.xpath("string()").strip()
 
 
 def tail(context):
