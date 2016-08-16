@@ -53,6 +53,7 @@ setup(name='talon',
           'cchardet>=0.3.5',
           'cssselect',
           'six>=1.10.0',
+          'html5lib'
           ],
       tests_require=[
           "mock",
