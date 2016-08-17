@@ -114,6 +114,7 @@ def get_delimiter(msg_body):
 
     return delimiter
 
+
 def html_tree_to_text(tree):
     for style in CSSSelector('style')(tree):
         style.getparent().remove(style)
@@ -174,6 +175,10 @@ def html_fromstring(s):
 
 def html_document_fromstring(s):
     return html5parser.document_fromstring(s, parser=_HTML5LIB_PARSER)
+
+
+def cssselect(expr, tree):
+    return CSSSelector(expr)(tree)
 
 
 def _contains_charset_spec(s):
