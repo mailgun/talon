@@ -394,6 +394,10 @@ def _extract_from_html(msg_body):
 
     msg_body = msg_body.replace(b'\r\n', b'\n')
     html_tree = html_document_fromstring(msg_body)
+
+    if html_tree is None:
+        return msg_body
+
     cut_quotations = (html_quotations.cut_gmail_quote(html_tree) or
                       html_quotations.cut_zimbra_quote(html_tree) or
                       html_quotations.cut_blockquote(html_tree) or

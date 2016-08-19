@@ -112,5 +112,22 @@ font: 13px 'Lucida Grande', Arial, sans-serif;
 
 def test_comment_no_parent():
     s = "<!-- COMMENT 1 --> no comment"
-    d = html.document_fromstring(s)
+    d = u.html_document_fromstring(s)
     eq_("no comment", u.html_tree_to_text(d))
+
+
+@patch.object(u.html5parser, 'fromstring', Mock(side_effect=Exception()))
+def test_html_fromstring_exception():
+    eq_(None, u.html_fromstring("<html></html>"))
+
+
+@patch.object(u.html5parser, 'document_fromstring')
+def test_html_document_fromstring_exception(document_fromstring):
+    document_fromstring.side_effect = Exception()
+    eq_(None, u.html_document_fromstring("<html></html>"))
+
+
+@patch.object(u, 'html_fromstring', Mock(return_value=None))
+def test_bad_html_to_text():
+    bad_html = "one<br>two<br>three"
+    eq_(None, u.html_to_text(bad_html))

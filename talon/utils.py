@@ -159,6 +159,7 @@ def html_to_text(string):
     NOTES:
         1. the string is expected to contain UTF-8 encoded HTML!
         2. returns utf-8 encoded str (not unicode)
+        3. if html can't be parsed returns None
     """
     if isinstance(string, six.text_type):
         string = string.encode('utf8')
@@ -166,15 +167,29 @@ def html_to_text(string):
     s = _prepend_utf8_declaration(string)
     s = s.replace(b"\n", b"")
     tree = html_fromstring(s)
+
+    if tree is None:
+        return None
+
     return html_tree_to_text(tree)
 
 
 def html_fromstring(s):
-    return html5parser.fromstring(s, parser=_HTML5LIB_PARSER)
+    """Parse html tree from string. Return None if the string can't be parsed.
+    """
+    try:
+        return html5parser.fromstring(s, parser=_HTML5LIB_PARSER)
+    except Exception:
+        pass
 
 
 def html_document_fromstring(s):
-    return html5parser.document_fromstring(s, parser=_HTML5LIB_PARSER)
+    """Parse html tree from string. Return None if the string can't be parsed.
+    """
+    try:
+        return html5parser.document_fromstring(s, parser=_HTML5LIB_PARSER)
+    except Exception:
+        pass
 
 
 def cssselect(expr, tree):

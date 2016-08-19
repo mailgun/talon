@@ -413,3 +413,9 @@ def test_readable_html_empty():
 
     eq_(RE_WHITESPACE.sub('', msg_body),
         RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body)))
+
+
+@patch.object(quotations, 'html_document_fromstring', Mock(return_value=None))
+def test_bad_html():
+    bad_html = "<html></html>"
+    eq_(bad_html, quotations.extract_from_html(bad_html))
