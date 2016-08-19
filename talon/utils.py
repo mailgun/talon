@@ -7,8 +7,10 @@ import chardet
 import cchardet
 import regex as re
 
-from lxml import html
+from lxml.html import html5parser
 from lxml.cssselect import CSSSelector
+
+import html5lib
 
 from talon.constants import RE_DELIMITER
 import six
@@ -112,6 +114,7 @@ def get_delimiter(msg_body):
 
     return delimiter
 
+
 def html_tree_to_text(tree):
     for style in CSSSelector('style')(tree):
         style.getparent().remove(style)
@@ -120,7 +123,7 @@ def html_tree_to_text(tree):
         parent = c.getparent()
 
         # comment with no parent does not impact produced text
-        if not parent:
+        if parent is None:
             continue
 
         parent.remove(c)
@@ -156,15 +159,41 @@ def html_to_text(string):
     NOTES:
         1. the string is expected to contain UTF-8 encoded HTML!
         2. returns utf-8 encoded str (not unicode)
+        3. if html can't be parsed returns None
     """
     if isinstance(string, six.text_type):
         string = string.encode('utf8')
 
     s = _prepend_utf8_declaration(string)
     s = s.replace(b"\n", b"")
+    tree = html_fromstring(s)
 
-    tree = html.fromstring(s)
+    if tree is None:
+        return None
+
     return html_tree_to_text(tree)
+
+
+def html_fromstring(s):
+    """Parse html tree from string. Return None if the string can't be parsed.
+    """
+    try:
+        return html5parser.fromstring(s, parser=_HTML5LIB_PARSER)
+    except Exception:
+        pass
+
+
+def html_document_fromstring(s):
+    """Parse html tree from string. Return None if the string can't be parsed.
+    """
+    try:
+        return html5parser.document_fromstring(s, parser=_HTML5LIB_PARSER)
+    except Exception:
+        pass
+
+
+def cssselect(expr, tree):
+    return CSSSelector(expr)(tree)
 
 
 def _contains_charset_spec(s):
@@ -198,5 +227,15 @@ _UTF8_DECLARATION = (b'<meta http-equiv="Content-Type" content="text/html;'
 _BLOCKTAGS  = ['div', 'p', 'ul', 'li', 'h1', 'h2', 'h3']
 _HARDBREAKS = ['br', 'hr', 'tr']
 
-
 _RE_EXCESSIVE_NEWLINES = re.compile("\n{2,10}")
+
+# html5lib is a pure-python library that conforms to the WHATWG HTML spec
+# and is not vulnarable to certain attacks common for XML libraries
+_HTML5LIB_PARSER = html5lib.HTMLParser(
+    # build lxml tree
+    html5lib.treebuilders.getTreeBuilder("lxml"),
+    # remove namespace value from inside lxml.html.html5paser element tag
+    # otherwise it yields something like "{http://www.w3.org/1999/xhtml}div"
+    # instead of "div", throwing the algo off
+    namespaceHTMLElements=False
+)

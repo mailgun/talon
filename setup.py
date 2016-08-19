@@ -29,7 +29,7 @@ class InstallCommand(install):
 
 
 setup(name='talon',
-      version='1.2.16',
+      version='1.3.0',
       description=("Mailgun library "
                    "to extract message quotations and signatures."),
       long_description=open("README.rst").read(),
@@ -53,6 +53,7 @@ setup(name='talon',
           'cchardet>=0.3.5',
           'cssselect',
           'six>=1.10.0',
+          'html5lib'
           ],
       tests_require=[
           "mock",

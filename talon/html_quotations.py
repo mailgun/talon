@@ -6,6 +6,7 @@ messages (without quoted messages) from html
 from __future__ import absolute_import
 import regex as re
 
+from talon.utils import cssselect 
 
 CHECKPOINT_PREFIX = '#!%!'
 CHECKPOINT_SUFFIX = '!%!#'
@@ -78,7 +79,7 @@ def delete_quotation_tags(html_note, counter, quotation_checkpoints):
 
 def cut_gmail_quote(html_message):
     ''' Cuts the outermost block element with class gmail_quote. '''
-    gmail_quote = html_message.cssselect('div.gmail_quote')
+    gmail_quote = cssselect('div.gmail_quote', html_message)
     if gmail_quote and (gmail_quote[0].text is None or not RE_FWD.match(gmail_quote[0].text)):
         gmail_quote[0].getparent().remove(gmail_quote[0])
         return True
@@ -135,7 +136,7 @@ def cut_microsoft_quote(html_message):
 def cut_by_id(html_message):
     found = False
     for quote_id in QUOTE_IDS:
-        quote = html_message.cssselect('#{}'.format(quote_id))
+        quote = cssselect('#{}'.format(quote_id), html_message)
         if quote:
             found = True
             quote[0].getparent().remove(quote[0])
