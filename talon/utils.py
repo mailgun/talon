@@ -178,7 +178,7 @@ def html_fromstring(s):
     """Parse html tree from string. Return None if the string can't be parsed.
     """
     try:
-        return html5parser.fromstring(s, parser=_HTML5LIB_PARSER)
+        return html5parser.fromstring(s, parser=_html5lib_parser())
     except Exception:
         pass
 
@@ -187,7 +187,7 @@ def html_document_fromstring(s):
     """Parse html tree from string. Return None if the string can't be parsed.
     """
     try:
-        return html5parser.document_fromstring(s, parser=_HTML5LIB_PARSER)
+        return html5parser.document_fromstring(s, parser=_html5lib_parser())
     except Exception:
         pass
 
@@ -220,6 +220,21 @@ def _encode_utf8(s):
     return s.encode('utf-8') if isinstance(s, six.text_type) else s
 
 
+def _html5lib_parser():
+    """
+    html5lib is a pure-python library that conforms to the WHATWG HTML spec
+    and is not vulnarable to certain attacks common for XML libraries
+    """
+    return html5lib.HTMLParser(
+        # build lxml tree
+        html5lib.treebuilders.getTreeBuilder("lxml"),
+        # remove namespace value from inside lxml.html.html5paser element tag
+        # otherwise it yields something like "{http://www.w3.org/1999/xhtml}div"
+        # instead of "div", throwing the algo off
+        namespaceHTMLElements=False
+    )
+
+
 _UTF8_DECLARATION = (b'<meta http-equiv="Content-Type" content="text/html;'
                      b'charset=utf-8">')
 
@@ -228,14 +243,3 @@ _BLOCKTAGS  = ['div', 'p', 'ul', 'li', 'h1', 'h2', 'h3']
 _HARDBREAKS = ['br', 'hr', 'tr']
 
 _RE_EXCESSIVE_NEWLINES = re.compile("\n{2,10}")
-
-# html5lib is a pure-python library that conforms to the WHATWG HTML spec
-# and is not vulnarable to certain attacks common for XML libraries
-_HTML5LIB_PARSER = html5lib.HTMLParser(
-    # build lxml tree
-    html5lib.treebuilders.getTreeBuilder("lxml"),
-    # remove namespace value from inside lxml.html.html5paser element tag
-    # otherwise it yields something like "{http://www.w3.org/1999/xhtml}div"
-    # instead of "div", throwing the algo off
-    namespaceHTMLElements=False
-)
