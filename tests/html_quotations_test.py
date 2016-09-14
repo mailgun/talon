@@ -385,7 +385,7 @@ def test_gmail_forwarded_msg():
     eq_(RE_WHITESPACE.sub('', msg_body), RE_WHITESPACE.sub('', extracted))
 
 
-@patch.object(quotations, 'MAX_HTML_LEN', 1)
+@patch.object(u, '_MAX_TAGS_COUNT', 4)
 def test_too_large_html():
     msg_body = 'Reply' \
                '<div class="gmail_quote">' \

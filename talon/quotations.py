@@ -386,9 +386,6 @@ def _extract_from_html(msg_body):
     then checking deleted checkpoints,
     then deleting necessary tags.
     """
-    if len(msg_body) > MAX_HTML_LEN:
-        return msg_body
-
     if msg_body.strip() == b'':
         return msg_body
 
