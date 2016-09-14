@@ -386,7 +386,7 @@ def _extract_from_html(msg_body):
     then checking deleted checkpoints,
     then deleting necessary tags.
     """
-    if len(msg_body) > MAX_HTML_LEN:
+    if _html_too_big(msg_body):
         return msg_body
 
     if msg_body.strip() == b'':
@@ -483,3 +483,12 @@ def register_xpath_extensions():
     ns.prefix = 'mg'
     ns['text_content'] = text_content
     ns['tail'] = tail
+
+
+def _html_too_big(msg_body):
+    return msg_body.count('<') > _MAX_TAGS_COUNT
+
+
+# an extensive research shows that exceeding this limit
+# might lead to excessive processing time
+_MAX_TAGS_COUNT = 419
