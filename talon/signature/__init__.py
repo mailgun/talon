@@ -23,9 +23,12 @@ trained against, don't forget to regenerate:
 from __future__ import absolute_import
 import os
 
-from . import extraction
-from . extraction import extract  #noqa
-from . learning import classifier
+try:
+    from . import extraction
+    from . extraction import extract  #noqa
+    from . learning import classifier
+except ImportError:
+    pass
 
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
