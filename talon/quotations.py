@@ -463,17 +463,14 @@ def split_emails(msg):
 
     Return the corrected markers
     """
-    print "Conal's split_email method!"
     delimiter = get_delimiter(msg)
     msg_body = preprocess(msg, delimiter)
     # don't process too long messages
     lines = msg_body.splitlines()[:MAX_LINES_COUNT]
     markers = mark_message_lines(lines)
-    print "Conal's split_email method obtained initial markers: " + markers
     # we don't want splitlines in header blocks
     markers = correct_splitlines_in_headers(markers, lines)
 
-    print "Conal's split_email method returning corrected markers: " + markers
     return markers
 
 
