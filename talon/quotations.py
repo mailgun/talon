@@ -175,6 +175,7 @@ NO_QUOT_LINE = re.compile('^[^>].*[\S].*')
 # Regular expression to identify if a line is a header.
 RE_HEADER = re.compile(": ")
 
+
 def extract_from(msg_body, content_type='text/plain'):
     try:
         if content_type == 'text/plain':
