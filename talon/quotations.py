@@ -172,6 +172,8 @@ MAX_HTML_LEN = 2794202
 QUOT_PATTERN = re.compile('^>+ ?')
 NO_QUOT_LINE = re.compile('^[^>].*[\S].*')
 
+# Regular expression to identify if a line is a header.
+RE_HEADER = re.compile(": ")
 
 def extract_from(msg_body, content_type='text/plain'):
     try:
@@ -448,6 +450,47 @@ def _extract_from_html(msg_body):
         return msg_body
 
     return html.tostring(html_tree_copy)
+
+
+def split_emails(msg):
+    """
+    Given a message (which may consist of an email conversation thread with multiple emails), mark the lines to identify
+     split lines, content lines and empty lines.
+
+    Correct the split line markers inside header blocks. Header blocks are identified by the regular expression
+    RE_HEADER.
+
+    Return the corrected markers
+    """
+    print "Conal's split_email method!"
+    delimiter = get_delimiter(msg)
+    msg_body = preprocess(msg, delimiter)
+    # don't process too long messages
+    lines = msg_body.splitlines()[:MAX_LINES_COUNT]
+    markers = mark_message_lines(lines)
+    print "Conal's split_email method obtained initial markers: " + markers
+    # we don't want splitlines in header blocks
+    markers = correct_splitlines_in_headers(markers, lines)
+
+    print "Conal's split_email method returning corrected markers: " + markers
+    return markers
+
+
+def correct_splitlines_in_headers(markers, lines):
+    """Corrects markers by removing splitlines deemed to be inside header blocks"""
+    updated_markers = ""
+    i = -1
+
+    for m in markers:
+        if m == 's':
+            if i > -1:
+                if bool(re.search(RE_HEADER, lines[i])):
+                    m = 't'
+
+        updated_markers += m
+        i += 1
+
+    return updated_markers
 
 
 def _readable_text_empty(html_tree):

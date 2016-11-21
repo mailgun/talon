@@ -696,3 +696,23 @@ def test_standard_replies():
                 "'%(reply)s' != %(stripped)s for %(fn)s" % \
                 {'reply': reply_text, 'stripped': stripped_text,
                  'fn': filename}
+
+
+def test_split_email():
+    msg = """From: Mr. X
+Date: 24 February 2016
+To: Mr. Y
+Subject: Hi
+Attachments: none
+Goodbye.
+From: Mr. Y
+To: Mr. X
+Date: 24 February 2016
+Subject: Hi
+Attachments: none
+
+Hello.
+"""
+    expected_markers = "stttttsttttet"
+    markers = quotations.split_emails(msg)
+    eq_(markers, expected_markers)
