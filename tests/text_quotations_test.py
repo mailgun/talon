@@ -712,7 +712,11 @@ Subject: Hi
 Attachments: none
 
 Hello.
+
+-- Original Message --
+On 24th February 2016 at 09.32am Conal Wrote:
+Hey!
 """
-    expected_markers = "stttttsttttet"
+    expected_markers = "stttttsttttetestt"
     markers = quotations.split_emails(msg)
     eq_(markers, expected_markers)
