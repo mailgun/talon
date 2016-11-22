@@ -172,6 +172,9 @@ MAX_HTML_LEN = 2794202
 QUOT_PATTERN = re.compile('^>+ ?')
 NO_QUOT_LINE = re.compile('^[^>].*[\S].*')
 
+# Regular expression to identify if a line is a header.
+RE_HEADER = re.compile(": ")
+
 
 def extract_from(msg_body, content_type='text/plain'):
     try:
@@ -448,6 +451,54 @@ def _extract_from_html(msg_body):
         return msg_body
 
     return html.tostring(html_tree_copy)
+
+
+def split_emails(msg):
+    """
+    Given a message (which may consist of an email conversation thread with multiple emails), mark the lines to identify
+     split lines, content lines and empty lines.
+
+    Correct the split line markers inside header blocks. Header blocks are identified by the regular expression
+    RE_HEADER.
+
+    Return the corrected markers
+    """
+    delimiter = get_delimiter(msg)
+    msg_body = preprocess(msg, delimiter)
+    # don't process too long messages
+    lines = msg_body.splitlines()[:MAX_LINES_COUNT]
+    markers = mark_message_lines(lines)
+
+    # we don't want splitlines in header blocks
+    markers = _correct_splitlines_in_headers(markers, lines)
+
+    return markers
+
+
+def _correct_splitlines_in_headers(markers, lines):
+    """Corrects markers by removing splitlines deemed to be inside header blocks"""
+    updated_markers = ""
+    i = 0
+    in_header_block = False
+
+    for m in markers:
+        # Only set in_header_block flag true when we hit an 's' and the line is a header.
+        if m == 's':
+            if not in_header_block:
+                if bool(re.search(RE_HEADER, lines[i])):
+                    in_header_block = True
+            else:
+                m = 't'
+
+        # If the line is not a header line, set in_header_block false.
+        if not bool(re.search(RE_HEADER, lines[i])):
+            in_header_block = False
+
+        # Add the marker to the new updated markers string.
+        updated_markers += m
+        i += 1
+
+    return updated_markers
 
 
 def _readable_text_empty(html_tree):
