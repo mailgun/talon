@@ -485,17 +485,13 @@ def _correct_splitlines_in_headers(markers, lines):
         # Only set in_header_block flag true when we hit an 's' and the line is a header.
         if m == 's':
             if not in_header_block:
-                if i == 0:
+                if bool(re.search(RE_HEADER, lines[i])):
                     in_header_block = True
-                elif i > 0 and not bool(re.search(RE_HEADER, lines[i-1])):
-                    in_header_block = True
-                else:
-                    m = 't'
             else:
                 m = 't'
 
         # If the line is not a header line, set in_header_block false.
-        if not m == 's' and not bool(re.search(RE_HEADER, lines[i])):
+        if not bool(re.search(RE_HEADER, lines[i])):
             in_header_block = False
 
         # Add the marker to the new updated markers string.
