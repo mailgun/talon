@@ -42,6 +42,12 @@ RE_ON_DATE_SMB_WROTE = re.compile(
             u'På',
             # Swedish, Danish
             'Den',
+            # Russian: 11 января 2017 г., 18:20 пользователь Иван Иванов <ivan@example.net> написал:
+            '\d{2} (.+) \d{4}',
+            # Russian: 10.01.2017 19:55, Иван Иванов пишет:
+            '\d{2}\.\d{2}\.\d{4}',
+            # Russian: ср, 11 янв. 2017 г. в 20:47, Ivan Ivanov <ivan@example.net>:
+            '.{2,11}, \d{1,2}\.? .{3,8} \d{4}'
         )),
         # Date and sender separator
         u'|'.join((
@@ -64,23 +70,31 @@ RE_ON_DATE_SMB_WROTE = re.compile(
             'schrieb',
             # Norwegian, Swedish
             'skrev',
+            # Russian
+            u'написал',u'пишет'
         ))
     ))
+
+
 # Special case for languages where text is translated like this: 'on {date} wrote {somebody}:'
 RE_ON_DATE_WROTE_SMB = re.compile(
     u'(-*[>]?[ ]?({0})[ ].*(.*\n){{0,2}}.*({1})[ ]*.*:)'.format(
         # Beginning of the line
         u'|'.join((
-        	'Op',
-        	#German
-        	'Am'
+            'Op',
+            # German
+            'Am',
+            # Russian
+            u'Вы'
         )),
         # Ending of the line
         u'|'.join((
             # Dutch
             'schreef','verzond','geschreven',
             # German
-            'schrieb'
+            'schrieb',
+            # Russian
+            u'писали'
         ))
     )
     )
@@ -124,7 +138,7 @@ RE_EMPTY_QUOTATION = re.compile(
 RE_ORIGINAL_MESSAGE = re.compile(u'[\s]*[-]+[ ]*({})[ ]*[-]+'.format(
     u'|'.join((
         # English
-        'Original Message', 'Reply Message',
+        'Original Message', 'Reply Message', 'Reply to message',
         # German
         u'Ursprüngliche Nachricht', 'Antwort Nachricht',
         # Danish
@@ -134,9 +148,9 @@ RE_ORIGINAL_MESSAGE = re.compile(u'[\s]*[-]+[ ]*({})[ ]*[-]+'.format(
 RE_FROM_COLON_OR_DATE_COLON = re.compile(u'(_+\r?\n)?[\s]*(:?[*]?{})[\s]?:[*]? .*'.format(
     u'|'.join((
         # "From" in different languages.
-        'From', 'Van', 'De', 'Von', 'Fra', u'Från',
+        'From', 'Van', 'De', 'Von', 'Fra', u'Från', u'От', u'Від'
         # "Date" in different languages.
-        'Date', 'Datum', u'Envoyé', 'Skickat', 'Sendt',
+        'Date', 'Datum', u'Envoyé', 'Skickat', 'Sendt', u'Дата', u'Надіслано', 'Sent', 'Enviado', 'Enviada em', 'Fecha'
     ))), re.I)
 
 SPLITTER_PATTERNS = [
@@ -154,7 +168,14 @@ SPLITTER_PATTERNS = [
     re.compile('\S{3,10}, \d\d? \S{3,10} 20\d\d,? \d\d?:\d\d(:\d\d)?'
                '( \S+){3,6}@\S+:'),
     # Sent from Samsung MobileName <address@example.com> wrote:
-    re.compile('Sent from Samsung .*@.*> wrote')
+    re.compile('Sent from Samsung .*@.*> wrote'),
+    # Ivan Ivanov написал(а):
+    re.compile(u'.+ написал(\(а\))?:'),
+    # ср, 11 янв. 2017 г. в 20:47, Ivan Ivanov <ivan@example.net>:
+    re.compile(u'.{2,11},\s\d{1,2}\.?\s.{3,8}\s\d{4},?\s(.+)<[^@]+@[^@]+>:'),
+    # Herr Mueller <mueller@example.com> schrieb am Do. 24. Nov.
+    # 2016 um 19:51:
+    re.compile('[^\n]+ schrieb am .+ um \d{2}:\d{2}:', re.S)
     ]
 
 
