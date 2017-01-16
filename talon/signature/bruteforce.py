@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from __future__ import absolute_import
 import logging
 
@@ -11,7 +13,7 @@ log = logging.getLogger(__name__)
 
 
 # regex to fetch signature based on common signature words
-RE_SIGNATURE = re.compile(r'''
+RE_SIGNATURE = re.compile(ur'''
                (
                    (?:
                        ^[\s]*--*[\s]*[a-z \.]*$
@@ -23,14 +25,15 @@ RE_SIGNATURE = re.compile(r'''
                        ^cheers[\s,!]*$
                        |
                        ^best[ a-z]*[\s,!]*$
+                       |
+                       ^с\sуважением,\s(.+)$
                    )
                    .*
                )
                ''', re.I | re.X | re.M | re.S)
 
-
 # signatures appended by phone email clients
-RE_PHONE_SIGNATURE = re.compile(r'''
+RE_PHONE_SIGNATURE = re.compile(ur'''
                (
                    (?:
                        ^sent[ ]{1}from[ ]{1}my[\s,!\w]*$
@@ -40,6 +43,10 @@ RE_PHONE_SIGNATURE = re.compile(r'''
                        ^sent[ ]([\S]*[ ])?from[ ]my[ ]BlackBerry.*$
                        |
                        ^Enviado[ ]desde[ ]mi[ ]([\S]+[ ]){0,2}BlackBerry.*$
+                       |
+                       ^отправлено[ ](из|с)[ ].+$
+                       |
+                       ^надіслано[ ](з)[ ].+$
                    )
                    .*
                )
