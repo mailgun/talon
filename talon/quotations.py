@@ -479,8 +479,8 @@ def split_emails(msg):
 
 def _mark_quoted_email_splitlines(markers, lines):
     """
-    When there are headers indented with '>' characters, we will attempt to identify if the header is a splitline header
-    using a slightly altered SPLITTER_PATTERNS list and mark it as 's'.
+    When there are headers indented with '>' characters, this method will attempt to identify if the header is a
+    splitline header. If it is, then we mark it with 's' instead of leaving it as 'm' and return the new markers.
     """
     # Create a list of markers to easily alter specific characters
     markerlist = list(markers)
