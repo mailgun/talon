@@ -509,7 +509,10 @@ def _correct_splitlines_in_headers(markers, lines):
                 if bool(re.search(RE_HEADER, lines[i])):
                     in_header_block = True
             else:
-                m = 't'
+                if QUOT_PATTERN.match(lines[i]):
+                    m = 'm'
+                else:
+                    m = 't'
 
         # If the line is not a header line, set in_header_block false.
         if not bool(re.search(RE_HEADER, lines[i])):

@@ -730,6 +730,6 @@ Hey!
 > > Subject: Test
 > > Hi
 """
-    expected_markers = "stttttsttttetesttesmtmmmmsmtmm"
+    expected_markers = "stttttsttttetesttesmmmmmmsmmmm"
     markers = quotations.split_emails(msg)
     eq_(markers, expected_markers)
