@@ -723,7 +723,13 @@ Hey!
 > To: xxx@gmail.com; xxx@hotmail.com; xxx@yahoo.com; xxx@aol.com; xxx@comcast.net; xxx@nyc.rr.com
 >
 > Hi
+>
+> > From: bob@xxx.mailgun.org
+> > To: xxx@gmail.com; xxx@hotmail.com; xxx@yahoo.com; xxx@aol.com; xxx@comcast.net; xxx@nyc.rr.com
+> > Date: Mon, 2 Apr 2012 17:44:22 +0400
+> > Subject: Test
+> > Hi
 """
-    expected_markers = "stttttsttttetesttesmtmmm"
+    expected_markers = "stttttsttttetesttesmtmmmmsmtmm"
     markers = quotations.split_emails(msg)
     eq_(markers, expected_markers)
