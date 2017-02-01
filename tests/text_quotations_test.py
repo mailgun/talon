@@ -716,7 +716,14 @@ Hello.
 -- Original Message --
 On 24th February 2016 at 09.32am Conal Wrote:
 Hey!
+
+> Date: Mon, 2 Apr 2012 17:44:22 +0400
+> Subject: Test
+> From: bob@xxx.mailgun.org
+> To: xxx@gmail.com; xxx@hotmail.com; xxx@yahoo.com; xxx@aol.com; xxx@comcast.net; xxx@nyc.rr.com
+>
+> Hi
 """
-    expected_markers = "stttttsttttetestt"
+    expected_markers = "stttttsttttetesttesmtmmm"
     markers = quotations.split_emails(msg)
     eq_(markers, expected_markers)
