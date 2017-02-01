@@ -469,10 +469,31 @@ def split_emails(msg):
     lines = msg_body.splitlines()[:MAX_LINES_COUNT]
     markers = mark_message_lines(lines)
 
+    markers = _mark_quoted_email_splitlines(markers, lines)
+
     # we don't want splitlines in header blocks
     markers = _correct_splitlines_in_headers(markers, lines)
 
     return markers
+
+
+def _mark_quoted_email_splitlines(markers, lines):
+    """
+    When there are headers indented with '>' characters, we will attempt to identify if the header is a splitline header
+    using a slightly altered SPLITTER_PATTERNS list and mark it as 's'.
+    """
+    # Create a list of markers to easily alter specific characters
+    markerlist = list(markers)
+    for i, line in enumerate(lines):
+        if markerlist[i] != 'm':
+            continue
+        for pattern in SPLITTER_PATTERNS:
+            matcher = re.search(pattern, line)
+            if matcher:
+                markerlist[i] = 's'
+                break
+
+    return "".join(markerlist)
 
 
 def _correct_splitlines_in_headers(markers, lines):
