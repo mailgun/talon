@@ -188,7 +188,7 @@ def extract_from(msg_body, content_type='text/plain'):
     return msg_body
 
 
-def mark_message_lines(lines):
+def mark_message_lines(lines, ignore_initial_spaces=False):
     """Mark message lines with markers to distinguish quotation lines.
 
     Markers:
@@ -204,6 +204,8 @@ def mark_message_lines(lines):
     markers = ['e' for _ in lines]
     i = 0
     while i < len(lines):
+        if ignore_initial_spaces:
+            lines[i] = lines[i].lstrip(' ')
         if not lines[i].strip():
             markers[i] = 'e'  # empty line
         elif QUOT_PATTERN.match(lines[i]):
@@ -480,10 +482,11 @@ def split_emails(msg):
     Return the corrected markers
     """
     msg_body = _replace_link_brackets(msg)
+    ignore_initial_spaces = True
 
     # don't process too long messages
     lines = msg_body.splitlines()[:MAX_LINES_COUNT]
-    markers = mark_message_lines(lines)
+    markers = mark_message_lines(lines, ignore_initial_spaces)
 
     markers = _mark_quoted_email_splitlines(markers, lines)
 
