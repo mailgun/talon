@@ -290,9 +290,19 @@ def preprocess(msg_body, delimiter, content_type='text/plain'):
 
     Converts msg_body into a unicode.
     """
-    # normalize links i.e. replace '<', '>' wrapping the link with some symbols
-    # so that '>' closing the link couldn't be mistakenly taken for quotation
-    # marker.
+    msg_body = _replace_link_brackets(msg_body)
+
+    msg_body = _wrap_splitter_with_newline(msg_body, delimiter, content_type)
+
+    return msg_body
+
+
+def _replace_link_brackets(msg_body):
+    """Normalize links i.e. replace '<', '>' wrapping the link with some symbols
+    so that '>' closing the link couldn't be mistakenly taken for quotation marker.
+
+    Converts msg_body into a unicode
+    """
     if isinstance(msg_body, bytes):
         msg_body = msg_body.decode('utf8')
 
@@ -304,7 +314,13 @@ def preprocess(msg_body, delimiter, content_type='text/plain'):
             return "@@%s@@" % link.group(1)
 
     msg_body = re.sub(RE_LINK, link_wrapper, msg_body)
+    return msg_body
 
+
+def _wrap_splitter_with_newline(msg_body, delimiter, content_type='text/plain'):
+    """Splits line in two if splitter pattern preceded by some text on the same
+    line (done only for 'On <date> <person> wrote:' pattern.
+    """
     def splitter_wrapper(splitter):
         """Wraps splitter with new line"""
         if splitter.start() and msg_body[splitter.start() - 1] != '\n':
@@ -463,8 +479,8 @@ def split_emails(msg):
 
     Return the corrected markers
     """
-    delimiter = get_delimiter(msg)
-    msg_body = preprocess(msg, delimiter)
+    msg_body = _replace_link_brackets(msg)
+
     # don't process too long messages
     lines = msg_body.splitlines()[:MAX_LINES_COUNT]
     markers = mark_message_lines(lines)
