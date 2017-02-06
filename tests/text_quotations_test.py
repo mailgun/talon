@@ -713,7 +713,7 @@ def test_split_email():
 
     Hello.
 
-        On 24th February 2016 at 09.32am, Conal Wrote:
+        On 24th February 2016 at 09.32am, Conal wrote:
 
         Hey!
 
@@ -742,6 +742,6 @@ def test_split_email():
         >
         >
 """
-    expected_markers = "stttttsttttetetetesmmmmmmssmmmmmmsmmmmmmmm"
+    expected_markers = "stttttsttttetesetesmmmmmmssmmmmmmsmmmmmmmm"
     markers = quotations.split_emails(msg)
     eq_(markers, expected_markers)
