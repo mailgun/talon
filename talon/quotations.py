@@ -482,11 +482,10 @@ def split_emails(msg):
     Return the corrected markers
     """
     msg_body = _replace_link_brackets(msg)
-    ignore_initial_spaces = True
 
     # don't process too long messages
     lines = msg_body.splitlines()[:MAX_LINES_COUNT]
-    markers = mark_message_lines(lines, ignore_initial_spaces)
+    markers = mark_message_lines(lines, ignore_initial_spaces=True)
 
     markers = _mark_quoted_email_splitlines(markers, lines)
 
