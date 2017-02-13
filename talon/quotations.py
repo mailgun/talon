@@ -300,8 +300,10 @@ def preprocess(msg_body, delimiter, content_type='text/plain'):
 
 
 def _replace_link_brackets(msg_body):
-    """Normalize links i.e. replace '<', '>' wrapping the link with some symbols
-    so that '>' closing the link couldn't be mistakenly taken for quotation marker.
+    """
+    Normalize links i.e. replace '<', '>' wrapping the link with some symbols
+    so that '>' closing the link couldn't be mistakenly taken for quotation
+    marker.
 
     Converts msg_body into a unicode
     """
@@ -320,7 +322,8 @@ def _replace_link_brackets(msg_body):
 
 
 def _wrap_splitter_with_newline(msg_body, delimiter, content_type='text/plain'):
-    """Splits line in two if splitter pattern preceded by some text on the same
+    """
+    Splits line in two if splitter pattern preceded by some text on the same
     line (done only for 'On <date> <person> wrote:' pattern.
     """
     def splitter_wrapper(splitter):
@@ -473,11 +476,12 @@ def _extract_from_html(msg_body):
 
 def split_emails(msg):
     """
-    Given a message (which may consist of an email conversation thread with multiple emails), mark the lines to identify
-     split lines, content lines and empty lines.
+    Given a message (which may consist of an email conversation thread with
+    multiple emails), mark the lines to identify split lines, content lines and
+    empty lines.
 
-    Correct the split line markers inside header blocks. Header blocks are identified by the regular expression
-    RE_HEADER.
+    Correct the split line markers inside header blocks. Header blocks are
+    identified by the regular expression RE_HEADER.
 
     Return the corrected markers
     """
@@ -497,8 +501,9 @@ def split_emails(msg):
 
 def _mark_quoted_email_splitlines(markers, lines):
     """
-    When there are headers indented with '>' characters, this method will attempt to identify if the header is a
-    splitline header. If it is, then we mark it with 's' instead of leaving it as 'm' and return the new markers.
+    When there are headers indented with '>' characters, this method will
+    attempt to identify if the header is a splitline header. If it is, then we
+    mark it with 's' instead of leaving it as 'm' and return the new markers.
     """
     # Create a list of markers to easily alter specific characters
     markerlist = list(markers)
@@ -515,13 +520,15 @@ def _mark_quoted_email_splitlines(markers, lines):
 
 
 def _correct_splitlines_in_headers(markers, lines):
-    """Corrects markers by removing splitlines deemed to be inside header blocks"""
+    """
+    Corrects markers by removing splitlines deemed to be inside header blocks.
+    """
     updated_markers = ""
     i = 0
     in_header_block = False
 
     for m in markers:
-        # Only set in_header_block flag true when we hit an 's' and the line is a header.
+        # Only set in_header_block flag when we hit an 's' and line is a header
         if m == 's':
             if not in_header_block:
                 if bool(re.search(RE_HEADER, lines[i])):
