@@ -188,6 +188,19 @@ def extract_from(msg_body, content_type='text/plain'):
     return msg_body
 
 
+def remove_initial_spaces_and_mark_message_lines(lines):
+    """
+    Removes the initial spaces in each line before marking message lines.
+
+    This ensures headers can be identified if they are indented with spaces.
+    """
+    i = 0
+    while i < len(lines):
+        lines[i] = lines[i].lstrip(' ')
+        i += 1
+    return mark_message_lines(lines)
+
+
 def mark_message_lines(lines):
     """Mark message lines with markers to distinguish quotation lines.
 
@@ -290,9 +303,21 @@ def preprocess(msg_body, delimiter, content_type='text/plain'):
 
     Converts msg_body into a unicode.
     """
-    # normalize links i.e. replace '<', '>' wrapping the link with some symbols
-    # so that '>' closing the link couldn't be mistakenly taken for quotation
-    # marker.
+    msg_body = _replace_link_brackets(msg_body)
+
+    msg_body = _wrap_splitter_with_newline(msg_body, delimiter, content_type)
+
+    return msg_body
+
+
+def _replace_link_brackets(msg_body):
+    """
+    Normalize links i.e. replace '<', '>' wrapping the link with some symbols
+    so that '>' closing the link couldn't be mistakenly taken for quotation
+    marker.
+
+    Converts msg_body into a unicode
+    """
     if isinstance(msg_body, bytes):
         msg_body = msg_body.decode('utf8')
 
@@ -304,7 +329,14 @@ def preprocess(msg_body, delimiter, content_type='text/plain'):
             return "@@%s@@" % link.group(1)
 
     msg_body = re.sub(RE_LINK, link_wrapper, msg_body)
+    return msg_body
 
+
+def _wrap_splitter_with_newline(msg_body, delimiter, content_type='text/plain'):
+    """
+    Splits line in two if splitter pattern preceded by some text on the same
+    line (done only for 'On <date> <person> wrote:' pattern.
+    """
     def splitter_wrapper(splitter):
         """Wraps splitter with new line"""
         if splitter.start() and msg_body[splitter.start() - 1] != '\n':
@@ -455,19 +487,22 @@ def _extract_from_html(msg_body):
 
 def split_emails(msg):
     """
-    Given a message (which may consist of an email conversation thread with multiple emails), mark the lines to identify
-     split lines, content lines and empty lines.
+    Given a message (which may consist of an email conversation thread with
+    multiple emails), mark the lines to identify split lines, content lines and
+    empty lines.
 
-    Correct the split line markers inside header blocks. Header blocks are identified by the regular expression
-    RE_HEADER.
+    Correct the split line markers inside header blocks. Header blocks are
+    identified by the regular expression RE_HEADER.
 
     Return the corrected markers
     """
-    delimiter = get_delimiter(msg)
-    msg_body = preprocess(msg, delimiter)
+    msg_body = _replace_link_brackets(msg)
+
     # don't process too long messages
     lines = msg_body.splitlines()[:MAX_LINES_COUNT]
-    markers = mark_message_lines(lines)
+    markers = remove_initial_spaces_and_mark_message_lines(lines)
+
+    markers = _mark_quoted_email_splitlines(markers, lines)
 
     # we don't want splitlines in header blocks
     markers = _correct_splitlines_in_headers(markers, lines)
@@ -475,20 +510,45 @@ def split_emails(msg):
     return markers
 
 
+def _mark_quoted_email_splitlines(markers, lines):
+    """
+    When there are headers indented with '>' characters, this method will
+    attempt to identify if the header is a splitline header. If it is, then we
+    mark it with 's' instead of leaving it as 'm' and return the new markers.
+    """
+    # Create a list of markers to easily alter specific characters
+    markerlist = list(markers)
+    for i, line in enumerate(lines):
+        if markerlist[i] != 'm':
+            continue
+        for pattern in SPLITTER_PATTERNS:
+            matcher = re.search(pattern, line)
+            if matcher:
+                markerlist[i] = 's'
+                break
+
+    return "".join(markerlist)
+
+
 def _correct_splitlines_in_headers(markers, lines):
-    """Corrects markers by removing splitlines deemed to be inside header blocks"""
+    """
+    Corrects markers by removing splitlines deemed to be inside header blocks.
+    """
     updated_markers = ""
     i = 0
     in_header_block = False
 
     for m in markers:
-        # Only set in_header_block flag true when we hit an 's' and the line is a header.
+        # Only set in_header_block flag when we hit an 's' and line is a header
         if m == 's':
             if not in_header_block:
                 if bool(re.search(RE_HEADER, lines[i])):
                     in_header_block = True
             else:
-                m = 't'
+                if QUOT_PATTERN.match(lines[i]):
+                    m = 'm'
+                else:
+                    m = 't'
 
         # If the line is not a header line, set in_header_block false.
         if not bool(re.search(RE_HEADER, lines[i])):
