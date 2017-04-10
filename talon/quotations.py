@@ -139,6 +139,13 @@ RE_FROM_COLON_OR_DATE_COLON = re.compile(u'(_+\r?\n)?[\s]*(:?[*]?{})[\s]?:[*]?.*
         'Date', 'Datum', u'Envoyé', 'Skickat', 'Sendt',
     ))), re.I)
 
+# ---- John Smith wrote ----
+RE_ANDROID_WROTE = re.compile(u'[\s]*[-]+.*({})[ ]*[-]+'.format(
+    u'|'.join((
+        # English
+        'wrote'
+    ))), re.I)
+
 SPLITTER_PATTERNS = [
     RE_ORIGINAL_MESSAGE,
     RE_ON_DATE_SMB_WROTE,
@@ -154,9 +161,9 @@ SPLITTER_PATTERNS = [
     re.compile('\S{3,10}, \d\d? \S{3,10} 20\d\d,? \d\d?:\d\d(:\d\d)?'
                '( \S+){3,6}@\S+:'),
     # Sent from Samsung MobileName <address@example.com> wrote:
-    re.compile('Sent from Samsung .*@.*> wrote')
+    re.compile('Sent from Samsung .*@.*> wrote'),
+    RE_ANDROID_WROTE
     ]
-
 
 RE_LINK = re.compile('<(http://[^>]*)>')
 RE_NORMALIZED_LINK = re.compile('@@(http://[^>@]*)@@')

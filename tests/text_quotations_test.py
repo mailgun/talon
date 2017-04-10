@@ -142,7 +142,8 @@ def _check_pattern_original_message(original_message_indicator):
 -----{}-----
 
 Test"""
-    eq_('Test reply', quotations.extract_from_plain(msg_body.format(six.text_type(original_message_indicator))))
+    eq_('Test reply', quotations.extract_from_plain(
+        msg_body.format(six.text_type(original_message_indicator))))
 
 def test_english_original_message():
     _check_pattern_original_message('Original Message')
@@ -162,6 +163,17 @@ def test_reply_after_quotations():
 >
 > Test
 Test reply"""
+    eq_("Test reply", quotations.extract_from_plain(msg_body))
+
+
+def test_android_wrote():
+    msg_body = """Test reply
+
+---- John Smith wrote ----
+
+> quoted
+> text
+"""
     eq_("Test reply", quotations.extract_from_plain(msg_body))
 
 
