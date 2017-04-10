@@ -39,7 +39,9 @@ def test_detect_encoding():
 
 def test_quick_detect_encoding():
     eq_ ('ascii', u.quick_detect_encoding(b'qwe').lower())
-    eq_ ('windows-1252', u.quick_detect_encoding(u'Versi\xf3n'.encode('windows-1252')).lower())
+    ok_ (u.quick_detect_encoding(
+        u'Versi\xf3n'.encode('windows-1252')).lower() in [
+            'windows-1252', 'windows-1250'])
     eq_ ('utf-8', u.quick_detect_encoding(u'привет'.encode('utf8')).lower())
 
 
