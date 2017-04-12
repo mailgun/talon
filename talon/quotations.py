@@ -146,6 +146,14 @@ RE_ANDROID_WROTE = re.compile(u'[\s]*[-]+.*({})[ ]*[-]+'.format(
         'wrote'
     ))), re.I)
 
+# Support polymail.io reply format
+# On Tue, Apr 11, 2017 at 10:07 PM John Smith
+#
+# <
+# mailto:John Smith <johnsmith@gmail.com>
+# > wrote:
+RE_POLYMAIL = re.compile('On.*\s{2}<\smailto:.*\s> wrote:', re.I)
+
 SPLITTER_PATTERNS = [
     RE_ORIGINAL_MESSAGE,
     RE_ON_DATE_SMB_WROTE,
@@ -162,7 +170,8 @@ SPLITTER_PATTERNS = [
                '( \S+){3,6}@\S+:'),
     # Sent from Samsung MobileName <address@example.com> wrote:
     re.compile('Sent from Samsung .*@.*> wrote'),
-    RE_ANDROID_WROTE
+    RE_ANDROID_WROTE,
+    RE_POLYMAIL
     ]
 
 RE_LINK = re.compile('<(http://[^>]*)>')
