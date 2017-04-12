@@ -179,7 +179,7 @@ RE_NORMALIZED_LINK = re.compile('@@(http://[^>@]*)@@')
 
 RE_PARENTHESIS_LINK = re.compile("\(https?://")
 
-SPLITTER_MAX_LINES = 4
+SPLITTER_MAX_LINES = 6
 MAX_LINES_COUNT = 1000
 # an extensive research shows that exceeding this limit
 # leads to excessive processing time
