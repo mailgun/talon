@@ -221,15 +221,15 @@ def mark_message_lines(lines):
     >>> mark_message_lines(['answer', 'From: foo@bar.com', '', '> question'])
     'tsem'
     """
-    markers = ['e' for _ in lines]
+    markers = [b'e' for _ in lines]
     i = 0
     while i < len(lines):
         if not lines[i].strip():
-            markers[i] = ord('e')  # empty line
+            markers[i] = b'e'  # empty line
         elif QUOT_PATTERN.match(lines[i]):
-            markers[i] = ord('m')  # line with quotation marker
+            markers[i] = b'm'  # line with quotation marker
         elif RE_FWD.match(lines[i]):
-            markers[i] = ord('f')  # ---- Forwarded message ----
+            markers[i] = b'f'  # ---- Forwarded message ----
         else:
             # in case splitter is spread across several lines
             splitter = is_splitter('\n'.join(lines[i:i + SPLITTER_MAX_LINES]))
@@ -238,16 +238,16 @@ def mark_message_lines(lines):
                 # append as many splitter markers as lines in splitter
                 splitter_lines = splitter.group().splitlines()
                 for j in range(len(splitter_lines)):
-                    markers[i + j] = ord('s')
+                    markers[i + j] = b's'
 
                 # skip splitter lines
                 i += len(splitter_lines) - 1
             else:
                 # probably the line from the last message in the conversation
-                markers[i] = ord('t')
+                markers[i] = b't'
         i += 1
 
-    return ''.join(markers)
+    return b''.join(markers)
 
 
 def process_marked_lines(lines, markers, return_flags=[False, -1, -1]):
@@ -261,7 +261,6 @@ def process_marked_lines(lines, markers, return_flags=[False, -1, -1]):
     return_flags = [were_lines_deleted, first_deleted_line,
                     last_deleted_line]
     """
-    markers = ''.join(markers)
     # if there are no splitter there should be no markers
     if b's' not in markers and not re.search(b'(me*){3}', markers):
         markers = markers.replace(b'm', b't')
