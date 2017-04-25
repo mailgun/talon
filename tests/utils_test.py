@@ -29,7 +29,9 @@ def test_unicode():
 
 def test_detect_encoding():
     eq_ ('ascii', u.detect_encoding(b'qwe').lower())
-    eq_ ('iso-8859-2', u.detect_encoding(u'Versi\xf3n'.encode('iso-8859-2')).lower())
+    ok_ (u.detect_encoding(
+        u'Versi\xf3n'.encode('iso-8859-2')).lower() in [
+            'iso-8859-1', 'iso-8859-2'])
     eq_ ('utf-8', u.detect_encoding(u'привет'.encode('utf8')).lower())
     # fallback to utf-8
     with patch.object(u.chardet, 'detect') as detect:
