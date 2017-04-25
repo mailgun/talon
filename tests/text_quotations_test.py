@@ -755,6 +755,6 @@ def test_split_email():
         >
         >
 """
-    expected_markers = "stttttsttttetesetesmmmmmmssmmmmmmsmmmmmmmm"
+    expected_markers = b"stttttsttttetesetesmmmmmmssmmmmmmsmmmmmmmm"
     markers = quotations.split_emails(msg)
     eq_(markers, expected_markers)

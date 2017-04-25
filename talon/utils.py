@@ -7,6 +7,7 @@ import chardet
 import cchardet
 import regex as re
 
+import lxml.html
 from lxml.html import html5parser
 from lxml.cssselect import CSSSelector
 
@@ -177,11 +178,13 @@ def html_to_text(string):
 def html_fromstring(s):
     """Parse html tree from string. Return None if the string can't be parsed.
     """
+    if isinstance(s, bytes):
+        s = s.decode()
     try:
         if html_too_big(s):
             return None
 
-        return html5parser.fromstring(s, parser=_html5lib_parser())
+        return lxml.html.document_fromstring(s, ensure_head_body=True) #html5parser.fromstring(s, parser=_html5lib_parser())
     except Exception:
         pass
 
@@ -189,11 +192,13 @@ def html_fromstring(s):
 def html_document_fromstring(s):
     """Parse html tree from string. Return None if the string can't be parsed.
     """
+    if isinstance(s, bytes):
+        s = s.decode()
     try:
         if html_too_big(s):
             return None
 
-        return html5parser.document_fromstring(s, parser=_html5lib_parser())
+        return lxml.html.document_fromstring(s, ensure_head_body=True) #html5parser.document_fromstring(s, parser=_html5lib_parser())
     except Exception:
         pass
 
@@ -209,7 +214,7 @@ def html_too_big(s):
 def _contains_charset_spec(s):
     """Return True if the first 4KB contain charset spec
     """
-    return s.lower().find('html; charset=', 0, 4096) != -1
+    return s.lower().find(b'html; charset=', 0, 4096) != -1
 
 
 def _prepend_utf8_declaration(s):
@@ -245,8 +250,8 @@ def _html5lib_parser():
     )
 
 
-_UTF8_DECLARATION = ('<meta http-equiv="Content-Type" content="text/html;'
-                     'charset=utf-8">')
+_UTF8_DECLARATION = (b'<meta http-equiv="Content-Type" content="text/html;'
+                     b'charset=utf-8">')
 
 
 _BLOCKTAGS  = ['div', 'p', 'ul', 'li', 'h1', 'h2', 'h3']

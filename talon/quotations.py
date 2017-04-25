@@ -140,7 +140,7 @@ RE_FROM_COLON_OR_DATE_COLON = re.compile('(_+\r?\n)?[\s]*(:?[*]?{})[\s]?:[*]? .*
     ))), re.I)
 
 # ---- John Smith wrote ----
-RE_ANDROID_WROTE = re.compile(u'[\s]*[-]+.*({})[ ]*[-]+'.format(
+RE_ANDROID_WROTE = re.compile('[\s]*[-]+.*({})[ ]*[-]+'.format(
     u'|'.join((
         # English
         'wrote'
@@ -181,6 +181,7 @@ NO_QUOT_LINE = re.compile('^[^>].*[\S].*')
 
 # Regular expression to identify if a line is a header.
 RE_HEADER = re.compile(": ")
+
 
 
 def extract_from(msg_body, content_type='text/plain'):
@@ -410,7 +411,6 @@ def extract_from_html(msg_body):
 
     return result
 
-
 def _extract_from_html(msg_body):
     """
     Extract not quoted message from provided html message body
@@ -524,43 +524,46 @@ def _mark_quoted_email_splitlines(markers, lines):
     """
     # Create a list of markers to easily alter specific characters
     markerlist = list(markers)
+
     for i, line in enumerate(lines):
-        if markerlist[i] != 'm':
+        if markerlist[i] != b'm'[0]:
             continue
         for pattern in SPLITTER_PATTERNS:
             matcher = re.search(pattern, line)
             if matcher:
-                markerlist[i] = 's'
+                markerlist[i] = b's'[0]
                 break
 
-    return "".join(markerlist)
+    return bytes(markerlist)
 
 
 def _correct_splitlines_in_headers(markers, lines):
     """
     Corrects markers by removing splitlines deemed to be inside header blocks.
     """
-    updated_markers = ""
+    updated_markers = b""
     i = 0
     in_header_block = False
 
     for m in markers:
         # Only set in_header_block flag when we hit an 's' and line is a header
-        if m == 's':
+        m = bytes([m])
+        if m == b"s":
             if not in_header_block:
                 if bool(re.search(RE_HEADER, lines[i])):
                     in_header_block = True
             else:
                 if QUOT_PATTERN.match(lines[i]):
-                    m = 'm'
+                    m = b"m"
                 else:
-                    m = 't'
+                    m = b"t"
 
         # If the line is not a header line, set in_header_block false.
         if not bool(re.search(RE_HEADER, lines[i])):
             in_header_block = False
 
         # Add the marker to the new updated markers string.
+        print(updated_markers, m)
         updated_markers += m
         i += 1
 

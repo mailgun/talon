@@ -27,7 +27,7 @@ def test_quotation_splitter_inside_blockquote():
 
 </blockquote>"""
 
-    eq_("<html><head></head><body>Reply</body></html>",
+    eq_("<html><head></head><body><p>Reply</p></body></html>",
         RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body)))
 
 
@@ -44,7 +44,7 @@ def test_quotation_splitter_outside_blockquote():
   </div>
 </blockquote>
 """
-    eq_("<html><head></head><body>Reply</body></html>",
+    eq_("<html><head></head><body><p>Reply</p></body></html>",
         RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body)))
 
 
@@ -62,7 +62,7 @@ def test_regular_blockquote():
   </div>
 </blockquote>
 """
-    eq_("<html><head></head><body>Reply<blockquote>Regular</blockquote></body></html>",
+    eq_("<html><head></head><body><p>Reply</p><blockquote>Regular</blockquote></body></html>",
         RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body)))
 
 
@@ -129,7 +129,7 @@ def test_gmail_quote():
     </div>
   </div>
 </div>"""
-    eq_("<html><head></head><body>Reply</body></html>",
+    eq_("<html><head></head><body><p>Reply</p></body></html>",
         RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body)))
 
 
@@ -140,7 +140,7 @@ def test_gmail_quote_compact():
                '<div>Test</div>' \
                '</div>' \
                '</div>'
-    eq_("<html><head></head><body>Reply</body></html>",
+    eq_("<html><head></head><body><p>Reply</p></body></html>",
         RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body)))
 
 
@@ -167,7 +167,7 @@ def test_unicode_in_reply():
   Quote
 </blockquote>"""
 
-    eq_("<html><head></head><body>Reply&#160;&#160;Text<br><div><br></div>"
+    eq_("<html><head></head><body><p>Reply&#160;&#160;Text<br></p><div><br></div>"
         "</body></html>",
         RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body)))
 
@@ -298,7 +298,7 @@ Reply
   </div>
 </div>
 '''
-    eq_('<html><head></head><body>Reply<div><hr></div></body></html>',
+    eq_('<html><head></head><body><p>Reply</p><div><hr></div></body></html>',
         RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body)))
 
 
@@ -375,7 +375,7 @@ reply
     extracted = quotations.extract_from_html(msg_body)
     assert_false(symbol in extracted)
     # Keep new lines otherwise "My reply" becomes one word - "Myreply"
-    eq_("<html><head></head><body>My\nreply\n</body></html>", extracted)
+    eq_("<html><head></head><body><p>My\nreply\n</p></body></html>", extracted)
 
 
 def test_gmail_forwarded_msg():

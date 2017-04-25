@@ -115,7 +115,7 @@ font: 13px 'Lucida Grande', Arial, sans-serif;
 def test_comment_no_parent():
     s = "<!-- COMMENT 1 --> no comment"
     d = u.html_document_fromstring(s)
-    eq_("no comment", u.html_tree_to_text(d))
+    eq_(b"no comment", u.html_tree_to_text(d))
 
 
 @patch.object(u.html5parser, 'fromstring', Mock(side_effect=Exception()))
@@ -156,5 +156,5 @@ def test_html_too_big():
 
 @patch.object(u, '_MAX_TAGS_COUNT', 3)
 def test_html_to_text():
-    eq_("Hello", u.html_to_text("<div>Hello</div>"))
+    eq_(b"Hello", u.html_to_text("<div>Hello</div>"))
     eq_(None, u.html_to_text("<div><span>Hi</span></div>"))
