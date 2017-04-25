@@ -35,6 +35,19 @@ On 11-Apr-2011, at 6:54 PM, Roman Tkachenko <romant@example.com> wrote:
 
     eq_("Test reply", quotations.extract_from_plain(msg_body))
 
+def test_pattern_on_date_polymail():
+    msg_body = """Test reply
+
+On Tue, Apr 11, 2017 at 10:07 PM John Smith
+
+<
+mailto:John Smith <johnsmith@gmail.com>
+> wrote:
+Test quoted data
+"""
+
+    eq_("Test reply", quotations.extract_from_plain(msg_body))
+
 
 def test_pattern_sent_from_samsung_smb_wrote():
     msg_body = """Test reply
@@ -54,7 +67,7 @@ def test_pattern_on_date_wrote_somebody():
     """Lorem
 
 Op 13-02-2014 3:18 schreef Julius Caesar <pantheon@rome.com>:
-    
+
 Veniam laborum mlkshk kale chips authentic. Normcore mumblecore laboris, fanny pack readymade eu blog chia pop-up freegan enim master cleanse.
 """))
 
@@ -256,7 +269,7 @@ def test_with_indent():
 
 ------On 12/29/1987 17:32 PM, Julius Caesar wrote-----
 
-Brunch mumblecore pug Marfa tofu, irure taxidermy hoodie readymade pariatur. 
+Brunch mumblecore pug Marfa tofu, irure taxidermy hoodie readymade pariatur.
     """
     eq_("YOLO salvia cillum kogi typewriter mumblecore cardigan skateboard Austin.", quotations.extract_from_plain(msg_body))
 
@@ -381,11 +394,11 @@ Veniam laborum mlkshk kale chips authentic. Normcore mumblecore laboris, fanny p
 
 def test_dutch_from_block():
     eq_('Gluten-free culpa lo-fi et nesciunt nostrud.', quotations.extract_from_plain(
-    """Gluten-free culpa lo-fi et nesciunt nostrud. 
+    """Gluten-free culpa lo-fi et nesciunt nostrud.
 
 Op 17-feb.-2015, om 13:18 heeft Julius Caesar <pantheon@rome.com> het volgende geschreven:
-    
-Small batch beard laboris tempor, non listicle hella Tumblr heirloom. 
+
+Small batch beard laboris tempor, non listicle hella Tumblr heirloom.
 """))
 
 
