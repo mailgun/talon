@@ -35,5 +35,6 @@ EXTRACTOR_DATA = os.path.join(DATA_DIR, 'train.data')
 
 
 def initialize():
+    print(EXTRACTOR_FILENAME)
     extraction.EXTRACTOR = classifier.load(EXTRACTOR_FILENAME,
                                            EXTRACTOR_DATA)

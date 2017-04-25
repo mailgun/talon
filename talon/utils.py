@@ -7,6 +7,7 @@ import chardet
 import cchardet
 import regex as re
 
+import lxml.html
 from lxml.html import html5parser
 from lxml.cssselect import CSSSelector
 
@@ -37,7 +38,7 @@ def safe_format(format_string, *args, **kwargs):
 
     # ignore other errors
     except:
-        return u''
+        return ''
 
 
 def to_unicode(str_or_unicode, precise=False):
@@ -177,11 +178,13 @@ def html_to_text(string):
 def html_fromstring(s):
     """Parse html tree from string. Return None if the string can't be parsed.
     """
+    if isinstance(s, bytes):
+        s = s.decode()
     try:
         if html_too_big(s):
             return None
 
-        return html5parser.fromstring(s, parser=_html5lib_parser())
+        return lxml.html.document_fromstring(s, ensure_head_body=True) #html5parser.fromstring(s, parser=_html5lib_parser())
     except Exception:
         pass
 
@@ -189,11 +192,13 @@ def html_fromstring(s):
 def html_document_fromstring(s):
     """Parse html tree from string. Return None if the string can't be parsed.
     """
+    if isinstance(s, bytes):
+        s = s.decode()
     try:
         if html_too_big(s):
             return None
 
-        return html5parser.document_fromstring(s, parser=_html5lib_parser())
+        return lxml.html.document_fromstring(s, ensure_head_body=True) #html5parser.document_fromstring(s, parser=_html5lib_parser())
     except Exception:
         pass
 

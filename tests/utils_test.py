@@ -16,15 +16,15 @@ def test_get_delimiter():
 
 
 def test_unicode():
-    eq_ (u'hi', u.to_unicode('hi'))
-    eq_ (type(u.to_unicode('hi')), six.text_type )
-    eq_ (type(u.to_unicode(u'hi')), six.text_type )
-    eq_ (type(u.to_unicode('привет')), six.text_type )
-    eq_ (type(u.to_unicode(u'привет')), six.text_type )
-    eq_ (u"привет", u.to_unicode('привет'))
-    eq_ (u"привет", u.to_unicode(u'привет'))
+    eq_ ('hi', u.to_unicode('hi'))
+    eq_ (type(u.to_unicode('hi')), str )
+    eq_ (type(u.to_unicode('hi')), str )
+    eq_ (type(u.to_unicode('привет')), str )
+    eq_ (type(u.to_unicode('привет')), str )
+    eq_ ("привет", u.to_unicode('привет'))
+    eq_ ("привет", u.to_unicode('привет'))
     # some latin1 stuff
-    eq_ (u"Versión", u.to_unicode(u'Versi\xf3n'.encode('iso-8859-2'), precise=True))
+    eq_ ("Versión", u.to_unicode('Versi\xf3n', precise=True))
 
 
 def test_detect_encoding():
@@ -81,7 +81,7 @@ Haha
 </body>"""
     text = u.html_to_text(html)
     eq_(b"Hello world! \n\n  * One! \n  * Two \nHaha", text)
-    eq_(u"привет!", u.html_to_text("<b>привет!</b>").decode('utf8'))
+    eq_("привет!".encode('utf-8'), u.html_to_text("<b>привет!</b>"))
 
     html = '<body><br/><br/>Hi</body>'
     eq_ (b'Hi', u.html_to_text(html))
@@ -117,7 +117,7 @@ font: 13px 'Lucida Grande', Arial, sans-serif;
 def test_comment_no_parent():
     s = "<!-- COMMENT 1 --> no comment"
     d = u.html_document_fromstring(s)
-    eq_("no comment", u.html_tree_to_text(d))
+    eq_(b"no comment", u.html_tree_to_text(d))
 
 
 @patch.object(u.html5parser, 'fromstring', Mock(side_effect=Exception()))
@@ -158,5 +158,5 @@ def test_html_too_big():
 
 @patch.object(u, '_MAX_TAGS_COUNT', 3)
 def test_html_to_text():
-    eq_("Hello", u.html_to_text("<div>Hello</div>"))
+    eq_(b"Hello", u.html_to_text("<div>Hello</div>"))
     eq_(None, u.html_to_text("<div><span>Hi</span></div>"))

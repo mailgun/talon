@@ -25,9 +25,9 @@ log = logging.getLogger(__name__)
 RE_FWD = re.compile("^[-]+[ ]*Forwarded message[ ]*[-]+$", re.I | re.M)
 
 RE_ON_DATE_SMB_WROTE = re.compile(
-    u'(-*[>]?[ ]?({0})[ ].*({1})(.*\n){{0,2}}.*({2}):?-*)'.format(
+    '(-*[>]?[ ]?({0})[ ].*({1})(.*\n){{0,2}}.*({2}):?-*)'.format(
         # Beginning of the line
-        u'|'.join((
+        '|'.join((
             # English
             'On',
             # French
@@ -39,25 +39,25 @@ RE_ON_DATE_SMB_WROTE = re.compile(
             # German
             'Am',
             # Norwegian
-            u'På',
+            'På',
             # Swedish, Danish
             'Den',
         )),
         # Date and sender separator
-        u'|'.join((
+        '|'.join((
             # most languages separate date and sender address by comma
             ',',
             # polish date and sender address separator
-            u'użytkownik'
+            'użytkownik'
         )),
         # Ending of the line
-        u'|'.join((
+        '|'.join((
             # English
             'wrote', 'sent',
             # French
-            u'a écrit',
+            'a écrit',
             # Polish
-            u'napisał',
+            'napisał',
             # Dutch
             'schreef','verzond','geschreven',
             # German
@@ -68,15 +68,15 @@ RE_ON_DATE_SMB_WROTE = re.compile(
     ))
 # Special case for languages where text is translated like this: 'on {date} wrote {somebody}:'
 RE_ON_DATE_WROTE_SMB = re.compile(
-    u'(-*[>]?[ ]?({0})[ ].*(.*\n){{0,2}}.*({1})[ ]*.*:)'.format(
+    '(-*[>]?[ ]?({0})[ ].*(.*\n){{0,2}}.*({1})[ ]*.*:)'.format(
         # Beginning of the line
-        u'|'.join((
+        '|'.join((
         	'Op',
         	#German
         	'Am'
         )),
         # Ending of the line
-        u'|'.join((
+        '|'.join((
             # Dutch
             'schreef','verzond','geschreven',
             # German
@@ -86,7 +86,7 @@ RE_ON_DATE_WROTE_SMB = re.compile(
     )
 
 RE_QUOTATION = re.compile(
-    r'''
+    rb'''
     (
         # quotation border: splitter line or a number of quotation marker lines
         (?:
@@ -107,7 +107,7 @@ RE_QUOTATION = re.compile(
     ''', re.VERBOSE)
 
 RE_EMPTY_QUOTATION = re.compile(
-    r'''
+    rb'''
     (
         # quotation border: splitter line or a number of quotation marker lines
         (?:
@@ -121,26 +121,26 @@ RE_EMPTY_QUOTATION = re.compile(
 
 # ------Original Message------ or ---- Reply Message ----
 # With variations in other languages.
-RE_ORIGINAL_MESSAGE = re.compile(u'[\s]*[-]+[ ]*({})[ ]*[-]+'.format(
-    u'|'.join((
+RE_ORIGINAL_MESSAGE = re.compile('[\s]*[-]+[ ]*({})[ ]*[-]+'.format(
+    '|'.join((
         # English
         'Original Message', 'Reply Message',
         # German
-        u'Ursprüngliche Nachricht', 'Antwort Nachricht',
+        'Ursprüngliche Nachricht', 'Antwort Nachricht',
         # Danish
         'Oprindelig meddelelse',
     ))), re.I)
 
-RE_FROM_COLON_OR_DATE_COLON = re.compile(u'(_+\r?\n)?[\s]*(:?[*]?{})[\s]?:[*]?.*'.format(
-    u'|'.join((
+RE_FROM_COLON_OR_DATE_COLON = re.compile('(_+\r?\n)?[\s]*(:?[*]?{})[\s]?:[*]? .*'.format(
+    '|'.join((
         # "From" in different languages.
-        'From', 'Van', 'De', 'Von', 'Fra', u'Från',
+        'From', 'Van', 'De', 'Von', 'Fra', 'Från',
         # "Date" in different languages.
-        'Date', 'Datum', u'Envoyé', 'Skickat', 'Sendt',
+        'Date', 'Datum', 'Envoyé', 'Skickat', 'Sendt',
     ))), re.I)
 
 # ---- John Smith wrote ----
-RE_ANDROID_WROTE = re.compile(u'[\s]*[-]+.*({})[ ]*[-]+'.format(
+RE_ANDROID_WROTE = re.compile('[\s]*[-]+.*({})[ ]*[-]+'.format(
     u'|'.join((
         # English
         'wrote'
@@ -192,6 +192,7 @@ NO_QUOT_LINE = re.compile('^[^>].*[\S].*')
 RE_HEADER = re.compile(": ")
 
 
+
 def extract_from(msg_body, content_type='text/plain'):
     try:
         if content_type == 'text/plain':
@@ -230,15 +231,15 @@ def mark_message_lines(lines):
     >>> mark_message_lines(['answer', 'From: foo@bar.com', '', '> question'])
     'tsem'
     """
-    markers = ['e' for _ in lines]
+    markers = [b'e' for _ in lines]
     i = 0
     while i < len(lines):
         if not lines[i].strip():
-            markers[i] = 'e'  # empty line
+            markers[i] = b'e'  # empty line
         elif QUOT_PATTERN.match(lines[i]):
-            markers[i] = 'm'  # line with quotation marker
+            markers[i] = b'm'  # line with quotation marker
         elif RE_FWD.match(lines[i]):
-            markers[i] = 'f'  # ---- Forwarded message ----
+            markers[i] = b'f'  # ---- Forwarded message ----
         else:
             # in case splitter is spread across several lines
             splitter = is_splitter('\n'.join(lines[i:i + SPLITTER_MAX_LINES]))
@@ -247,16 +248,16 @@ def mark_message_lines(lines):
                 # append as many splitter markers as lines in splitter
                 splitter_lines = splitter.group().splitlines()
                 for j in range(len(splitter_lines)):
-                    markers[i + j] = 's'
+                    markers[i + j] = b's'
 
                 # skip splitter lines
                 i += len(splitter_lines) - 1
             else:
                 # probably the line from the last message in the conversation
-                markers[i] = 't'
+                markers[i] = b't'
         i += 1
 
-    return ''.join(markers)
+    return b''.join(markers)
 
 
 def process_marked_lines(lines, markers, return_flags=[False, -1, -1]):
@@ -270,19 +271,18 @@ def process_marked_lines(lines, markers, return_flags=[False, -1, -1]):
     return_flags = [were_lines_deleted, first_deleted_line,
                     last_deleted_line]
     """
-    markers = ''.join(markers)
     # if there are no splitter there should be no markers
-    if 's' not in markers and not re.search('(me*){3}', markers):
-        markers = markers.replace('m', 't')
+    if b's' not in markers and not re.search(b'(me*){3}', markers):
+        markers = markers.replace(b'm', b't')
 
-    if re.match('[te]*f', markers):
+    if re.match(b'[te]*f', markers):
         return_flags[:] = [False, -1, -1]
         return lines
 
     # inlined reply
     # use lookbehind assertions to find overlapping entries e.g. for 'mtmtm'
     # both 't' entries should be found
-    for inline_reply in re.finditer('(?<=m)e*((?:t+e*)+)m', markers):
+    for inline_reply in re.finditer(b'(?<=m)e*((?:t+e*)+)m', markers):
         # long links could break sequence of quotation lines but they shouldn't
         # be considered an inline reply
         links = (
@@ -293,7 +293,7 @@ def process_marked_lines(lines, markers, return_flags=[False, -1, -1]):
             return lines
 
     # cut out text lines coming after splitter if there are no markers there
-    quotation = re.search('(se*)+((t|f)+e*)+', markers)
+    quotation = re.search(b'(se*)+((t|f)+e*)+', markers)
     if quotation:
         return_flags[:] = [True, quotation.start(), len(lines)]
         return lines[:quotation.start()]
@@ -420,7 +420,6 @@ def extract_from_html(msg_body):
 
     return result
 
-
 def _extract_from_html(msg_body):
     """
     Extract not quoted message from provided html message body
@@ -498,7 +497,7 @@ def _extract_from_html(msg_body):
     if _readable_text_empty(html_tree_copy):
         return msg_body
 
-    return html.tostring(html_tree_copy)
+    return _html_tostring(html_tree_copy)
 
 
 def split_emails(msg):
@@ -534,43 +533,46 @@ def _mark_quoted_email_splitlines(markers, lines):
     """
     # Create a list of markers to easily alter specific characters
     markerlist = list(markers)
+
     for i, line in enumerate(lines):
-        if markerlist[i] != 'm':
+        if markerlist[i] != b'm'[0]:
             continue
         for pattern in SPLITTER_PATTERNS:
             matcher = re.search(pattern, line)
             if matcher:
-                markerlist[i] = 's'
+                markerlist[i] = b's'[0]
                 break
 
-    return "".join(markerlist)
+    return bytes(markerlist)
 
 
 def _correct_splitlines_in_headers(markers, lines):
     """
     Corrects markers by removing splitlines deemed to be inside header blocks.
     """
-    updated_markers = ""
+    updated_markers = b""
     i = 0
     in_header_block = False
 
     for m in markers:
         # Only set in_header_block flag when we hit an 's' and line is a header
-        if m == 's':
+        m = bytes([m])
+        if m == b"s":
             if not in_header_block:
                 if bool(re.search(RE_HEADER, lines[i])):
                     in_header_block = True
             else:
                 if QUOT_PATTERN.match(lines[i]):
-                    m = 'm'
+                    m = b"m"
                 else:
-                    m = 't'
+                    m = b"t"
 
         # If the line is not a header line, set in_header_block false.
         if not bool(re.search(RE_HEADER, lines[i])):
             in_header_block = False
 
         # Add the marker to the new updated markers string.
+        print(updated_markers, m)
         updated_markers += m
         i += 1
 
@@ -607,3 +609,6 @@ def register_xpath_extensions():
     ns.prefix = 'mg'
     ns['text_content'] = text_content
     ns['tail'] = tail
+
+def _html_tostring(html_tree):
+  return html.tostring(html_tree).decode('utf-8')
