@@ -58,9 +58,14 @@ def parse_msg_sender(filename, sender_known=True):
     algorithm:
     >>> parse_msg_sender(filename, False)
     """
+    import sys
+    kwargs = {}
+    if sys.version_info > (3, 0):
+        kwargs["encoding"] = "bytes"
+
     sender, msg = None, None
     if os.path.isfile(filename) and not is_sender_filename(filename):
-        with open(filename, encoding='utf-8') as f:
+        with open(filename, **kwargs) as f:
             msg = f.read()
             sender = u''
             if sender_known:

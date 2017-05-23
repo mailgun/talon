@@ -10,8 +10,8 @@ from __future__ import absolute_import
 import pickle
 
 from numpy import genfromtxt
-from sklearn.svm import LinearSVC
 from sklearn.externals import joblib
+from sklearn.svm import LinearSVC
 
 
 def init():
@@ -35,7 +35,11 @@ def load(saved_classifier_filename, train_data_filename):
     try:
         return joblib.load(saved_classifier_filename)
     except ValueError:
-        loaded = pickle.load(open(saved_classifier_filename, 'rb'), encoding='latin1')
+        import sys
+        pickle_options = {}
+        if sys.version_info > (3, 0):
+            pickle_options["encoding"] = "bytes"
+
+        loaded = pickle.load(open(saved_classifier_filename, 'rb'), **pickle_options)
         joblib.dump(loaded, saved_classifier_filename, compress=True)
         return loaded
-

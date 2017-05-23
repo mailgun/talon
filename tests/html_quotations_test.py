@@ -2,7 +2,8 @@
 
 from __future__ import absolute_import
 
-import regex as re
+# noinspection PyUnresolvedReferences
+import re
 
 from talon import quotations, utils as u
 from . import *
@@ -302,7 +303,12 @@ Reply
 
 
 def extract_reply_and_check(filename):
-    f = open(filename, encoding='utf8')
+    import sys
+    kwargs = {}
+    if sys.version_info > (3, 0):
+        kwargs["encoding"] = "bytes"
+
+    f = open(filename, **kwargs)
 
     msg_body = f.read()
     reply = quotations.extract_from_html(msg_body)
