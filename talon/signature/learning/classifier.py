@@ -6,6 +6,9 @@ body belongs to the signature.
 """
 
 from __future__ import absolute_import
+
+import pickle
+
 from numpy import genfromtxt
 from sklearn.svm import LinearSVC
 from sklearn.externals import joblib
@@ -29,4 +32,10 @@ def train(classifier, train_data_filename, save_classifier_filename=None):
 
 def load(saved_classifier_filename, train_data_filename):
     """Loads saved classifier. """
-    return joblib.load(saved_classifier_filename)
+    try:
+        return joblib.load(saved_classifier_filename)
+    except ValueError:
+        loaded = pickle.load(open(saved_classifier_filename, 'rb'), encoding='latin1')
+        joblib.dump(loaded, saved_classifier_filename, compress=True)
+        return loaded
+

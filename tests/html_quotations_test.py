@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
-from . import *
-from . fixtures import *
 
 import regex as re
 
 from talon import quotations, utils as u
-
+from . import *
+from .fixtures import *
 
 RE_WHITESPACE = re.compile("\s")
 RE_DOUBLE_WHITESPACE = re.compile("\s")
@@ -303,7 +302,7 @@ Reply
 
 
 def extract_reply_and_check(filename):
-    f = open(filename)
+    f = open(filename, encoding='utf8')
 
     msg_body = f.read()
     reply = quotations.extract_from_html(msg_body)
@@ -373,7 +372,7 @@ reply
 </blockquote>"""
     msg_body = msg_body.replace('\n', '\r\n')
     extracted = quotations.extract_from_html(msg_body)
-    assert_false(symbol in extracted)    
+    assert_false(symbol in extracted)
     # Keep new lines otherwise "My reply" becomes one word - "Myreply" 
     eq_("<html><head></head><body>My\nreply\n</body></html>", extracted)
 

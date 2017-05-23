@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
+
 import logging
 
-import regex as re
 import numpy
-
-from talon.signature.learning.featurespace import features, build_pattern
-from talon.utils import get_delimiter
+import regex as re
 from talon.signature.bruteforce import get_signature_candidate
+from talon.signature.learning.featurespace import features, build_pattern
 from talon.signature.learning.helpers import has_signature
-
+from talon.utils import get_delimiter
 
 log = logging.getLogger(__name__)
 
@@ -58,7 +57,7 @@ def extract(body, sender):
                 text = delimiter.join(text)
                 if text.strip():
                     return (text, delimiter.join(signature))
-    except Exception:
+    except Exception as e:
         log.exception('ERROR when extracting signature with classifiers')
 
     return (body, None)
@@ -81,7 +80,7 @@ def _mark_lines(lines, sender):
     candidate = get_signature_candidate(lines)
 
     # at first consider everything to be text no signature
-    markers = bytearray('t'*len(lines))
+    markers = list('t' * len(lines))
 
     # mark lines starting from bottom up
     # mark only lines that belong to candidate
@@ -96,7 +95,7 @@ def _mark_lines(lines, sender):
         elif is_signature_line(line, sender, EXTRACTOR):
             markers[j] = 's'
 
-    return markers
+    return "".join(markers)
 
 
 def _process_marked_lines(lines, markers):
@@ -111,3 +110,4 @@ def _process_marked_lines(lines, markers):
         return (lines[:-signature.end()], lines[-signature.end():])
 
     return (lines, None)
+

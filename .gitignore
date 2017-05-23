@@ -39,6 +39,8 @@ nosetests.xml
 /.emacs.desktop
 /.emacs.desktop.lock
 .elc
+.idea
+.cache
 auto-save-list
 tramp
 .\#*

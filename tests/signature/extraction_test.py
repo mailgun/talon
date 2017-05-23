@@ -31,7 +31,7 @@ def test_messages_longer_SIGNATURE_MAX_LINES():
         sender, body = dataset.parse_msg_sender(filename)
         text, extracted_signature = signature.extract(body, sender)
         extracted_signature = extracted_signature or ''
-        with open(filename[:-len('body')] + 'signature') as ms:
+        with open(filename[:-len('body')] + 'signature', encoding='utf8') as ms:
             msg_signature = ms.read()
             eq_(msg_signature.strip(), extracted_signature.strip())
             stripped_msg = body.strip()[:len(body.strip())-len(msg_signature)]
