@@ -36,10 +36,10 @@ def load(saved_classifier_filename, train_data_filename):
         return joblib.load(saved_classifier_filename)
     except ValueError:
         import sys
-        pickle_options = {}
+        kwargs = {}
         if sys.version_info > (3, 0):
-            pickle_options["encoding"] = "bytes"
+            kwargs["encoding"] = "latin1"
 
-        loaded = pickle.load(open(saved_classifier_filename, 'rb'), **pickle_options)
+        loaded = pickle.load(open(saved_classifier_filename, 'rb'), **kwargs)
         joblib.dump(loaded, saved_classifier_filename, compress=True)
-        return loaded
+        return joblib.load(saved_classifier_filename)

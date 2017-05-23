@@ -61,7 +61,7 @@ def parse_msg_sender(filename, sender_known=True):
     import sys
     kwargs = {}
     if sys.version_info > (3, 0):
-        kwargs["encoding"] = "bytes"
+        kwargs["encoding"] = "utf8"
 
     sender, msg = None, None
     if os.path.isfile(filename) and not is_sender_filename(filename):

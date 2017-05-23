@@ -27,7 +27,7 @@ def test_messages_longer_SIGNATURE_MAX_LINES():
     import sys
     kwargs = {}
     if sys.version_info > (3, 0):
-        kwargs["encoding"] = "bytes"
+        kwargs["encoding"] = "utf8"
 
     for filename in os.listdir(STRIPPED):
         filename = os.path.join(STRIPPED, filename)

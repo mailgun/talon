@@ -306,7 +306,7 @@ def extract_reply_and_check(filename):
     import sys
     kwargs = {}
     if sys.version_info > (3, 0):
-        kwargs["encoding"] = "bytes"
+        kwargs["encoding"] = "utf8"
 
     f = open(filename, **kwargs)
 
