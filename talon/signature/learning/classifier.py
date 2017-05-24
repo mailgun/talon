@@ -30,11 +30,14 @@ def train(classifier, train_data_filename, save_classifier_filename=None):
 
 def load(saved_classifier_filename, train_data_filename):
     """Loads saved classifier. """
-    import sys
-    if sys.version_info > (3, 0):
-        return load_compat(saved_classifier_filename)
+    try:
+        return joblib.load(saved_classifier_filename)
+    except Exception:
+        import sys
+        if sys.version_info > (3, 0):
+            return load_compat(saved_classifier_filename)
 
-    return joblib.load(saved_classifier_filename)
+        raise
 
 
 def load_compat(saved_classifier_filename):
