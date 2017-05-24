@@ -35,11 +35,16 @@ def load(saved_classifier_filename, train_data_filename):
     try:
         return joblib.load(saved_classifier_filename)
     except ValueError:
+        # load python 2 pickle format with python 3, and save it permissions allowing
         import sys
         kwargs = {}
         if sys.version_info > (3, 0):
             kwargs["encoding"] = "latin1"
 
         loaded = pickle.load(open(saved_classifier_filename, 'rb'), **kwargs)
-        joblib.dump(loaded, saved_classifier_filename, compress=True)
+        try:
+            joblib.dump(loaded, saved_classifier_filename, compress=True)
+        except Exception:
+            pass
+
         return joblib.load(saved_classifier_filename)

@@ -110,7 +110,7 @@ def extract_signature(msg_body):
 
             return (stripped_body.strip(),
                     signature.strip())
-    except Exception as e:
+    except Exception:
         log.exception('ERROR extracting signature')
         return (msg_body, None)
 
