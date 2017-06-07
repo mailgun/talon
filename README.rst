@@ -36,7 +36,7 @@ To extract a reply from html:
     <blockquote>
 
       <div>
-        On 11-Apr-2011, at 6:54 PM, Bob &lt;bob@example.com&gt; wrote:
+        On 12-Apr-2011, at 6:54 PM, Bob &lt;bob@example.com&gt; wrote:
       </div>
 
       <div>
