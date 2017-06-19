@@ -1,14 +1,14 @@
 from __future__ import absolute_import
+
 import logging
 
 import regex as re
 
-from talon.utils import get_delimiter
 from talon.signature.constants import (SIGNATURE_MAX_LINES,
                                        TOO_LONG_SIGNATURE_LINE)
+from talon.utils import get_delimiter
 
 log = logging.getLogger(__name__)
-
 
 # regex to fetch signature based on common signature words
 RE_SIGNATURE = re.compile(r'''
@@ -28,7 +28,6 @@ RE_SIGNATURE = re.compile(r'''
                )
                ''', re.I | re.X | re.M | re.S)
 
-
 # signatures appended by phone email clients
 RE_PHONE_SIGNATURE = re.compile(r'''
                (
@@ -44,7 +43,6 @@ RE_PHONE_SIGNATURE = re.compile(r'''
                    .*
                )
                ''', re.I | re.X | re.M | re.S)
-
 
 # see _mark_candidate_indexes() for details
 # c - could be signature line
@@ -112,7 +110,7 @@ def extract_signature(msg_body):
 
             return (stripped_body.strip(),
                     signature.strip())
-    except Exception as e:
+    except Exception:
         log.exception('ERROR extracting signature')
         return (msg_body, None)
 
@@ -163,7 +161,7 @@ def _mark_candidate_indexes(lines, candidate):
     'cdc'
     """
     # at first consider everything to be potential signature lines
-    markers = bytearray('c'*len(candidate))
+    markers = list('c' * len(candidate))
 
     # mark lines starting from bottom up
     for i, line_idx in reversed(list(enumerate(candidate))):
@@ -174,7 +172,7 @@ def _mark_candidate_indexes(lines, candidate):
             if line.startswith('-') and line.strip("-"):
                 markers[i] = 'd'
 
-    return markers
+    return "".join(markers)
 
 
 def _process_marked_candidate_indexes(candidate, markers):

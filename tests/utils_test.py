@@ -1,12 +1,12 @@
 # coding:utf-8
 
 from __future__ import absolute_import
-from . import *
 
-from talon import utils as u
 import cchardet
 import six
-from lxml import html
+
+from talon import utils as u
+from . import *
 
 
 def test_get_delimiter():
@@ -16,35 +16,35 @@ def test_get_delimiter():
 
 
 def test_unicode():
-    eq_ (u'hi', u.to_unicode('hi'))
-    eq_ (type(u.to_unicode('hi')), six.text_type )
-    eq_ (type(u.to_unicode(u'hi')), six.text_type )
-    eq_ (type(u.to_unicode('привет')), six.text_type )
-    eq_ (type(u.to_unicode(u'привет')), six.text_type )
-    eq_ (u"привет", u.to_unicode('привет'))
-    eq_ (u"привет", u.to_unicode(u'привет'))
+    eq_(u'hi', u.to_unicode('hi'))
+    eq_(type(u.to_unicode('hi')), six.text_type)
+    eq_(type(u.to_unicode(u'hi')), six.text_type)
+    eq_(type(u.to_unicode('привет')), six.text_type)
+    eq_(type(u.to_unicode(u'привет')), six.text_type)
+    eq_(u"привет", u.to_unicode('привет'))
+    eq_(u"привет", u.to_unicode(u'привет'))
     # some latin1 stuff
-    eq_ (u"Versión", u.to_unicode(u'Versi\xf3n'.encode('iso-8859-2'), precise=True))
+    eq_(u"Versión", u.to_unicode(u'Versi\xf3n'.encode('iso-8859-2'), precise=True))
 
 
 def test_detect_encoding():
-    eq_ ('ascii', u.detect_encoding(b'qwe').lower())
-    ok_ (u.detect_encoding(
+    eq_('ascii', u.detect_encoding(b'qwe').lower())
+    ok_(u.detect_encoding(
         u'Versi\xf3n'.encode('iso-8859-2')).lower() in [
             'iso-8859-1', 'iso-8859-2'])
-    eq_ ('utf-8', u.detect_encoding(u'привет'.encode('utf8')).lower())
+    eq_('utf-8', u.detect_encoding(u'привет'.encode('utf8')).lower())
     # fallback to utf-8
     with patch.object(u.chardet, 'detect') as detect:
         detect.side_effect = Exception
-        eq_ ('utf-8', u.detect_encoding('qwe'.encode('utf8')).lower())
+        eq_('utf-8', u.detect_encoding('qwe'.encode('utf8')).lower())
 
 
 def test_quick_detect_encoding():
-    eq_ ('ascii', u.quick_detect_encoding(b'qwe').lower())
-    ok_ (u.quick_detect_encoding(
+    eq_('ascii', u.quick_detect_encoding(b'qwe').lower())
+    ok_(u.quick_detect_encoding(
         u'Versi\xf3n'.encode('windows-1252')).lower() in [
             'windows-1252', 'windows-1250'])
-    eq_ ('utf-8', u.quick_detect_encoding(u'привет'.encode('utf8')).lower())
+    eq_('utf-8', u.quick_detect_encoding(u'привет'.encode('utf8')).lower())
 
 
 @patch.object(cchardet, 'detect')
@@ -84,7 +84,7 @@ Haha
     eq_(u"привет!", u.html_to_text("<b>привет!</b>").decode('utf8'))
 
     html = '<body><br/><br/>Hi</body>'
-    eq_ (b'Hi', u.html_to_text(html))
+    eq_(b'Hi', u.html_to_text(html))
 
     html = """Hi
 <style type="text/css">
@@ -104,7 +104,7 @@ font: 13px 'Lucida Grande', Arial, sans-serif;
 
 }
 </style>"""
-    eq_ (b'Hi', u.html_to_text(html))
+    eq_(b'Hi', u.html_to_text(html))
 
     html = """<div>
 <!-- COMMENT 1 -->
@@ -115,14 +115,15 @@ font: 13px 'Lucida Grande', Arial, sans-serif;
 
 
 def test_comment_no_parent():
-    s = "<!-- COMMENT 1 --> no comment"
+    s = b'<!-- COMMENT 1 --> no comment'
     d = u.html_document_fromstring(s)
-    eq_("no comment", u.html_tree_to_text(d))
+    eq_(b"no comment", u.html_tree_to_text(d))
 
 
 @patch.object(u.html5parser, 'fromstring', Mock(side_effect=Exception()))
 def test_html_fromstring_exception():
     eq_(None, u.html_fromstring("<html></html>"))
+
 
 @patch.object(u, 'html_too_big', Mock())
 @patch.object(u.html5parser, 'fromstring')
@@ -158,5 +159,5 @@ def test_html_too_big():
 
 @patch.object(u, '_MAX_TAGS_COUNT', 3)
 def test_html_to_text():
-    eq_("Hello", u.html_to_text("<div>Hello</div>"))
+    eq_(b"Hello", u.html_to_text("<div>Hello</div>"))
     eq_(None, u.html_to_text("<div><span>Hi</span></div>"))
