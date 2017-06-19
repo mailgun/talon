@@ -1,19 +1,18 @@
 # coding:utf-8
 
 from __future__ import absolute_import
-import logging
+
 from random import shuffle
-import chardet
+
 import cchardet
-import regex as re
-
-from lxml.html import html5parser
-from lxml.cssselect import CSSSelector
-
+import chardet
 import html5lib
+import regex as re
+import six
+from lxml.cssselect import CSSSelector
+from lxml.html import html5parser
 
 from talon.constants import RE_DELIMITER
-import six
 
 
 def safe_format(format_string, *args, **kwargs):
@@ -128,7 +127,7 @@ def html_tree_to_text(tree):
 
         parent.remove(c)
 
-    text   = ""
+    text = ""
     for el in tree.iter():
         el_text = (el.text or '') + (el.tail or '')
         if len(el_text) > 1:
@@ -177,6 +176,8 @@ def html_to_text(string):
 def html_fromstring(s):
     """Parse html tree from string. Return None if the string can't be parsed.
     """
+    if isinstance(s, six.text_type):
+        s = s.encode('utf8')
     try:
         if html_too_big(s):
             return None
@@ -189,6 +190,8 @@ def html_fromstring(s):
 def html_document_fromstring(s):
     """Parse html tree from string. Return None if the string can't be parsed.
     """
+    if isinstance(s, six.text_type):
+        s = s.encode('utf8')
     try:
         if html_too_big(s):
             return None
@@ -203,7 +206,9 @@ def cssselect(expr, tree):
 
 
 def html_too_big(s):
-    return s.count('<') > _MAX_TAGS_COUNT
+    if isinstance(s, six.text_type):
+        s = s.encode('utf8')
+    return s.count(b'<') > _MAX_TAGS_COUNT
 
 
 def _contains_charset_spec(s):
@@ -248,8 +253,7 @@ def _html5lib_parser():
 _UTF8_DECLARATION = (b'<meta http-equiv="Content-Type" content="text/html;'
                      b'charset=utf-8">')
 
-
-_BLOCKTAGS  = ['div', 'p', 'ul', 'li', 'h1', 'h2', 'h3']
+_BLOCKTAGS = ['div', 'p', 'ul', 'li', 'h1', 'h2', 'h3']
 _HARDBREAKS = ['br', 'hr', 'tr']
 
 _RE_EXCESSIVE_NEWLINES = re.compile("\n{2,10}")
