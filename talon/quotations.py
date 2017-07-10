@@ -42,6 +42,8 @@ RE_ON_DATE_SMB_WROTE = re.compile(
             u'På',
             # Swedish, Danish
             'Den',
+            # Vietnamese
+            u'Vào',
         )),
         # Date and sender separator
         u'|'.join((
@@ -64,6 +66,8 @@ RE_ON_DATE_SMB_WROTE = re.compile(
             'schrieb',
             # Norwegian, Swedish
             'skrev',
+            # Vietnamese
+            u'đã viết',
         ))
     ))
 # Special case for languages where text is translated like this: 'on {date} wrote {somebody}:'
