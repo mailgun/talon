@@ -401,6 +401,14 @@ Op 17-feb.-2015, om 13:18 heeft Julius Caesar <pantheon@rome.com> het volgende g
 Small batch beard laboris tempor, non listicle hella Tumblr heirloom.
 """))
 
+def test_vietnamese_from_block():
+    eq_('Hello', quotations.extract_from_plain(
+    u"""Hello
+
+Vào 14:24 8 tháng 6, 2017, Hùng Nguyễn <hungnguyen@xxx.com> đã viết:
+
+> Xin chào
+"""))
 
 def test_quotation_marker_false_positive():
     msg_body = """Visit us now for assistance...
