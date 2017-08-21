@@ -147,7 +147,7 @@ RE_FROM_COLON_OR_DATE_COLON = re.compile(u'(_+\r?\n)?[\s]*(:?[*]?{})[\s]?:[*]?.*
 RE_ANDROID_WROTE = re.compile(u'[\s]*[-]+.*({})[ ]*[-]+'.format(
     u'|'.join((
         # English
-        'wrote'
+        'wrote',
     ))), re.I)
 
 # Support polymail.io reply format
