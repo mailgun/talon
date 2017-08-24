@@ -778,3 +778,16 @@ def test_split_email():
     expected_markers = "stttttsttttetesetesmmmmmmssmmmmmmsmmmmmmmm"
     markers = quotations.split_emails(msg)
     eq_(markers, expected_markers)
+
+
+
+def test_feedback_below_left_unparsed():
+    msg_body = """Please enter your feedback below. Thank you.
+
+------------------------------------- Enter Feedback Below -------------------------------------
+
+The user experience was unparallelled. Please continue production. I'm sending payment to ensure
+that this line is intact."""
+
+    parsed = quotations.extract_from_plain(msg_body)
+    eq_(msg_body, parsed.decode('utf8'))
