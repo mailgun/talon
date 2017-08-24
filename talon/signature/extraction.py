@@ -32,7 +32,7 @@ RE_REVERSE_SIGNATURE = re.compile(r'''
 
 def is_signature_line(line, sender, classifier):
     '''Checks if the line belongs to signature. Returns True or False.'''
-    data = numpy.array(build_pattern(line, features(sender)))
+    data = numpy.array(build_pattern(line, features(sender))).reshape(1, -1)
     return classifier.predict(data) > 0
 
 
