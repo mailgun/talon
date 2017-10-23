@@ -119,6 +119,38 @@ On 11-Apr-2011, at 6:54 PM, Roman Tkachenko <romant@example.com> sent:
     eq_("Test reply", quotations.extract_from_plain(msg_body))
 
 
+def test_appointment():
+    msg_body = """Response
+
+10/19/2017 @ 9:30 am for physical therapy
+Bla
+1517 4th Avenue Ste 300
+London CA 19129, 555-421-6780
+
+John Doe, FCLS
+Mailgun Inc
+555-941-0697
+
+From: from@example.com [mailto:from@example.com]
+Sent: Wednesday, October 18, 2017 2:05 PM
+To: John Doer - SIU <jd@example.com>
+Subject: RE: Claim # 5551188-1
+
+Text"""
+
+    expected = """Response
+
+10/19/2017 @ 9:30 am for physical therapy
+Bla
+1517 4th Avenue Ste 300
+London CA 19129, 555-421-6780
+
+John Doe, FCLS
+Mailgun Inc
+555-941-0697"""
+    eq_(expected, quotations.extract_from_plain(msg_body))
+
+
 def test_line_starts_with_on():
     msg_body = """Blah-blah-blah
 On blah-blah-blah"""
