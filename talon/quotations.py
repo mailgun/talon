@@ -165,15 +165,15 @@ SPLITTER_PATTERNS = [
     RE_FROM_COLON_OR_DATE_COLON,
     # 02.04.2012 14:20 пользователь "bob@example.com" <
     # bob@xxx.mailgun.org> написал:
-    re.compile("(\d+/\d+/\d+|\d+\.\d+\.\d+).*@", re.S),
+    re.compile("(\d+/\d+/\d+|\d+\.\d+\.\d+).*\s\S+@\S+", re.S),
     # 2014-10-17 11:28 GMT+03:00 Bob <
     # bob@example.com>:
-    re.compile("\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}\s+GMT.*@", re.S),
+    re.compile("\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}\s+GMT.*\s\S+@\S+", re.S),
     # Thu, 26 Jun 2014 14:00:51 +0400 Bob <bob@example.com>:
     re.compile('\S{3,10}, \d\d? \S{3,10} 20\d\d,? \d\d?:\d\d(:\d\d)?'
                '( \S+){3,6}@\S+:'),
     # Sent from Samsung MobileName <address@example.com> wrote:
-    re.compile('Sent from Samsung .*@.*> wrote'),
+    re.compile('Sent from Samsung.* \S+@\S+> wrote'),
     RE_ANDROID_WROTE,
     RE_POLYMAIL
     ]
