@@ -279,9 +279,9 @@ def process_marked_lines(lines, markers, return_flags=[False, -1, -1]):
     if 's' not in markers and not re.search('(me*){3}', markers):
         markers = markers.replace('m', 't')
 
-    if re.match('[te]*f', markers):
-        return_flags[:] = [False, -1, -1]
-        return lines
+    # if re.match('[te]*f', markers):
+    #     return_flags[:] = [False, -1, -1]
+    #     return lines
 
     # inlined reply
     # use lookbehind assertions to find overlapping entries e.g. for 'mtmtm'
