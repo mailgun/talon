@@ -6,11 +6,10 @@ from random import shuffle
 
 import cchardet
 import chardet
-import html5lib
 import regex as re
 import six
+import html5_parser
 from lxml.cssselect import CSSSelector
-from lxml.html import html5parser
 
 from talon.constants import RE_DELIMITER
 
@@ -182,7 +181,7 @@ def html_fromstring(s):
         if html_too_big(s):
             return None
 
-        return html5parser.fromstring(s, parser=_html5lib_parser())
+        return html5_parser.parse(s)
     except Exception:
         pass
 
@@ -196,7 +195,7 @@ def html_document_fromstring(s):
         if html_too_big(s):
             return None
 
-        return html5parser.document_fromstring(s, parser=_html5lib_parser())
+        return html5_parser.parse(s.decode('utf8'))
     except Exception:
         pass
 
@@ -233,21 +232,6 @@ def _encode_utf8(s):
     """Encode in 'utf-8' if unicode
     """
     return s.encode('utf-8') if isinstance(s, six.text_type) else s
-
-
-def _html5lib_parser():
-    """
-    html5lib is a pure-python library that conforms to the WHATWG HTML spec
-    and is not vulnarable to certain attacks common for XML libraries
-    """
-    return html5lib.HTMLParser(
-        # build lxml tree
-        html5lib.treebuilders.getTreeBuilder("lxml"),
-        # remove namespace value from inside lxml.html.html5paser element tag
-        # otherwise it yields something like "{http://www.w3.org/1999/xhtml}div"
-        # instead of "div", throwing the algo off
-        namespaceHTMLElements=False
-    )
 
 
 _UTF8_DECLARATION = (b'<meta http-equiv="Content-Type" content="text/html;'

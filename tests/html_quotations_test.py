@@ -167,7 +167,7 @@ def test_unicode_in_reply():
   Quote
 </blockquote>""".encode("utf-8")
 
-    eq_("<html><head></head><body>Reply&#160;&#160;Text<br><div><br></div>"
+    eq_("<html><head></head><body>Reply&#xA0;&#xA0;Text<br><div><br></div>"
         "</body></html>",
         RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body)))
 
@@ -424,3 +424,17 @@ def test_readable_html_empty():
 def test_bad_html():
     bad_html = "<html></html>"
     eq_(bad_html, quotations.extract_from_html(bad_html))
+
+
+def test_emoji_with_russian():
+    html_in = '<div dir="ltr">ha ha ha <span style="color:rgb(33,33,33);font-size:29px;white-space:pre-wrap">'\
+            'эй чувак, как ты </span>😁<span style="font-size:12.8px"> lol</span></div>'\
+            '<div class="gmail_extra"><br>'\
+            '<div class="gmail_quote">2017-09-04 18:08 GMT+05:30 Sherub Thakur <span dir="ltr">&lt;'\
+            '<a href="mailto:sherub.thakur@kayako.com" target="_blank">sherub.thakur@kayako.com</a>&gt;</span>:<br>'\
+            '<blockquote class="gmail_quote" style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">'\
+            '<div dir="ltr"><span style="color:rgb(33,33,33);font-size:29px;white-space:pre-wrap">эй чувак, как ты'\
+            '</span>😁<span style="font-size:12.8px"> lol</span><br></div></blockquote></div><br></div>'
+    html_out = quotations.extract_from_html(html_in)
+    html_expected = '<html><head></head><body><div dir="ltr">ha ha ha <span style="color:rgb(33,33,33);font-size:29px;white-space:pre-wrap">&#x44D;&#x439; &#x447;&#x443;&#x432;&#x430;&#x43A;, &#x43A;&#x430;&#x43A; &#x442;&#x44B; </span>&#x1F601;<span style="font-size:12.8px"> lol</span></div><div class="gmail_extra"><br><br></div></body></html>'
+    eq_(html_expected, html_out)
