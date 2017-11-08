@@ -160,6 +160,7 @@ RE_POLYMAIL = re.compile('On.*\s{2}<\smailto:.*\s> wrote:', re.I)
 
 SPLITTER_PATTERNS = [
     RE_ORIGINAL_MESSAGE,
+    RE_FWD,
     RE_ON_DATE_SMB_WROTE,
     RE_ON_DATE_WROTE_SMB,
     RE_FROM_COLON_OR_DATE_COLON,
