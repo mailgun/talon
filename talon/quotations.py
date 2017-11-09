@@ -242,8 +242,8 @@ def mark_message_lines(lines):
             markers[i] = 'e'  # empty line
         elif QUOT_PATTERN.match(lines[i]):
             markers[i] = 'm'  # line with quotation marker
-        elif RE_FWD.match(lines[i]):
-            markers[i] = 'f'  # ---- Forwarded message ----
+        # elif RE_FWD.match(lines[i]):
+        #     markers[i] = 'f'  # ---- Forwarded message ----
         else:
             # in case splitter is spread across several lines
             splitter = is_splitter('\n'.join(lines[i:i + SPLITTER_MAX_LINES]))
@@ -280,9 +280,9 @@ def process_marked_lines(lines, markers, return_flags=[False, -1, -1]):
     if 's' not in markers and not re.search('(me*){3}', markers):
         markers = markers.replace('m', 't')
 
-    # if re.match('[te]*f', markers):
-    #     return_flags[:] = [False, -1, -1]
-    #     return lines
+    if re.match('[te]*f', markers):
+        return_flags[:] = [False, -1, -1]
+        return lines
 
     # inlined reply
     # use lookbehind assertions to find overlapping entries e.g. for 'mtmtm'
