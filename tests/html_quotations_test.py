@@ -436,5 +436,7 @@ def test_emoji_with_russian():
             '<div dir="ltr"><span style="color:rgb(33,33,33);font-size:29px;white-space:pre-wrap">эй чувак, как ты'\
             '</span>😁<span style="font-size:12.8px"> lol</span><br></div></blockquote></div><br></div>'
     html_out = quotations.extract_from_html(html_in)
-    html_expected = '<html><head></head><body><div dir="ltr">ha ha ha <span style="color:rgb(33,33,33);font-size:29px;white-space:pre-wrap">&#x44D;&#x439; &#x447;&#x443;&#x432;&#x430;&#x43A;, &#x43A;&#x430;&#x43A; &#x442;&#x44B; </span>&#x1F601;<span style="font-size:12.8px"> lol</span></div><div class="gmail_extra"><br><br></div></body></html>'
+    html_expected = '<html><head></head><body><div dir="ltr">ha ha ha <span style="color:rgb(33,33,33);font-size:29px;white-space:pre-wrap">'\
+                    '&#x44D;&#x439; &#x447;&#x443;&#x432;&#x430;&#x43A;, &#x43A;&#x430;&#x43A; &#x442;&#x44B; </span>&#x1F601;<span style="font-size:12.8px"> lol</span></div>'\
+                    '<div class="gmail_extra"><br><br></div></body></html>'
     eq_(html_expected, html_out)
