@@ -120,26 +120,26 @@ def test_comment_no_parent():
     eq_(b"no comment", u.html_tree_to_text(d))
 
 
-@patch.object(u.html5parser, 'fromstring', Mock(side_effect=Exception()))
+@patch.object(u.html5_parser, 'parse', Mock(side_effect=Exception()))
 def test_html_fromstring_exception():
     eq_(None, u.html_fromstring("<html></html>"))
 
 
 @patch.object(u, 'html_too_big', Mock())
-@patch.object(u.html5parser, 'fromstring')
+@patch.object(u.html5_parser, 'parse')
 def test_html_fromstring_too_big(fromstring):
     eq_(None, u.html_fromstring("<html></html>"))
     assert_false(fromstring.called)
 
 
-@patch.object(u.html5parser, 'document_fromstring')
-def test_html_document_fromstring_exception(document_fromstring):
-    document_fromstring.side_effect = Exception()
+@patch.object(u.html5_parser, 'parse')
+def test_html_document_fromstring_exception(parse):
+    parse.side_effect = Exception()
     eq_(None, u.html_document_fromstring("<html></html>"))
 
 
 @patch.object(u, 'html_too_big', Mock())
-@patch.object(u.html5parser, 'document_fromstring')
+@patch.object(u.html5_parser, 'parse')
 def test_html_document_fromstring_too_big(document_fromstring):
     eq_(None, u.html_document_fromstring("<html></html>"))
     assert_false(document_fromstring.called)
