@@ -823,3 +823,31 @@ that this line is intact."""
 
     parsed = quotations.extract_from_plain(msg_body)
     eq_(msg_body, parsed.decode('utf8'))
+
+def test_swedish_quotation():
+    msg_body = """Hej Lotta
+
+Ja g=C3=A4rna!
+
+John
+
+Den 26 oktober 2017 23:49 skrev Lotta p=C3=A5 Testcompany <kundtjanst@testc=
+ompany
+>:
+
+> Hej John
+>
+> Vill du ha en gratis tr=C3=B6ja?
+>
+> Med v=C3=A4nlig h=C3=A4lsning, Lotta Testcompany
+>
+"""
+
+    expected_reply = """Hej Lotta
+
+Ja g=C3=A4rna!
+
+John
+    """
+    reply = quotations.extract_from_plain(msg_body)
+    eq_(expected_reply, reply)
