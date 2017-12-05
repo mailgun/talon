@@ -40,9 +40,9 @@ RE_ON_DATE_SMB_WROTE = re.compile(
             'Am',
             # Norwegian
             u'På',
+            # Vietnamese
             # Swedish, Danish
             'Den',
-            # Vietnamese
             u'Vào',
         )),
         # Date and sender separator
@@ -72,10 +72,12 @@ RE_ON_DATE_SMB_WROTE = re.compile(
     ))
 # Special case for languages where text is translated like this: 'on {date} wrote {somebody}:'
 RE_ON_DATE_WROTE_SMB = re.compile(
-    u'(-*[>]?[ ]?({0})[ ].*(.*\n){{0,2}}.*({1})[ ]*.*:)'.format(
+    u'(-*[>]?[ ]?({0})[ ].*(.*\n){{0,2}}.*({1})[ ]*.*)'.format(
         # Beginning of the line
         u'|'.join((
         	'Op',
+            # Swedish, Danish
+            u'Den',
         	#German
         	'Am'
         )),
@@ -83,6 +85,8 @@ RE_ON_DATE_WROTE_SMB = re.compile(
         u'|'.join((
             # Dutch
             'schreef','verzond','geschreven',
+            # Norwegian, Swedish
+            u'skrev',
             # German
             'schrieb'
         ))
