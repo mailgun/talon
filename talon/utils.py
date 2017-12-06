@@ -4,6 +4,7 @@ from __future__ import absolute_import
 
 from random import shuffle
 
+import logging
 import cchardet
 import chardet
 import regex as re
@@ -244,4 +245,11 @@ _RE_EXCESSIVE_NEWLINES = re.compile("\n{2,10}")
 
 # an extensive research shows that exceeding this limit
 # might lead to excessive processing time
-_MAX_TAGS_COUNT = 419
+# NOTE: Increasing it from the recomended 419 to 2L kinda like unlimted as mails with more than 419
+# tags are fairly common (due to message chains that they carry).
+_MAX_TAGS_COUNT = 50000  # 419
+
+
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)

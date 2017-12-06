@@ -2,6 +2,9 @@ from setuptools import setup, find_packages
 from ConfigParser import ConfigParser
 
 
+# Internal Contact
+# Sherub Thakur <sherub.thakur@kayako.com>
+
 config = ConfigParser()
 
 with open('setup.cfg') as fp:

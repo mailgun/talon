@@ -1,3 +1,5 @@
+import glob
+
 STANDARD_REPLIES = "tests/fixtures/standard_replies"
 
 with open("tests/fixtures/reply-quotations-share-block.eml") as f:
@@ -8,3 +10,11 @@ with open("tests/fixtures/OLK_SRC_BODY_SECTION.html") as f:
 
 with open("tests/fixtures/reply-separated-by-hr.html") as f:
     REPLY_SEPARATED_BY_HR = f.read()
+
+
+REAL_HTML = []
+
+for htmlfile in glob.glob('tests/fixtures/real_data/*.html'):
+    with open(htmlfile) as f:
+        REAL_HTML.append(f.read())
+

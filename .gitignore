@@ -58,3 +58,10 @@ _trial_temp
 
 # virtualenv
 venv
+
+
+# Sensitive data
+tests/fixtures/real_data/*.html
+
+#
+extras/

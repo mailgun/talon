@@ -6,7 +6,7 @@ messages (without quoted messages) from html
 from __future__ import absolute_import
 import regex as re
 
-from talon.utils import cssselect 
+from talon.utils import cssselect, logger
 
 CHECKPOINT_PREFIX = '#!%!'
 CHECKPOINT_SUFFIX = '!%!#'
@@ -21,22 +21,18 @@ def add_checkpoint(html_note, counter):
     """Recursively adds checkpoints to html tree.
     """
     if html_note.text:
-        html_note.text = (html_note.text + CHECKPOINT_PREFIX +
-                          str(counter) + CHECKPOINT_SUFFIX)
+        html_note.text = (html_note.text + CHECKPOINT_PREFIX + str(counter) + CHECKPOINT_SUFFIX)
     else:
-        html_note.text = (CHECKPOINT_PREFIX + str(counter) +
-                          CHECKPOINT_SUFFIX)
+        html_note.text = (CHECKPOINT_PREFIX + str(counter) + CHECKPOINT_SUFFIX)
     counter += 1
 
     for child in html_note.iterchildren():
         counter = add_checkpoint(child, counter)
 
     if html_note.tail:
-        html_note.tail = (html_note.tail + CHECKPOINT_PREFIX +
-                          str(counter) + CHECKPOINT_SUFFIX)
+        html_note.tail = (html_note.tail + CHECKPOINT_PREFIX + str(counter) + CHECKPOINT_SUFFIX)
     else:
-        html_note.tail = (CHECKPOINT_PREFIX + str(counter) +
-                          CHECKPOINT_SUFFIX)
+        html_note.tail = (CHECKPOINT_PREFIX + str(counter) + CHECKPOINT_SUFFIX)
     counter += 1
 
     return counter
@@ -75,6 +71,14 @@ def delete_quotation_tags(html_note, counter, quotation_checkpoints):
         for child in quotation_children:
             html_note.remove(child)
         return counter, tag_in_quotation
+
+
+def cut_kayako_quote(html_message):
+    ''' Cuts the outermost block element with id kayako_mail. '''
+    kayako_mail = cssselect('div[class*=kayako-mail-wrapper]', html_message)
+    if kayako_mail and (kayako_mail[0].text is None or not RE_FWD.match(kayako_mail[0].text)):
+        kayako_mail[0].getparent().remove(kayako_mail[0])
+        return True
 
 
 def cut_gmail_quote(html_message):
@@ -167,13 +171,14 @@ def cut_from_block(html_message):
     # handle the case when From: block is enclosed in some tag
     block = html_message.xpath(
         ("//*[starts-with(mg:text_content(), 'From:')]|"
+         "//*[starts-with(mg:text_content(), 'Van:')]|"
          "//*[starts-with(mg:text_content(), 'Date:')]"))
 
     if block:
         block = block[-1]
         parent_div = None
         while block.getparent() is not None:
-            if block.tag == 'div':
+            if block.tag in ['div', 'p']:
                 parent_div = block
                 break
             block = block.getparent()
@@ -209,6 +214,7 @@ def cut_from_block(html_message):
     # and not enclosed in some tag
     block = html_message.xpath(
         ("//*[starts-with(mg:tail(), 'From:')]|"
+         "//*[starts-with(mg:tail(), 'Van:')]|"
          "//*[starts-with(mg:tail(), 'Date:')]"))
     if block:
         block = block[0]

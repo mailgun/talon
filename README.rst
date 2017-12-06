@@ -1,3 +1,5 @@
+A version of talon with ML part removed and some other modifications
+
 talon
 =====
 
@@ -137,3 +139,9 @@ The library is inspired by the following research papers and projects:
 
 -  http://www.cs.cmu.edu/~vitor/papers/sigFilePaper_finalversion.pdf
 -  http://www.cs.cornell.edu/people/tj/publications/joachims_01a.pdf
+
+
+Non Open-source Dataset
+-----------------------
+There are tests that run on data that is not open, for more info
+https://kayako.atlassian.net/browse/PDM-8894
