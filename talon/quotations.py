@@ -430,6 +430,9 @@ def _extract_from_html(msg_body):
     Extract not quoted message from provided html message body
     using tags and plain text algorithm.
 
+    Cut out first some encoding html tags such as xml and doctype
+    for avoiding conflict with unicode decoding
+
     Cut out the 'blockquote', 'gmail_quote' tags.
     Cut Microsoft quotations.
 
@@ -445,6 +448,9 @@ def _extract_from_html(msg_body):
         return msg_body
 
     msg_body = msg_body.replace(b'\r\n', b'\n')
+
+    msg_body = re.sub(r"\<\?xml.+\?\>|\<\!DOCTYPE.+]\>", "", msg_body)
+
     html_tree = html_document_fromstring(msg_body)
 
     if html_tree is None:
