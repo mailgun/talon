@@ -44,7 +44,7 @@ RE_PHONE_SIGNATURE = re.compile(r'''
                )
                ''', re.I | re.X | re.M | re.S)
 
-RE_URL = re.compile(r'''(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\,\+.~#?&//=]*)''')
+RE_URL = re.compile(r'''https?://|www\.[\S]+\.[\S]''')
 
 # see _mark_candidate_indexes() for details
 # c - could be signature line
