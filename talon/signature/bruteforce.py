@@ -169,7 +169,6 @@ def _mark_candidate_indexes(lines, candidate):
     for i, line_idx in reversed(list(enumerate(candidate))):
         if len(lines[line_idx].strip()) > TOO_LONG_SIGNATURE_LINE:
             # if the line contains a url, ignore the length requirement
-            print(lines[line_idx])
             if RE_URL.search(lines[line_idx]):
                 continue
             markers[i] = 'l'
