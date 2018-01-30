@@ -154,6 +154,26 @@ John Doe"""
         bruteforce.extract_signature(msg_body))
 
 
+def test_signature_line_too_long_ignores_urls():
+    msg_body = """Thanks,
+
+this is a test
+
+--
+Testy McTesterson
+CEO, Test, Inc.
+100 Test St, Ste 100 | Austin, TX 78701
+<https://maps.google.com/?q=100+Test+St,+Ste+100+%7C+Austin,+TX+78701&entry=gmail&source=g>
+"""
+    eq_(('Thanks,\n\nthis is a test',"""\
+--
+Testy McTesterson
+CEO, Test, Inc.
+100 Test St, Ste 100 | Austin, TX 78701
+<https://maps.google.com/?q=100+Test+St,+Ste+100+%7C+Austin,+TX+78701&entry=gmail&source=g>"""),
+     bruteforce.extract_signature(msg_body))
+
+
 @patch.object(bruteforce, 'SIGNATURE_MAX_LINES', 2)
 def test_signature_max_lines_ignores_empty_lines():
     msg_body = """Thanks,

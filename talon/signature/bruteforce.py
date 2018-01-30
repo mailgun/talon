@@ -44,6 +44,8 @@ RE_PHONE_SIGNATURE = re.compile(r'''
                )
                ''', re.I | re.X | re.M | re.S)
 
+RE_URL = re.compile(r'''(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\,\+.~#?&//=]*)''')
+
 # see _mark_candidate_indexes() for details
 # c - could be signature line
 # d - line starts with dashes (could be signature or list item)
@@ -166,6 +168,10 @@ def _mark_candidate_indexes(lines, candidate):
     # mark lines starting from bottom up
     for i, line_idx in reversed(list(enumerate(candidate))):
         if len(lines[line_idx].strip()) > TOO_LONG_SIGNATURE_LINE:
+            # if the line contains a url, ignore the length requirement
+            print(lines[line_idx])
+            if RE_URL.search(lines[line_idx]):
+                continue
             markers[i] = 'l'
         else:
             line = lines[line_idx].strip()
