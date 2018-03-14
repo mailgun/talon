@@ -247,7 +247,7 @@ _RE_EXCESSIVE_NEWLINES = re.compile("\n{2,10}")
 # might lead to excessive processing time
 # NOTE: Increasing it from the recomended 419 to 2L kinda like unlimted as mails with more than 419
 # tags are fairly common (due to message chains that they carry).
-_MAX_TAGS_COUNT = 50000  # 419
+_MAX_TAGS_COUNT = 25000  # 419
 
 
 
