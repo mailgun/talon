@@ -1,6 +1,5 @@
 """
-Module with object oriented approach to
-signature extractions. Built to be more
+Module with object oriented approach to signature extractions. Built to be more
 flexible and to support more languages.
 """
 from __future__ import absolute_import
@@ -28,16 +27,13 @@ DEFAULT_GREETINGS = (
 
 class AbstractExtractor(ABC):
     """
-    Abstract base class for
-    signature extractors.
+    Abstract base class for signature extractors.
     """
 
     @abstractmethod
     def extract_signature(self, message):
         """
-        Extract the signature from
-        message and return the
-        text and signature
+        Extract the signature from message and return the text and signature
 
         :param message: str
         :return: (text: str, signature: str)
@@ -55,9 +51,8 @@ class BruteForceExtractor(AbstractExtractor):
     def __init__(self, max_lines=SIGNATURE_MAX_LINES, max_line_length=TOO_LONG_SIGNATURE_LINE,
                  greetings=DEFAULT_GREETINGS):
         """
-        Create a new brute force extractor. Allows override
-        max signature length, max signature line length and
-        common greetings (allows multi language support).
+        Create a new brute force extractor. Allows override max signature length, 
+        max signature line length and common greetings (allows multi language support).
         """
         self.max_lines = max_lines
         self.max_line_length = max_line_length
@@ -65,9 +60,7 @@ class BruteForceExtractor(AbstractExtractor):
 
     def extract_signature(self, msg_body):
         """
-        Use brute force to extract the
-        signature (ie. regex and
-        string matching)
+        Use brute force to extract the signature (ie. regex and string matching)
 
         :param message: str
         :return: (text: str, signature: str)
@@ -97,10 +90,8 @@ class BruteForceExtractor(AbstractExtractor):
                 return (stripped_body.strip(), phone_signature)
             else:
                 signature = signature.group()
-                # when we splitlines() and then join them
-                # we can lose a new line at the end
-                # we did it when identifying a candidate
-                # so we had to do it for stripped_body now
+                # when we splitlines() and then join them we can lose a new line at the end
+                # we did it when identifying a candidate so we had to do it for stripped_body now
                 stripped_body = delimiter.join(lines)
                 stripped_body = stripped_body[:-len(signature)]
 
@@ -185,8 +176,7 @@ class BruteForceExtractor(AbstractExtractor):
 
     def _process_marked_candidate_indexes(self, candidate, markers):
         """
-        Run regexes against candidate's marked indexes to strip
-        signature candidate.
+        Run regexes against candidate's marked indexes to strip signature candidate.
 
         >>> _process_marked_candidate_indexes([9, 12, 14, 15, 17], 'clddc')
         [15, 17]
