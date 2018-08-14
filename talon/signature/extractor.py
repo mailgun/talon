@@ -33,7 +33,7 @@ class AbstractExtractor(ABC):
     """
 
     @abstractmethod
-    def extract_signature(self, message: str):
+    def extract_signature(self, message):
         """
         Extract the signature from
         message and return the
@@ -63,7 +63,7 @@ class BruteForceExtractor(AbstractExtractor):
         self.max_line_length = max_line_length
         self._compile_greetings(greetings)
 
-    def extract_signature(self, msg_body: str):
+    def extract_signature(self, msg_body):
         """
         Use brute force to extract the
         signature (ie. regex and
