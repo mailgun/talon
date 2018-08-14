@@ -17,7 +17,7 @@ def extract_signature(msg_body):
     >>> extract_signature('Hey man!')
     ('Hey man!', None)
     '''
-    brute_force_extractor = BruteForceExtractor(max_lines=SIGNATURE_MAX_LINES, max_line_length=TOO_LONG_SIGNATURE_LINE)
+    brute_force_extractor = BruteForceExtractor()
     return brute_force_extractor.extract_signature(msg_body)
 
 
@@ -32,7 +32,7 @@ def get_signature_candidate(lines):
     * not include more than one line that starts with dashes
     """
     # non empty lines indexes
-    brute_force_extractor = BruteForceExtractor(max_lines=SIGNATURE_MAX_LINES, max_line_length=TOO_LONG_SIGNATURE_LINE)
+    brute_force_extractor = BruteForceExtractor()
     return brute_force_extractor._get_signature_candidate(lines)
 
 
@@ -49,7 +49,7 @@ def _mark_candidate_indexes(lines, candidate):
     'cdc'
     """
     # at first consider everything to be potential signature lines
-    brute_force_extractor = BruteForceExtractor(max_lines=SIGNATURE_MAX_LINES, max_line_length=TOO_LONG_SIGNATURE_LINE)
+    brute_force_extractor = BruteForceExtractor()
     return brute_force_extractor._mark_candidate_indexes(lines, candidate)
 
 
@@ -61,5 +61,5 @@ def _process_marked_candidate_indexes(candidate, markers):
     >>> _process_marked_candidate_indexes([9, 12, 14, 15, 17], 'clddc')
     [15, 17]
     """
-    brute_force_extractor = BruteForceExtractor(max_lines=SIGNATURE_MAX_LINES, max_line_length=TOO_LONG_SIGNATURE_LINE)
+    brute_force_extractor = BruteForceExtractor()
     return brute_force_extractor._process_marked_candidate_indexes(candidate, markers)
