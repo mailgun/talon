@@ -38,6 +38,8 @@ RE_ON_DATE_SMB_WROTE = re.compile(
             'Op',
             # German
             'Am',
+            # Portuguese
+            'Em',
             # Norwegian
             u'På',
             # Swedish, Danish
@@ -64,6 +66,8 @@ RE_ON_DATE_SMB_WROTE = re.compile(
             'schreef','verzond','geschreven',
             # German
             'schrieb',
+            # Portuguese
+            'escreveu',
             # Norwegian, Swedish
             'skrev',
             # Vietnamese
