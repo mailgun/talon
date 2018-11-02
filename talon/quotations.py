@@ -38,6 +38,8 @@ RE_ON_DATE_SMB_WROTE = re.compile(
             'Op',
             # German
             'Am',
+            # Portuguese
+            'Em',
             # Norwegian
             u'På',
             # Swedish, Danish
@@ -64,6 +66,8 @@ RE_ON_DATE_SMB_WROTE = re.compile(
             'schreef','verzond','geschreven',
             # German
             'schrieb',
+            # Portuguese
+            'escreveu',
             # Norwegian, Swedish
             'skrev',
             # Vietnamese
@@ -286,7 +290,7 @@ def process_marked_lines(lines, markers, return_flags=[False, -1, -1]):
     # inlined reply
     # use lookbehind assertions to find overlapping entries e.g. for 'mtmtm'
     # both 't' entries should be found
-    for inline_reply in re.finditer('(?<=m)e*((?:t+e*)+)m', markers):
+    for inline_reply in re.finditer('(?<=m)e*(t[te]*)m', markers):
         # long links could break sequence of quotation lines but they shouldn't
         # be considered an inline reply
         links = (
