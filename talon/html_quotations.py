@@ -99,7 +99,7 @@ def cut_microsoft_quote(html_message):
     splitter = html_message.xpath(
         #outlook 2007, 2010, 2013 (international, american)
         "//div[@style[re:match(., 'border:none; ?border-top:solid #(E1E1E1|B5C4DF) 1.0pt; ?"
-        "padding:3.0pt 0(in|cm) 0(in|cm) 0(in|cm)')]]"
+        "padding:3.0pt 0(in|cm) 0(in|cm) 0(in|cm)')]]|"
         #windows mail
         "//div[@style='padding-top: 5px; "
         "border-top-color: rgb(229, 229, 229); "
