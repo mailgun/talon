@@ -129,6 +129,22 @@ start using it for talon.
 .. _EDRM: http://www.edrm.net/resources/data-sets/edrm-enron-email-data-set
 .. _forge: https://github.com/mailgun/forge
 
+Training on your dataset
+------------------------
+
+talon comes with a pre-processed dataset and a pre-trained classifier. To retrain the classifier on your own dataset of raw emails, structure and annotate them in the same way the `forge`_ project does. Then do:
+
+.. code:: python
+
+    from talon.signature.learning.dataset import build_extraction_dataset
+    from talon.signature.learning import classifier as c 
+    
+    build_extraction_dataset("/path/to/your/P/folder", "/path/to/talon/signature/data/train.data")
+    c.train(c.init(), "/path/to/talon/signature/data/train.data", "/path/to/talon/signature/data/classifier")
+
+Note that for signature extraction you need just the folder with the positive samples with annotated signature lines (P folder).
+
+.. _forge: https://github.com/mailgun/forge
 
 Research
 --------
