@@ -25,7 +25,7 @@ log = logging.getLogger(__name__)
 RE_FWD = re.compile("^[-]+[ ]*Forwarded message[ ]*[-]+$", re.I | re.M)
 
 RE_ON_DATE_SMB_WROTE = re.compile(
-    u'(-*[>]?[ ]?({0})[ ].*({1})(.*\n){{0,2}}.*({2}):?-*)'.format(
+    u'(-*[>]?[ ]?({0})[ ].*({1})(.*\n){{0,2}}.*\s({2}):?-*)'.format(
         # Beginning of the line
         u'|'.join((
             # English
