@@ -417,10 +417,8 @@ def extract_from_html(msg_body):
 
     Returns a unicode string.
     """
-    if isinstance(msg_body, six.text_type):
-        msg_body = msg_body.encode('utf8')
-    elif not isinstance(msg_body, bytes):
-        msg_body = msg_body.encode('ascii')
+    if not isinstance(msg_body, six.text_type):
+        msg_body = msg_body.decode('utf8')
 
     result = _extract_from_html(msg_body)
     if isinstance(result, bytes):
@@ -448,10 +446,10 @@ def _extract_from_html(msg_body):
     then checking deleted checkpoints,
     then deleting necessary tags.
     """
-    if msg_body.strip() == b'':
+    if msg_body.strip() == '':
         return msg_body
 
-    msg_body = msg_body.replace(b'\r\n', b'\n')
+    msg_body = msg_body.replace('\r\n', '\n')
 
     msg_body = re.sub(r"\<\?xml.+\?\>|\<\!DOCTYPE.+]\>", "", msg_body)
 
