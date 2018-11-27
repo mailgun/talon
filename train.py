@@ -7,5 +7,6 @@ def train_model():
     """ retrain model and persist """
     train(init(), EXTRACTOR_DATA, EXTRACTOR_FILENAME)
 
+
 if __name__ == "__main__":
     train_model()

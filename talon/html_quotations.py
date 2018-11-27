@@ -78,7 +78,7 @@ def delete_quotation_tags(html_note, counter, quotation_checkpoints):
 
 
 def cut_gmail_quote(html_message):
-    ''' Cuts the outermost block element with class gmail_quote. '''
+    """Cuts the outermost block element with class gmail_quote."""
     gmail_quote = cssselect('div.gmail_quote', html_message)
     if gmail_quote and (gmail_quote[0].text is None or not RE_FWD.match(gmail_quote[0].text)):
         gmail_quote[0].getparent().remove(gmail_quote[0])
@@ -86,7 +86,7 @@ def cut_gmail_quote(html_message):
 
 
 def cut_microsoft_quote(html_message):
-    ''' Cuts splitter block and all following blocks. '''
+    """Cuts splitter block and all following blocks."""
     #use EXSLT extensions to have a regex match() function with lxml
     ns = {"re": "http://exslt.org/regular-expressions"}
 
@@ -151,7 +151,7 @@ def cut_by_id(html_message):
 
 
 def cut_blockquote(html_message):
-    ''' Cuts the last non-nested blockquote with wrapping elements.'''
+    """Cuts the last non-nested blockquote with wrapping elements."""
     quote = html_message.xpath(
         '(.//blockquote)'
         '[not(@class="gmail_quote") and not(ancestor::blockquote)]'
@@ -221,6 +221,7 @@ def cut_from_block(html_message):
             block.getparent().remove(block.getnext())
         block.getparent().remove(block)
         return True
+
 
 def cut_zimbra_quote(html_message):
     zDivider = html_message.xpath('//hr[@data-marker="__DIVIDER__"]')

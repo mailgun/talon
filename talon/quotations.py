@@ -596,10 +596,9 @@ def _readable_text_empty(html_tree):
 
 
 def is_splitter(line):
-    '''
-    Returns Matcher object if provided string is a splitter and
+    """Returns Matcher object if provided string is a splitter and
     None otherwise.
-    '''
+    """
     for pattern in SPLITTER_PATTERNS:
         matcher = re.match(pattern, line)
         if matcher:
@@ -607,12 +606,12 @@ def is_splitter(line):
 
 
 def text_content(context):
-    '''XPath Extension function to return a node text content.'''
+    """XPath Extension function to return a node text content."""
     return context.context_node.xpath("string()").strip()
 
 
 def tail(context):
-    '''XPath Extension function to return a node tail text.'''
+    """XPath Extension function to return a node tail text."""
     return context.context_node.tail or ''
 
 
