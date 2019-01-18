@@ -22,7 +22,7 @@ import six
 log = logging.getLogger(__name__)
 
 
-RE_FWD = re.compile("^[-]+[ ]*Forwarded message[ ]*[-]+$", re.I | re.M)
+RE_FWD = re.compile("^[-]+[ ]*Forwarded message[ ]*[-]+\s*$", re.I | re.M)
 
 RE_ON_DATE_SMB_WROTE = re.compile(
     u'(-*[>]?[ ]?({0})[ ].*({1})(.*\n){{0,2}}.*({2}):?-*)'.format(
@@ -139,13 +139,17 @@ RE_ORIGINAL_MESSAGE = re.compile(u'[\s]*[-]+[ ]*({})[ ]*[-]+'.format(
         'Oprindelig meddelelse',
     ))), re.I)
 
-RE_FROM_COLON_OR_DATE_COLON = re.compile(u'(_+\r?\n)?[\s]*(:?[*]?{})[\s]?:[*]?.*'.format(
+RE_FROM_COLON_OR_DATE_COLON = re.compile(u'((_+\r?\n)?[\s]*:?[*]?({})[\s]?:([^\n$]+\n){{1,2}}){{2,}}'.format(
     u'|'.join((
         # "From" in different languages.
         'From', 'Van', 'De', 'Von', 'Fra', u'Från',
         # "Date" in different languages.
-        'Date', 'Datum', u'Envoyé', 'Skickat', 'Sendt',
-    ))), re.I)
+        'Date', '[S]ent', 'Datum', u'Envoyé', 'Skickat', 'Sendt', 'Gesendet',
+        # "Subject" in different languages.
+        'Subject', 'Betreff', 'Objet', 'Emne', u'Ämne',
+        # "To" in different languages.
+        'To', 'An', 'Til', u'À', 'Till'
+    ))), re.I | re.M)
 
 # ---- John Smith wrote ----
 RE_ANDROID_WROTE = re.compile(u'[\s]*[-]+.*({})[ ]*[-]+'.format(
@@ -567,7 +571,6 @@ def _correct_splitlines_in_headers(markers, lines):
     updated_markers = ""
     i = 0
     in_header_block = False
-
     for m in markers:
         # Only set in_header_block flag when we hit an 's' and line is a header
         if m == 's':
