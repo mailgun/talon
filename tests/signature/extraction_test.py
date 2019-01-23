@@ -40,7 +40,6 @@ def test_messages_longer_SIGNATURE_MAX_LINES():
             msg_signature = ms.read()
             eq_(msg_signature.strip(), extracted_signature.strip())
             stripped_msg = body.strip()[:len(body.strip()) - len(msg_signature)]
-            
             eq_(stripped_msg.strip(), text.strip())
 
 
