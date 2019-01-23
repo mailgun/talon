@@ -62,7 +62,7 @@ def test_long_line_in_signature():
     body = """Call me ASAP, please.This is about the last changes you deployed.
 
 Thanks in advance,
-some long text here which doesn't seem to be a signature at all
+some long text here which doesn't seem to be a signature at all. this is a really long line. It is very very long. not at all signature
 Bob"""
 
     text, extracted_signature = extract(body, sender)

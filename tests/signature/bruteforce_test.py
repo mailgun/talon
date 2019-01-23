@@ -42,6 +42,19 @@ Bob Smith'''
     eq_(('Wow. Awesome!', '--\nBob Smith'),
         bruteforce.extract_signature(msg_body))
 
+def test_signature_separated_by_long_dashes():
+    msg_body = '''Wow. Awesome!
+—
+Bob Smith'''
+    eq_(('Wow. Awesome!', '—\nBob Smith'),
+        bruteforce.extract_signature(msg_body))
+
+    msg_body = '''Wow. Awesome!
+——
+Bob Smith'''
+    eq_(('Wow. Awesome!', '——\nBob Smith'),
+        bruteforce.extract_signature(msg_body))
+
 
 def test_signature_words():
     msg_body = '''Hey!
@@ -65,6 +78,20 @@ Roman'''
 Regards,
 Roman'''
     eq_(('Hey!', '--\n--\nRegards,\nRoman'),
+        bruteforce.extract_signature(msg_body))
+    
+    msg_body = '''Hey!
+
+Sincerely,
+Roman'''
+    eq_(('Hey!', 'Sincerely,\nRoman'),
+        bruteforce.extract_signature(msg_body))
+    
+    msg_body = '''Hey!
+
+Take care,
+Roman'''
+    eq_(('Hey!', 'Take care,\nRoman'),
         bruteforce.extract_signature(msg_body))
 
 
