@@ -1,10 +1,14 @@
+from __future__ import absolute_import
+
+import logging
+
 import regex
 
+from talon.signature.constants import (SIGNATURE_MAX_LINES,	
+                                       TOO_LONG_SIGNATURE_LINE)	
+from talon.utils import get_delimiter
 
-RE_DELIMITER = regex.compile('\r?\n')
-SIGNATURE_MAX_LINES = 11
-TOO_LONG_SIGNATURE_LINE = 100
-
+log = logging.getLogger(__name__)
 
 
 # regex to fetch signature based on common signature words
@@ -64,16 +68,6 @@ RE_SIGNATURE_CANDIDATE = regex.compile(r'''
     |
     (?P<candidate>d)$
 ''', regex.I | regex.X | regex.M | regex.S)
-
-
-def get_delimiter(msg_body):
-    delimiter = RE_DELIMITER.search(msg_body)
-    if delimiter:
-        delimiter = delimiter.group()
-    else:
-        delimiter = '\n'
-
-    return delimiter
 
 
 def extract_signature(msg_body):
