@@ -77,7 +77,7 @@ def extract_signature(msg_body):
 
     >>> extract_signature('Hey man! How r u?\n\n--\nRegards,\nRoman')
     ('Hey man! How r u?', '--\nRegards,\nRoman')
-    
+
     >>> extract_signature('Hey man!')
     ('Hey man!', None)
     '''
