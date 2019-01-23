@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 import logging
 
-import regex as re
+import regex
 
 from talon.signature.constants import (SIGNATURE_MAX_LINES,
                                        TOO_LONG_SIGNATURE_LINE)
@@ -11,25 +11,33 @@ from talon.utils import get_delimiter
 log = logging.getLogger(__name__)
 
 # regex to fetch signature based on common signature words
-RE_SIGNATURE = re.compile(r'''
+RE_SIGNATURE = regex.compile(r'''
                (
                    (?:
                        ^[\s]*--*[\s]*[a-z \.]*$
+                       |
+                       ^[\s]*—+[\s]*$
                        |
                        ^thanks[\s,!]*$
                        |
                        ^regards[\s,!]*$
                        |
+                       ^kind\sregards[\s,!]*$
+                       |
+                       ^take\scare[\s,!]*$
+                       |
                        ^cheers[\s,!]*$
+                       |
+                       ^sincerely[\s,!]*$
                        |
                        ^best[ a-z]*[\s,!]*$
                    )
                    .*
                )
-               ''', re.I | re.X | re.M | re.S)
+               ''', regex.I | regex.X | regex.M | regex.S)
 
 # signatures appended by phone email clients
-RE_PHONE_SIGNATURE = re.compile(r'''
+RE_PHONE_SIGNATURE = regex.compile(r'''
                (
                    (?:
                        ^sent[ ]{1}from[ ]{1}my[\s,!\w]*$
@@ -42,13 +50,13 @@ RE_PHONE_SIGNATURE = re.compile(r'''
                    )
                    .*
                )
-               ''', re.I | re.X | re.M | re.S)
+               ''', regex.I | regex.X | regex.M | regex.S)
 
 # see _mark_candidate_indexes() for details
 # c - could be signature line
 # d - line starts with dashes (could be signature or list item)
 # l - long line
-RE_SIGNATURE_CANDIDATE = re.compile(r'''
+RE_SIGNATURE_CANDIDATE = regex.compile(r'''
     (?P<candidate>c+d)[^d]
     |
     (?P<candidate>c+d)$
@@ -58,7 +66,7 @@ RE_SIGNATURE_CANDIDATE = re.compile(r'''
     (?P<candidate>d)[^d]
     |
     (?P<candidate>d)$
-''', re.I | re.X | re.M | re.S)
+''', regex.I | regex.X | regex.M | regex.S)
 
 
 def extract_signature(msg_body):

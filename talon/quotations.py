@@ -457,6 +457,10 @@ def _extract_from_html(msg_body):
 
     msg_body = msg_body.replace(b'\r\n', b'\n')
 
+    # Required for python3
+    if isinstance(msg_body, bytes):
+        msg_body = msg_body.decode('utf8')
+
     msg_body = re.sub(r"\<\?xml.+\?\>|\<\!DOCTYPE.+]\>", "", msg_body)
 
     html_tree = html_document_fromstring(msg_body)
