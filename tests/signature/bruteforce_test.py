@@ -56,6 +56,80 @@ Bob Smith'''
         bruteforce.extract_signature(msg_body))
 
 
+def test_block_signatures():
+    msg_body = '''Wow. Awesome!
+
+Bob Smith
+Chief Email Officer
+555-5555
+'''
+    eq_(('Wow. Awesome!', 'Bob Smith\nChief Email Officer\n555-5555'),
+        bruteforce.extract_signature(msg_body))
+
+    msg_body = '''Wow. Awesome!
+
+Bob Smith
+Chief Email Officer
+555.555.5555
+'''
+    eq_(('Wow. Awesome!', 'Bob Smith\nChief Email Officer\n555.555.5555'),
+        bruteforce.extract_signature(msg_body))
+
+    msg_body = '''Wow. Awesome!
+
+Bob Smith
+Chief Email Officer
+bob@bob.com
+'''
+    eq_(('Wow. Awesome!', 'Bob Smith\nChief Email Officer\nbob@bob.com'),
+        bruteforce.extract_signature(msg_body))
+
+    msg_body = '''Wow. Awesome!
+
+Bob Smith
+Chief Email Officer
+bob@bob.com
+
+
+'''
+    eq_(('Wow. Awesome!', 'Bob Smith\nChief Email Officer\nbob@bob.com'),
+        bruteforce.extract_signature(msg_body))
+
+    msg_body = '''Wow. Awesome!
+
+Bob Smith
+Chief Email Officer
+bob@bob.com
+
+Something
+'''
+    eq_(('Wow. Awesome!\n\nBob Smith\nChief Email Officer\nbob@bob.com\n\nSomething', None),
+        bruteforce.extract_signature(msg_body))
+
+
+    msg_body = '''Wow. Awesome!
+
+Bob Smith
+Chief Email Officer
+No Phone
+'''
+    eq_(('Wow. Awesome!\n\nBob Smith\nChief Email Officer\nNo Phone', None),
+        bruteforce.extract_signature(msg_body))
+
+    msg_body = '''Wow. Awesome!
+
+Bob Smith
+Chief Email Officer
+Too
+Many
+Lines
+555-5555
+'''
+    eq_(('Wow. Awesome!\n\nBob Smith\nChief Email Officer\nToo\nMany\nLines\n555-5555', None),
+        bruteforce.extract_signature(msg_body))
+
+
+
 def test_signature_words():
     msg_body = '''Hey!
 

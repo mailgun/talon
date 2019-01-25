@@ -5,7 +5,8 @@ import logging
 import regex
 
 from talon.signature.constants import (SIGNATURE_MAX_LINES,
-                                       TOO_LONG_SIGNATURE_LINE)
+                                       TOO_LONG_SIGNATURE_LINE,
+                                       MAX_BLOCK_SIGNATURE_LINES)
 from talon.utils import get_delimiter
 
 log = logging.getLogger(__name__)
@@ -68,6 +69,8 @@ RE_SIGNATURE_CANDIDATE = regex.compile(r'''
     (?P<candidate>d)$
 ''', regex.I | regex.X | regex.M | regex.S)
 
+RE_PHONE_NUMBER = regex.compile(r'(\d{3}[-\.\s]??\d{3}[-\.\s]??\d{4}|\(\d{3}\)\s*\d{3}[-\.\s]??\d{4}|\d{3}[-\.\s]??\d{4})')
+RE_EMAIL_ADDRESS = regex.compile(r'[^@]+@[^@]+\.[^@]+')
 
 def extract_signature(msg_body):
     '''
@@ -103,9 +106,13 @@ def extract_signature(msg_body):
         # try to extract signature
         signature = RE_SIGNATURE.search(candidate)
         if not signature:
-            return (stripped_body.strip(), phone_signature)
+            signature = _check_block_signature(stripped_body)
         else:
             signature = signature.group()
+
+        if not signature:
+            return (stripped_body.strip(), phone_signature)
+        else:
             # when we splitlines() and then join them
             # we can lose a new line at the end
             # we did it when identifying a candidate
@@ -193,3 +200,58 @@ def _process_marked_candidate_indexes(candidate, markers):
     """
     match = RE_SIGNATURE_CANDIDATE.match(markers[::-1])
     return candidate[-match.end('candidate'):] if match else []
+
+
+def _check_block_signature(msg_body):
+    """
+    Attempts to identify signatures of the form:
+
+    > Blah Blah Blah
+    > Blah Blah
+    >
+    > John Smith
+    > Email Writer
+    > Phone: 555-5555
+
+    It will match any couple lines of text at the bottom of an email
+    that contain a phone number and/or an email address.
+    """
+
+    # Save the delimiter for joining later
+    delimiter = get_delimiter(msg_body)
+
+    lines = msg_body.splitlines()
+
+    found_content = False
+
+    found_phone = False
+    found_email = False
+
+    line_count = len(lines)
+
+    # Loop through the email lines from the bottom
+    for i in range(line_count - 1, max(line_count - MAX_BLOCK_SIGNATURE_LINES - 2, 0), -1):
+        if len(lines[i]) > TOO_LONG_SIGNATURE_LINE:
+            # Too long line, not a signature
+            return None
+        
+        if lines[i].strip() == '':
+            if not found_content:
+                # Haven't hit any text yet, so keep continuing
+                continue
+            else:
+                if found_phone or found_email:
+                    # It's a signature
+                    return delimiter.join(lines[(i + 1):len(lines)])
+                else:
+                    # It's not a signature
+                    return None
+        else:
+            found_content = True
+
+            if RE_PHONE_NUMBER.match(lines[i]):
+                found_phone = True
+            if RE_EMAIL_ADDRESS.match(lines[i]):
+                found_email = True
+    
+    return None
