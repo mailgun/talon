@@ -135,6 +135,13 @@ Enviado desde mi oficina mÃ³vil BlackBerryÂ® de Telcel"""
         bruteforce.extract_signature(msg_body))
 
 
+def test_bruteforce_common_signature_words():
+    msg_body = "Heloooo whatsup yo!"
+    COMMON_SIGNATURE_WORDS['bruteforce_signature_extract'] = COMMON_SIGNATURE_WORDS.signature_word.apply(lambda x: bruteforce.extract_signature(msg_body + "\n" + x)[1])
+    write_common_signature_words(COMMON_SIGNATURE_WORDS)
+    eq_(True, all(COMMON_SIGNATURE_WORDS['bruteforce_signature_extract']))
+
+
 @patch.object(bruteforce, 'get_delimiter', Mock(side_effect=Exception()))
 def test_crash_in_extract_signature():
     msg_body = '''Hey!

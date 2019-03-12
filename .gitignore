@@ -54,3 +54,5 @@ _trial_temp
 
 # OSX
 .DS_Store
+.vscode/settings.json
+talon_env/

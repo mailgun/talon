@@ -214,3 +214,12 @@ def test_has_signature():
     # dont consider empty strings when analysing signature
     with patch.object(h, 'SIGNATURE_MAX_LINES', 1):
         ok_('sender\n\n', 'sender@example.com')
+
+
+def test_learning_common_signature_words():
+    msg_body = "Heloooo whatsup yo!"
+    signature_f = binary_regex_search(RE_SIGNATURE_WORDS)
+    COMMON_SIGNATURE_WORDS['learning_signature_extract'] = COMMON_SIGNATURE_WORDS.signature_word.apply(lambda x: None if signature_f(msg_body + "\n" + x)==0 else "match")
+    write_common_signature_words(COMMON_SIGNATURE_WORDS)
+    eq_(True, all(COMMON_SIGNATURE_WORDS['learning_signature_extract']))
+

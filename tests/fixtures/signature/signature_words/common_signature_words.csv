@@ -1,0 +1,66 @@
+signature_word	bruteforce_signature_extract	learning_signature_extract
+Cheers	Cheers	
+Thanks	Thanks	
+Thank you		
+Thank-you		
+Thankyou		
+Thx		
+Many thanks		
+Thanks so much		
+thanks!	thanks!	
+thank you!		
+Thanks for your consideration		
+Yours		
+yours truly		
+Very Truly Yours		
+Hope this helps		
+Take care		
+Warmly		
+Warmest		
+Warmest regards		match
+regards	regards	match
+Warm regards		match
+Rgds		
+kind regards		match
+best regards	best regards	match
+fond regards		match
+ciao		
+-your name	-your name	
+-initial	-initial	
+Warmly		
+best	best	match
+my best		match
+my best to you		match
+all the best		match
+bests	bests	match
+all best		match
+best wishes	best wishes	match
+sincerely		match
+your sincerely		match
+sincerely yours		match
+Happy <>		
+love		
+lots of love		
+hugs		
+xoxo		
+with appreciation		
+with gratitude		
+Faithfully		
+Looking forward		
+Rushing		
+In haste		
+See you around		
+Pardon my ...		
+Excuse my ...		
+Please consider the environment before printing this e-mail		
+Sent from my ...		
+Sent from a ...		
+Sent with my ...		
+Sent wirelessly from my ...		
+Sent from ...		
+Sent via ...		
+Sent with ...		
+Please excuse any ...		
+Touched, not typed		
+Typed on ...		
+Typed with ...		
