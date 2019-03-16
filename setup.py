@@ -32,7 +32,7 @@ setup(name='talon',
       version='1.4.7',
       description=("Mailgun library "
                    "to extract message quotations and signatures."),
-      long_description=open("README.rst").read(),
+      long_description="",
       author='Mailgun Inc.',
       author_email='admin@mailgunhq.com',
       url='https://github.com/mailgun/talon',
