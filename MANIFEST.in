@@ -7,3 +7,8 @@ include MANIFEST.in
 include README.rst
 include talon/signature/data/train.data
 include talon/signature/data/classifier
+include talon/signature/data/classifier_01.npy
+include talon/signature/data/classifier_02.npy
+include talon/signature/data/classifier_03.npy
+include talon/signature/data/classifier_04.npy
+include talon/signature/data/classifier_05.npy
