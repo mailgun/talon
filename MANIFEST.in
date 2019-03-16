@@ -5,3 +5,5 @@ include classifier
 include LICENSE
 include MANIFEST.in
 include README.rst
+include talon/signature/data/train.data
+include talon/signature/data/classifier
