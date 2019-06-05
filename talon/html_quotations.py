@@ -85,6 +85,14 @@ def cut_gmail_quote(html_message):
         return True
 
 
+def cut_yahoo_quote(html_message):
+    ''' Cuts the outermost block element with class yahoo_quoted. '''
+    yahoo_quote = cssselect('div.yahoo_quoted', html_message)
+    if yahoo_quote and (yahoo_quote[0].text is None or not RE_FWD.match(yahoo_quote[0].text)):
+        yahoo_quote[0].getparent().remove(yahoo_quote[0])
+        return True
+
+
 def cut_microsoft_quote(html_message):
     ''' Cuts splitter block and all following blocks. '''
     #use EXSLT extensions to have a regex match() function with lxml

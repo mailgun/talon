@@ -157,6 +157,27 @@ def test_gmail_quote_blockquote():
         RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body)))
 
 
+def test_yahoo_quote():
+    msg_body = """Reply
+<div id="yahoo_quoted_0033794750" class="yahoo_quoted">
+    <div style="font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:13px;color:#26282a;">
+        <div>
+            On Tuesday, June 4, 2019, 5:41:43 PM PDT, John Smith &lt;jsmith@example.com&gt; wrote:
+        </div>
+        <div><br></div>
+        <div><br></div>
+        <div>
+            <div id="yiv3423441790">
+                <div dir="ltr">Test</div>
+            </div>
+        </div>
+    </div>
+</div>
+"""
+    eq_("<html><head></head><body>Reply</body></html>",
+        RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body)))
+
+
 def test_unicode_in_reply():
     msg_body = u"""Reply \xa0 \xa0 Text<br>
 
@@ -322,6 +343,10 @@ def extract_reply_and_check(filename):
 
 def test_gmail_reply():
     extract_reply_and_check("tests/fixtures/html_replies/gmail.html")
+
+
+def test_yahoo_reply():
+    extract_reply_and_check("tests/fixtures/html_replies/yahoo.html")
 
 
 def test_mail_ru_reply():
