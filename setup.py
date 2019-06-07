@@ -48,12 +48,13 @@ setup(name='talon',
           "regex>=1",
           "numpy",
           "scipy",
-          "scikit-learn>=0.16.1", # pickled versions of classifier, else rebuild
+          "scikit-learn>=0.21.0", # pickled versions of classifier, else rebuild
           'chardet>=1.0.1',
           'cchardet>=0.3.5',
           'cssselect',
           'six>=1.10.0',
-          'html5lib'
+          'html5lib',
+          'joblib>=0.13.2'
           ],
       tests_require=[
           "mock",
