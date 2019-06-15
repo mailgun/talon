@@ -8,6 +8,7 @@ import re
 from talon import quotations, utils as u
 from . import *
 from .fixtures import *
+from lxml import html
 
 RE_WHITESPACE = re.compile("\s")
 RE_DOUBLE_WHITESPACE = re.compile("\s")
@@ -424,3 +425,23 @@ def test_readable_html_empty():
 def test_bad_html():
     bad_html = "<html></html>"
     eq_(bad_html, quotations.extract_from_html(bad_html))
+
+
+def test_remove_namespaces():
+    msg_body = """
+    <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns="http://www.w3.org/TR/REC-html40">
+        <body>
+            <o:p>Dear Sir,</o:p>
+            <o:p>Thank you for the email.</o:p>
+            <blockquote>thing</blockquote>
+        </body>
+    </html>
+    """
+
+    rendered = quotations.extract_from_html(msg_body)
+
+    assert_true("<p>" in rendered)
+    assert_true("xmlns" in rendered)
+
+    assert_true("<o:p>" not in rendered)
+    assert_true("<xmlns:o>" not in rendered)
