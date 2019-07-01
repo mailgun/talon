@@ -22,7 +22,7 @@ import six
 log = logging.getLogger(__name__)
 
 
-RE_FWD = re.compile("^[-]+[ ]*Forwarded message[ ]*[-]+$", re.I | re.M)
+RE_FWD = re.compile("^[-]+[ ]*Forwarded message[ ]*[-]+\s*$", re.I | re.M)
 
 RE_ON_DATE_SMB_WROTE = re.compile(
     u'(-*[>]?[ ]?({0})[ ].*({1})(.*\n){{0,2}}.*[\s>]({2}):?-*)'.format(
@@ -139,13 +139,17 @@ RE_ORIGINAL_MESSAGE = re.compile(u'[\s]*[-]+[ ]*({})[ ]*[-]+'.format(
         'Oprindelig meddelelse',
     ))), re.I)
 
-RE_FROM_COLON_OR_DATE_COLON = re.compile(u'(_+\r?\n)?[\s]*(:?[*]?{})[\s]?:[*]?.*'.format(
+RE_FROM_COLON_OR_DATE_COLON = re.compile(u'((_+\r?\n)?[\s]*:?[*]?({})[\s]?:([^\n$]+\n){{1,2}}){{2,}}'.format(
     u'|'.join((
         # "From" in different languages.
         'From', 'Van', 'De', 'Von', 'Fra', u'Från',
         # "Date" in different languages.
-        'Date', 'Datum', u'Envoyé', 'Skickat', 'Sendt',
-    ))), re.I)
+        'Date', '[S]ent', 'Datum', u'Envoyé', 'Skickat', 'Sendt', 'Gesendet',
+        # "Subject" in different languages.
+        'Subject', 'Betreff', 'Objet', 'Emne', u'Ämne',
+        # "To" in different languages.
+        'To', 'An', 'Til', u'À', 'Till'
+    ))), re.I | re.M)
 
 # ---- John Smith wrote ----
 RE_ANDROID_WROTE = re.compile(u'[\s]*[-]+.*({})[ ]*[-]+'.format(
@@ -512,7 +516,67 @@ def _extract_from_html(msg_body):
     if _readable_text_empty(html_tree_copy):
         return msg_body
 
+    # NOTE: We remove_namespaces() because we are using an HTML5 Parser, HTML
+    # parsers do not recognize namespaces in HTML tags. As such the rendered
+    # HTML tags are no longer recognizable HTML tags. Example: <o:p> becomes
+    # <oU0003Ap>. When we port this to golang we should look into using an
+    # XML Parser NOT and HTML5 Parser since we do not know what input a
+    # customer will send us. Switching to a common XML parser in python
+    # opens us up to a host of vulnerabilities.
+    # See https://docs.python.org/3/library/xml.html#xml-vulnerabilities
+    #
+    # The down sides to removing the namespaces is that customers might
+    # judge the XML namespaces important. If that is the case then support
+    # should encourage customers to preform XML parsing of the un-stripped
+    # body to get the full unmodified XML payload.
+    #
+    # Alternatives to this approach are
+    # 1. Ignore the U0003A in tag names and let the customer deal with it.
+    #    This is not ideal, as most customers use stripped-html for viewing
+    #    emails sent from a recipient, as such they cannot control the HTML
+    #    provided by a recipient.
+    # 2. Preform a string replace of 'U0003A' to ':' on the rendered HTML
+    #    string. While this would solve the issue simply, it runs the risk
+    #    of replacing data outside the <tag> which might be essential to
+    #    the customer.
+    remove_namespaces(html_tree_copy)
     return html.tostring(html_tree_copy)
+
+
+def remove_namespaces(root):
+    """
+    Given the root of an HTML document iterate through all the elements
+    and remove any namespaces that might have been provided and remove
+    any attributes that contain a namespace
+
+    <html xmlns:o="urn:schemas-microsoft-com:office:office">
+    becomes
+    <html>
+
+    <o:p>Hi</o:p>
+    becomes
+    <p>Hi</p>
+
+    Start tags do NOT have a namespace; COLON characters have no special meaning.
+    if we don't remove the namespace the parser translates the tag name into a
+    unicode representation. For example <o:p> becomes <oU0003Ap>
+
+    See https://www.w3.org/TR/2011/WD-html5-20110525/syntax.html#start-tags
+
+
+    """
+    for child in root.iter():
+        for key, value in child.attrib.items():
+            # If the attribute includes a colon
+            if key.rfind("U0003A") != -1:
+                child.attrib.pop(key)
+
+        # If the tag includes a colon
+        idx = child.tag.rfind("U0003A")
+        if idx != -1:
+            child.tag = child.tag[idx+6:]
+
+    return root
 
 
 def split_emails(msg):
@@ -567,7 +631,6 @@ def _correct_splitlines_in_headers(markers, lines):
     updated_markers = ""
     i = 0
     in_header_block = False
-
     for m in markers:
         # Only set in_header_block flag when we hit an 's' and line is a header
         if m == 's':
