@@ -4,7 +4,7 @@ from __future__ import absolute_import
 from .. import *
 
 from talon.signature import bruteforce
-
+from talon.signature import extractor
 
 def test_empty_body():
     eq_(('', None), bruteforce.extract_signature(''))
@@ -135,7 +135,7 @@ Enviado desde mi oficina mÃ³vil BlackBerryÂ® de Telcel"""
         bruteforce.extract_signature(msg_body))
 
 
-@patch.object(bruteforce, 'get_delimiter', Mock(side_effect=Exception()))
+@patch.object(extractor, 'get_delimiter', Mock(side_effect=Exception()))
 def test_crash_in_extract_signature():
     msg_body = '''Hey!
 -roman'''
