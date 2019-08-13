@@ -516,7 +516,67 @@ def _extract_from_html(msg_body):
     if _readable_text_empty(html_tree_copy):
         return msg_body
 
+    # NOTE: We remove_namespaces() because we are using an HTML5 Parser, HTML
+    # parsers do not recognize namespaces in HTML tags. As such the rendered
+    # HTML tags are no longer recognizable HTML tags. Example: <o:p> becomes
+    # <oU0003Ap>. When we port this to golang we should look into using an
+    # XML Parser NOT and HTML5 Parser since we do not know what input a
+    # customer will send us. Switching to a common XML parser in python
+    # opens us up to a host of vulnerabilities.
+    # See https://docs.python.org/3/library/xml.html#xml-vulnerabilities
+    #
+    # The down sides to removing the namespaces is that customers might
+    # judge the XML namespaces important. If that is the case then support
+    # should encourage customers to preform XML parsing of the un-stripped
+    # body to get the full unmodified XML payload.
+    #
+    # Alternatives to this approach are
+    # 1. Ignore the U0003A in tag names and let the customer deal with it.
+    #    This is not ideal, as most customers use stripped-html for viewing
+    #    emails sent from a recipient, as such they cannot control the HTML
+    #    provided by a recipient.
+    # 2. Preform a string replace of 'U0003A' to ':' on the rendered HTML
+    #    string. While this would solve the issue simply, it runs the risk
+    #    of replacing data outside the <tag> which might be essential to
+    #    the customer.
+    remove_namespaces(html_tree_copy)
     return html.tostring(html_tree_copy)
+
+
+def remove_namespaces(root):
+    """
+    Given the root of an HTML document iterate through all the elements
+    and remove any namespaces that might have been provided and remove
+    any attributes that contain a namespace
+
+    <html xmlns:o="urn:schemas-microsoft-com:office:office">
+    becomes
+    <html>
+
+    <o:p>Hi</o:p>
+    becomes
+    <p>Hi</p>
+
+    Start tags do NOT have a namespace; COLON characters have no special meaning.
+    if we don't remove the namespace the parser translates the tag name into a
+    unicode representation. For example <o:p> becomes <oU0003Ap>
+
+    See https://www.w3.org/TR/2011/WD-html5-20110525/syntax.html#start-tags
+
+
+    """
+    for child in root.iter():
+        for key, value in child.attrib.items():
+            # If the attribute includes a colon
+            if key.rfind("U0003A") != -1:
+                child.attrib.pop(key)
+
+        # If the tag includes a colon
+        idx = child.tag.rfind("U0003A")
+        if idx != -1:
+            child.tag = child.tag[idx+6:]
+
+    return root
 
 
 def split_emails(msg):
