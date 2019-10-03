@@ -6,7 +6,8 @@ import os
 
 from six.moves import range
 
-from talon.signature import bruteforce, extraction, extract
+from talon_core.signature import bruteforce
+from talon.signature import extraction, extract
 from talon.signature import extraction as e
 from talon.signature.learning import dataset
 from .. import *
