@@ -1,4 +1,4 @@
-recursive-exclude tests *.pyc *~
+recursive-exclude talon_tests *.pyc *~
 recursive-exclude talon *.pyc *~
 include train.data
 include classifier
