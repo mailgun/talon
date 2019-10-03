@@ -8,7 +8,7 @@ from lxml.cssselect import CSSSelector
 from lxml.etree import _Element
 from lxml.html import html5parser
 
-from talon.constants import RE_DELIMITER
+from talon_core.constants import RE_DELIMITER
 
 
 def get_delimiter(msg_body: str) -> str:

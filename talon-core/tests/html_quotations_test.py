@@ -12,7 +12,7 @@ from tests.fixtures import (FIXTURES_DIR,
                             OLK_SRC_BODY_SECTION,
                             REPLY_QUOTATIONS_SHARE_BLOCK,
                             REPLY_SEPARATED_BY_HR)
-from talon import quotations, utils as u
+from talon_core import quotations, utils as u
 
 RE_WHITESPACE = re.compile(r"\s")
 RE_DOUBLE_WHITESPACE = re.compile(r"\s")
