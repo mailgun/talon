@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
-from ... import *
 
 from talon.signature.learning import featurespace as fs
+from nose.tools import eq_, assert_false, ok_
+from mock import patch
 
 
 def test_apply_features():

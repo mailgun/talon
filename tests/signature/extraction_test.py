@@ -2,14 +2,14 @@
 
 from __future__ import absolute_import
 
-import os
-
-from six.moves import range
-
 from talon.signature import bruteforce, extraction, extract
 from talon.signature import extraction as e
 from talon.signature.learning import dataset
-from .. import *
+from nose.tools import eq_
+from .. import STRIPPED, UNICODE_MSG
+from six.moves import range
+from mock import patch
+import os
 
 
 def test_message_shorter_SIGNATURE_MAX_LINES():

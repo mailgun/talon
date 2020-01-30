@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
-from . import *
-from . fixtures import *
 
-import os
-
-import email.iterators
+from .fixtures import STANDARD_REPLIES
 from talon import quotations
-import six
 from six.moves import range
-from six import StringIO
+from nose.tools import eq_
+from mock import patch
+import email.iterators
+import six
+import os
 
 
 @patch.object(quotations, 'MAX_LINES_COUNT', 1)
@@ -34,6 +33,7 @@ On 11-Apr-2011, at 6:54 PM, Roman Tkachenko <romant@example.com> wrote:
 > Roman"""
 
     eq_("Test reply", quotations.extract_from_plain(msg_body))
+
 
 def test_pattern_on_date_polymail():
     msg_body = """Test reply
@@ -190,13 +190,16 @@ Test"""
     eq_('Test reply', quotations.extract_from_plain(
         msg_body.format(six.text_type(original_message_indicator))))
 
+
 def test_english_original_message():
     _check_pattern_original_message('Original Message')
     _check_pattern_original_message('Reply Message')
 
+
 def test_german_original_message():
     _check_pattern_original_message(u'Ursprüngliche Nachricht')
     _check_pattern_original_message('Antwort Nachricht')
+
 
 def test_danish_original_message():
     _check_pattern_original_message('Oprindelig meddelelse')
@@ -296,6 +299,7 @@ On 04/19/2011 07:10 AM, Roman Tkachenko wrote:
 > Hello"""
     eq_("Hi", quotations.extract_from_plain(msg_body))
 
+
 def test_with_indent():
     msg_body = """YOLO salvia cillum kogi typewriter mumblecore cardigan skateboard Austin.
 
@@ -303,7 +307,8 @@ def test_with_indent():
 
 Brunch mumblecore pug Marfa tofu, irure taxidermy hoodie readymade pariatur.
     """
-    eq_("YOLO salvia cillum kogi typewriter mumblecore cardigan skateboard Austin.", quotations.extract_from_plain(msg_body))
+    eq_("YOLO salvia cillum kogi typewriter mumblecore cardigan skateboard Austin.",
+        quotations.extract_from_plain(msg_body))
 
 
 def test_short_quotation_with_newline():
@@ -343,6 +348,7 @@ Subject: The manager has commented on your Loop
 Blah-blah-blah
 """))
 
+
 def test_german_from_block():
     eq_('Allo! Follow up MIME!', quotations.extract_from_plain(
     """Allo! Follow up MIME!
@@ -354,6 +360,7 @@ Betreff: The manager has commented on your Loop
 
 Blah-blah-blah
 """))
+
 
 def test_french_multiline_from_block():
     eq_('Lorem ipsum', quotations.extract_from_plain(
@@ -367,6 +374,7 @@ Objet : Follow Up
 Blah-blah-blah
 """))
 
+
 def test_french_from_block():
     eq_('Lorem ipsum', quotations.extract_from_plain(
     u"""Lorem ipsum
@@ -374,6 +382,7 @@ def test_french_from_block():
 Le 23 janv. 2015 à 22:03, Brendan xxx <brendan.xxx@xxx.com<mailto:brendan.xxx@xxx.com>> a écrit:
 
 Bonjour!"""))
+
 
 def test_polish_from_block():
     eq_('Lorem ipsum', quotations.extract_from_plain(
@@ -384,6 +393,7 @@ napisał:
 
 Blah!
 """))
+
 
 def test_danish_from_block():
     eq_('Allo! Follow up MIME!', quotations.extract_from_plain(
@@ -397,6 +407,7 @@ Emne: The manager has commented on your Loop
 Blah-blah-blah
 """))
 
+
 def test_swedish_from_block():
     eq_('Allo! Follow up MIME!', quotations.extract_from_plain(
     u"""Allo! Follow up MIME!
@@ -408,6 +419,7 @@ Till: Isacson Leiff
 Blah-blah-blah
 """))
 
+
 def test_swedish_from_line():
     eq_('Lorem', quotations.extract_from_plain(
     """Lorem
@@ -416,6 +428,7 @@ Den 14 september, 2015 02:23:18, Valentino Rudy (valentino@rudy.be) skrev:
 Veniam laborum mlkshk kale chips authentic. Normcore mumblecore laboris, fanny pack readymade eu blog chia pop-up freegan enim master cleanse.
 """))
 
+
 def test_norwegian_from_line():
     eq_('Lorem', quotations.extract_from_plain(
     u"""Lorem
@@ -423,6 +436,7 @@ På 14 september 2015 på 02:23:18, Valentino Rudy (valentino@rudy.be) skrev:
 
 Veniam laborum mlkshk kale chips authentic. Normcore mumblecore laboris, fanny pack readymade eu blog chia pop-up freegan enim master cleanse.
 """))
+
 
 def test_dutch_from_block():
     eq_('Gluten-free culpa lo-fi et nesciunt nostrud.', quotations.extract_from_plain(
@@ -433,6 +447,7 @@ Op 17-feb.-2015, om 13:18 heeft Julius Caesar <pantheon@rome.com> het volgende g
 Small batch beard laboris tempor, non listicle hella Tumblr heirloom.
 """))
 
+
 def test_vietnamese_from_block():
     eq_('Hello', quotations.extract_from_plain(
     u"""Hello
@@ -441,6 +456,7 @@ Vào 14:24 8 tháng 6, 2017, Hùng Nguyễn <hungnguyen@xxx.com> đã viết:
 
 > Xin chào
 """))
+
 
 def test_quotation_marker_false_positive():
     msg_body = """Visit us now for assistance...

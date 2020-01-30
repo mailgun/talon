@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
-from ... import *
-
-import regex as re
 
 from talon.signature.learning import helpers as h
-from talon.signature.learning.helpers import *
+from talon.signature.learning.helpers import RE_RELAX_PHONE, RE_NAME
+from nose.tools import eq_, ok_, assert_false, assert_in
+from mock import patch, Mock
 from six.moves import range
+import re
 
 # First testing regex constants.
 VALID = '''

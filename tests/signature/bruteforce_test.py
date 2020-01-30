@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
-from .. import *
+from nose.tools import eq_
 
 from talon.signature import bruteforce
+from mock import patch, Mock
 
 
 def test_empty_body():

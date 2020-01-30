@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
-from ... import *
-import os
 
-from numpy import genfromtxt
-
-from talon.signature.learning import dataset as d
-
+from ... import EML_MSG_FILENAME, MSG_FILENAME_WITH_BODY_SUFFIX, TMP_DIR, EMAILS_DIR
 from talon.signature.learning.featurespace import features
+from talon.signature.learning import dataset as d
+from nose.tools import eq_, assert_false, ok_
+from numpy import genfromtxt
+import os
 
 
 def test_is_sender_filename():

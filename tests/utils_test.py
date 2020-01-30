@@ -2,11 +2,12 @@
 
 from __future__ import absolute_import
 
+
+from nose.tools import eq_, ok_, assert_false
+from talon import utils as u
+from mock import patch, Mock
 import cchardet
 import six
-
-from talon import utils as u
-from . import *
 
 
 def test_get_delimiter():

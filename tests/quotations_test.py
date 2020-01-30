@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
-from . import *
-from . fixtures import *
 
+from mock import Mock, patch
 from talon import quotations
+from nose.tools import eq_
 
 
 @patch.object(quotations, 'extract_from_html')
