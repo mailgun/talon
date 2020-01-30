@@ -2,7 +2,7 @@
 
 from __future__ import absolute_import
 
-from .fixtures import REPLY_QUOTATIONS_SHARE_BLOCK, OLK_SRC_BODY_SECTION, REPLY_SEPARATED_BY_HR
+from tests.fixtures import REPLY_QUOTATIONS_SHARE_BLOCK, OLK_SRC_BODY_SECTION, REPLY_SEPARATED_BY_HR
 from nose.tools import eq_, ok_, assert_false, assert_true
 from talon import quotations, utils as u
 from mock import Mock, patch

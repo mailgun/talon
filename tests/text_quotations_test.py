@@ -2,7 +2,7 @@
 
 from __future__ import absolute_import
 
-from .fixtures import STANDARD_REPLIES
+from tests.fixtures import STANDARD_REPLIES
 from talon import quotations
 from six.moves import range
 from nose.tools import eq_
