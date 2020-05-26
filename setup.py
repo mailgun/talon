@@ -24,7 +24,12 @@ class InstallCommand(install):
                 'talon.signature',
                 'talon.signature.*',
             ])
-            for not_required in ['numpy', 'scipy', 'scikit-learn==0.16.1']:
+            for not_required in [
+                'numpy',
+                'scipy',
+                'scikit-learn==0.16.1',
+                'joblib',
+            ]:
                 dist.install_requires.remove(not_required)
 
 
@@ -49,6 +54,7 @@ setup(name='talon',
           "numpy",
           "scipy",
           "scikit-learn==0.16.1", # pickled versions of classifier, else rebuild
+          'joblib',
           'chardet>=1.0.1',
           'cchardet>=0.3.5',
           'cssselect',
