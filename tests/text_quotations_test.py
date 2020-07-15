@@ -454,7 +454,7 @@ def test_link_closed_with_quotation_marker_on_new_line():
 
 From: somebody@example.com
 Date: Wed, 16 May 2012 00:15:02 -0600
- 
+
 <http://email.example.com/c/dHJhY2tpbmdfY29kZT1mMDdjYzBmNzM1ZjYzMGIxNT
 >  <bob@example.com <mailto:bob@example.com> >
 
@@ -826,16 +826,16 @@ The user experience was unparallelled. Please continue production. I'm sending p
 that this line is intact."""
 
     parsed = quotations.extract_from_plain(msg_body)
-    eq_(msg_body, parsed.decode('utf8'))
+    eq_(msg_body, parsed)
 
 
 def test_appointment():
     msg_body = """Invitation for an interview:
 
-Date: Wednesday 3, October 2011 
-Time: 7 : 00am 
+Date: Wednesday 3, October 2011
+Time: 7 : 00am
 Address: 130 Fox St
 
 Please bring in your ID."""
     parsed = quotations.extract_from_plain(msg_body)
-    eq_(msg_body, parsed.decode('utf8'))
+    eq_(msg_body, parsed)

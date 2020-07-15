@@ -77,8 +77,8 @@ Bob"""
 
 
 def test_basic():
-    msg_body = 'Blah\r\n--\r\n\r\nSergey Obukhov'
-    eq_(('Blah', '--\r\n\r\nSergey Obukhov'),
+    msg_body = 'Blah\r\n----------\r\n\r\nSergey Obukhov'
+    eq_(('Blah', '----------\r\n\r\nSergey Obukhov'),
         extract(msg_body, 'Sergey'))
 
 
@@ -87,7 +87,7 @@ def test_capitalized():
 
 Do you still need a DJ for your wedding? I've included a video demo of one of our DJs available for your wedding date.
 
-DJ Doe 
+DJ Doe
 http://example.com
 Password: SUPERPASSWORD
 

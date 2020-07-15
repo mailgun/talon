@@ -7,8 +7,8 @@ body belongs to the signature.
 
 from __future__ import absolute_import
 
+import joblib
 from numpy import genfromtxt
-from sklearn.externals import joblib
 from sklearn.svm import LinearSVC
 
 
