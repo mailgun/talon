@@ -146,6 +146,55 @@ Note that for signature extraction you need just the folder with the positive sa
 
 .. _forge: https://github.com/mailgun/forge
 
+WebService
+----------
+
+Talon can be used as a webservice. Can be invoked by using the script.
+
+
+``` 
+./run-web.sh
+```
+
+Or via docker
+
+```
+./build-dock.sh
+./run-dock.sh
+```
+
+Endpoint is `/talon/signature`, invoked as a `get` or `post` request. Curl Sample:
+
+```
+curl --location --request GET 'http://127.0.0.1:5000/talon/signature' \
+--form 'email_content="Hi,
+
+This is just a test.
+
+Thanks,
+John Doe
+mobile: 052543453
+email: john.doe@anywebsite.ph
+website: www.anywebsite.ph"' \
+--form 'email_sender="John Doe . . <john.doe@anywebsite.ph>"'
+```
+
+You will be required to pass a body of type *form-data* as a parameter.
+Keys are `email_content` and `email_sender`.
+
+Response will include `email_signature`. Sample response below:
+
+```
+{
+    "email_content": "Hi,\n\nThis is just a test.\n\nThanks,\nJohn Doe\nmobile: 052543453\nemail: john.doe@anywebsite.ph\nwebsite: www.anywebsite.ph",
+    "email_sender": "John Doe . . <john.doe@anywebsite.ph>",
+    "email_signature": "Thanks,\nJohn Doe\nmobile: 052543453\nemail: john.doe@anywebsite.ph\nwebsite: www.anywebsite.ph"
+}
+
+```
+
+
+
 Research
 --------
 
