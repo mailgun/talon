@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+# [ch3696] directly import joblib instead of from scikit-learn
 """The module's functions could init, train, save and load a classifier.
 The classifier could be used to detect if a certain line of the message
 body belongs to the signature.

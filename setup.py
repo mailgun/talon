@@ -1,3 +1,4 @@
+# [ch3696] directly import joblib instead of from scikit-learn
 from __future__ import absolute_import
 from setuptools import setup, find_packages
 from setuptools.command.install import install

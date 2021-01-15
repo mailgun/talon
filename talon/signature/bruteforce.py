@@ -1,3 +1,4 @@
+# [ch2370] Fork Talon and improve signature removal.
 from __future__ import absolute_import
 
 import logging

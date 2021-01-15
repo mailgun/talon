@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+# [ch2370] Fork Talon and improve signature removal.
 from __future__ import absolute_import
 
 import os
@@ -87,7 +87,7 @@ def test_capitalized():
 
 Do you still need a DJ for your wedding? I've included a video demo of one of our DJs available for your wedding date.
 
-DJ Doe 
+DJ Doe
 http://example.com
 Password: SUPERPASSWORD
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+# [ch2370] Fork Talon and improve signature removal.
 """
 The module's functions operate on message bodies trying to extract
 original messages (without quoted messages)

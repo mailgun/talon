@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+# [ch2370] Fork Talon and improve signature removal.
 from __future__ import absolute_import
 from . import *
 from . fixtures import *
@@ -454,7 +454,7 @@ def test_link_closed_with_quotation_marker_on_new_line():
 
 From: somebody@example.com
 Date: Wed, 16 May 2012 00:15:02 -0600
- 
+
 <http://email.example.com/c/dHJhY2tpbmdfY29kZT1mMDdjYzBmNzM1ZjYzMGIxNT
 >  <bob@example.com <mailto:bob@example.com> >
 
@@ -834,8 +834,8 @@ that this line is intact."""
 def test_appointment_2():
     msg_body = """Invitation for an interview:
 
-Date: Wednesday 3, October 2011 
-Time: 7 : 00am 
+Date: Wednesday 3, October 2011
+Time: 7 : 00am
 Address: 130 Fox St
 
 Please bring in your ID."""
