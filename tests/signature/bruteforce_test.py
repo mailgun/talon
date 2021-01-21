@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+# [ch2370] Fork Talon and improve signature removal.
 from __future__ import absolute_import
 from .. import *
 
@@ -79,14 +79,14 @@ Regards,
 Roman'''
     eq_(('Hey!', '--\n--\nRegards,\nRoman'),
         bruteforce.extract_signature(msg_body))
-    
+
     msg_body = '''Hey!
 
 Sincerely,
 Roman'''
     eq_(('Hey!', 'Sincerely,\nRoman'),
         bruteforce.extract_signature(msg_body))
-    
+
     msg_body = '''Hey!
 
 Take care,
