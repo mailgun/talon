@@ -32,6 +32,30 @@ RE_SIGNATURE = regex.compile(r'''
                        ^sincerely[\s,!]*$
                        |
                        ^best[ a-z]*[\s,!]*$
+                       |
+                       ^ihre?[\s,!]*$
+                       |
+                       ^deine?[\s,!]*$
+                       |
+                       ^mit[a-z\s]*grüßen[\s,!]*$
+                       |
+                       ^beste\sgrüße[\s,!]*$
+                       |
+                       ^viele\sgrüße[\s,!]*$
+                       |
+                       ^liebe\sgrüße[\s,!]*$
+                       |
+                       ^freundliche\sgrüße[\s,!]*$
+                       |
+                       ^vielen\sdank[\s,!]*$
+                       |
+                       die\sbesten\swünsche[\s,!]*$
+                       |
+                       ^danke[\s,!]*$
+                       |
+                       ^grüße[\s,!]*$
+                       |
+                       ^prost[\s,!]*$
                    )
                    .*
                )
