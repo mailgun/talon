@@ -12,7 +12,11 @@ from talon.utils import get_delimiter
 log = logging.getLogger(__name__)
 
 # regex to fetch signature based on common signature words
-RE_SIGNATURE = regex.compile(r'''
+ENG_GER_CHARS = '[a-z\u00E4\u00F6\u00FC\u00C4\u00D6\u00DC\u00df]'
+ENG_GER_CHARS_SPACES = '[a-z\u00E4\u00F6\u00FC\u00C4\u00D6\u00DC\u00df\s]'
+
+
+RE_SIGNATURE = regex.compile(rf'''
                (
                    (?:
                        ^[\s]*--*[\s]*[a-z \.]*$
@@ -37,21 +41,26 @@ RE_SIGNATURE = regex.compile(r'''
                        |
                        ^deine?[\s,!]*$
                        |
-                       ^mit[a-z\s]*grüßen[\sa-z]*[\s,!]*$
+                       ^mit\s{ENG_GER_CHARS_SPACES}*\s?grüßen{ENG_GER_CHARS_SPACES}*[\s,!]*$
                        |
-                       ^[a-z\u00E4\u00F6\u00FC\u00C4\u00D6\u00DC\u00df\s]*\sgrüße[\sa-z]*[\s,!]*$
+                       ^{ENG_GER_CHARS}*\sgrüße{ENG_GER_CHARS_SPACES}*[\s,!]$
                        |
-                       ^vielen\sdank[\s,!]*$
+                       ^{ENG_GER_CHARS_SPACES}*viele\s(?:liebe\s?)?grüße{ENG_GER_CHARS_SPACES}*[\s,!]$
+                       |
+                       ^vielen?{ENG_GER_CHARS_SPACES}*\sgrüße{ENG_GER_CHARS_SPACES}*[\s,!]$
+                       |
+                       ^vielen?\sdank[\s,!]*$
                        |
                        die\sbesten\swünsche[\s,!]*$
                        |
-                       ^danke[\sa-z\u00E4\u00F6\u00FC\u00C4\u00D6\u00DC\u00df]*[\s,!]*$
+                       ^danke{ENG_GER_CHARS_SPACES}*grüße{ENG_GER_CHARS_SPACES}*[\s,!]*$
                        |
-                       ^grüße[\s,!]*$
+                       ^grüße{ENG_GER_CHARS_SPACES}*[\s,!]*$
                    )
                    .*
                )
                ''', regex.I | regex.X | regex.M | regex.S)
+
 
 # signatures appended by phone email clients
 RE_PHONE_SIGNATURE = regex.compile(r'''
