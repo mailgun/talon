@@ -19,15 +19,15 @@ RE_SIGNATURE = regex.compile(r'''
                        |
                        ^[\s]*—+[\s]*$
                        |
-                       ^thanks[\s,!]*$
+                       ^thanks[\sa-z]*[\s,!]*$
                        |
-                       ^regards[\s,!]*$
+                       ^regards[\sa-z]*[\s,!]*$
                        |
-                       ^kind\sregards[\s,!]*$
+                       ^kind\sregards[\sa-z]*[\s,!]*$
                        |
-                       ^take\scare[\s,!]*$
+                       ^take\scare[\sa-z]*[\s,!]*$
                        |
-                       ^cheers[\s,!]*$
+                       ^cheers[\sa-z]*[\s,!]*$
                        |
                        ^sincerely[\s,!]*$
                        |
@@ -37,25 +37,17 @@ RE_SIGNATURE = regex.compile(r'''
                        |
                        ^deine?[\s,!]*$
                        |
-                       ^mit[a-z\s]*grüßen[\s,!]*$
+                       ^mit[a-z\s]*grüßen[\sa-z]*[\s,!]*$
                        |
-                       ^beste\sgrüße[\s,!]*$
-                       |
-                       ^viele\sgrüße[\s,!]*$
-                       |
-                       ^liebe\sgrüße[\s,!]*$
-                       |
-                       ^freundliche\sgrüße[\s,!]*$
+                       ^[a-z\u00E4\u00F6\u00FC\u00C4\u00D6\u00DC\u00df\s]*\sgrüße[\sa-z]*[\s,!]*$
                        |
                        ^vielen\sdank[\s,!]*$
                        |
                        die\sbesten\swünsche[\s,!]*$
                        |
-                       ^danke[\s,!]*$
+                       ^danke[\sa-z\u00E4\u00F6\u00FC\u00C4\u00D6\u00DC\u00df]*[\s,!]*$
                        |
                        ^grüße[\s,!]*$
-                       |
-                       ^prost[\s,!]*$
                    )
                    .*
                )
