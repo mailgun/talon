@@ -53,7 +53,7 @@ RE_SIGNATURE = regex.compile(rf'''
                        |
                        die\sbesten\swünsche[\s,!]*$
                        |
-                       ^danke{ENG_GER_CHARS_SPACES}*grüße{ENG_GER_CHARS_SPACES}*[\s,!]*$
+                       ^danke{ENG_GER_CHARS_SPACES}*[\s,!]*$
                        |
                        ^grüße{ENG_GER_CHARS_SPACES}*[\s,!]*$
                    )
