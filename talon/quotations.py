@@ -457,7 +457,7 @@ def _extract_from_html(msg_body):
 
     msg_body = msg_body.replace(b'\r\n', b'\n')
 
-    msg_body = re.sub(r"\<\?xml.+\?\>|\<\!DOCTYPE.+]\>", "", msg_body)
+    msg_body = re.sub(br"\<\?xml.+\?\>|\<\!DOCTYPE.+]\>", "", msg_body)
 
     html_tree = html_document_fromstring(msg_body)
 

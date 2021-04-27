@@ -826,10 +826,10 @@ The user experience was unparallelled. Please continue production. I'm sending p
 that this line is intact."""
 
     parsed = quotations.extract_from_plain(msg_body)
-    eq_(msg_body, parsed.decode('utf8'))
+    eq_(msg_body, parsed)
 
 
-def test_appointment():
+def test_appointment_2():
     msg_body = """Invitation for an interview:
 
 Date: Wednesday 3, October 2011 
@@ -838,4 +838,4 @@ Address: 130 Fox St
 
 Please bring in your ID."""
     parsed = quotations.extract_from_plain(msg_body)
-    eq_(msg_body, parsed.decode('utf8'))
+    eq_(msg_body, parsed)

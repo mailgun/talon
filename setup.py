@@ -19,12 +19,12 @@ class InstallCommand(install):
         if self.no_ml:
             dist = self.distribution
             dist.packages=find_packages(exclude=[
-                'tests',
-                'tests.*',
-                'talon.signature',
-                'talon.signature.*',
+                "tests",
+                "tests.*",
+                "talon.signature",
+                "talon.signature.*",
             ])
-            for not_required in ['numpy', 'scipy', 'scikit-learn==0.16.1']:
+            for not_required in ["numpy", "scipy", "scikit-learn==0.24.1"]:
                 dist.install_requires.remove(not_required)
 
 
@@ -48,12 +48,13 @@ setup(name='talon',
           "regex>=1",
           "numpy",
           "scipy",
-          "scikit-learn==0.16.1", # pickled versions of classifier, else rebuild
-          'chardet>=1.0.1',
-          'cchardet>=0.3.5',
-          'cssselect',
-          'six>=1.10.0',
-          'html5lib'
+          "scikit-learn==0.24.1", # pickled versions of classifier, else rebuild
+          "chardet>=1.0.1",
+          "cchardet>=0.3.5",
+          "cssselect",
+          "six>=1.10.0",
+          "html5lib",
+          "joblib",
           ],
       tests_require=[
           "mock",
