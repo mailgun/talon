@@ -46,9 +46,9 @@ setup(name='talon',
       install_requires=[
           "lxml>=2.3.3",
           "regex>=1",
-          "numpy",
-          "scipy",
-          "scikit-learn==0.16.1", # pickled versions of classifier, else rebuild
+          "numpy==1.20.1",
+          "scikit-learn==0.24.1",
+          "scipy==1.6.2",
           'chardet>=1.0.1',
           'cchardet>=0.3.5',
           'cssselect',
