@@ -54,3 +54,6 @@ _trial_temp
 
 # OSX
 .DS_Store
+
+# vim-backup
+*.bak
