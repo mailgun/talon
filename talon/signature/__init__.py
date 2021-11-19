@@ -23,17 +23,14 @@ trained against, don't forget to regenerate:
 from __future__ import absolute_import
 import os
 
-from . import extraction
-from . extraction import extract  #noqa
-from . learning import classifier
-
-
-DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
-
-EXTRACTOR_FILENAME = os.path.join(DATA_DIR, 'classifier')
-EXTRACTOR_DATA = os.path.join(DATA_DIR, 'train.data')
+from talon.signature import extraction
+from talon.signature.extraction import extract
+from talon.signature.learning import classifier
 
 
 def initialize():
-    extraction.EXTRACTOR = classifier.load(EXTRACTOR_FILENAME,
-                                           EXTRACTOR_DATA)
+    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+    extractor_filename = os.path.join(data_dir, 'classifier')
+    extractor_data_filename = os.path.join(data_dir, 'train.data')
+    extraction.EXTRACTOR = classifier.load(extractor_filename,
+                                           extractor_data_filename)
