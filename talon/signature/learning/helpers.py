@@ -102,7 +102,7 @@ def flatten_list(list_to_flatten):
 
 
 def contains_sender_names(sender):
-    '''Returns a functions to search sender\'s name or it\'s part.
+    """Returns a functions to search sender\'s name or it\'s part.
 
     >>> feature = contains_sender_names("Sergey N.  Obukhov <xxx@example.com>")
     >>> feature("Sergey Obukhov")
@@ -115,7 +115,7 @@ def contains_sender_names(sender):
     1
     >>> contains_sender_names("<serobnic@mail.ru>")("serobnic")
     1
-    '''
+    """
     names = '( |$)|'.join(flatten_list([[e, e.capitalize()]
                                         for e in extract_names(sender)]))
     names = names or sender
@@ -140,10 +140,16 @@ def extract_names(sender):
     sender = "".join([char if char.isalpha() else ' ' for char in sender])
     # Remove too short words and words from "black" list i.e.
     # words like `ru`, `gmail`, `com`, `org`, etc.
-    sender = [word for word in sender.split() if len(word) > 1 and
-              not word in BAD_SENDER_NAMES]
-    # Remove duplicates
-    names = list(set(sender))
+    names = list()
+    for word in sender.split():
+        if len(word) < 2:
+            continue
+        if word in BAD_SENDER_NAMES:
+            continue
+        if word in names:
+            continue
+        names.append(word)
+
     return names
 
 
@@ -208,20 +214,26 @@ def many_capitalized_words(s):
 
 
 def has_signature(body, sender):
-    '''Checks if the body has signature. Returns True or False.'''
+    """Checks if the body has signature. Returns True or False."""
     non_empty = [line for line in body.splitlines() if line.strip()]
     candidate = non_empty[-SIGNATURE_MAX_LINES:]
     upvotes = 0
+    sender_check = contains_sender_names(sender)
     for line in candidate:
         # we check lines for sender's name, phone, email and url,
         # those signature lines don't take more then 27 lines
         if len(line.strip()) > 27:
             continue
-        elif contains_sender_names(sender)(line):
+
+        if sender_check(line):
             return True
-        elif (binary_regex_search(RE_RELAX_PHONE)(line) +
-              binary_regex_search(RE_EMAIL)(line) +
-              binary_regex_search(RE_URL)(line) == 1):
+
+        if (binary_regex_search(RE_RELAX_PHONE)(line) +
+                binary_regex_search(RE_EMAIL)(line) +
+                binary_regex_search(RE_URL)(line) == 1):
             upvotes += 1
+
     if upvotes > 1:
         return True
+
+    return False
