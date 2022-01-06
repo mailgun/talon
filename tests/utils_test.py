@@ -125,39 +125,13 @@ def test_html_fromstring_exception():
     eq_(None, u.html_fromstring("<html></html>"))
 
 
-@patch.object(u, 'html_too_big', Mock())
-@patch.object(u.html5parser, 'fromstring')
-def test_html_fromstring_too_big(fromstring):
-    eq_(None, u.html_fromstring("<html></html>"))
-    assert_false(fromstring.called)
-
-
 @patch.object(u.html5parser, 'document_fromstring')
 def test_html_document_fromstring_exception(document_fromstring):
     document_fromstring.side_effect = Exception()
     eq_(None, u.html_document_fromstring("<html></html>"))
 
 
-@patch.object(u, 'html_too_big', Mock())
-@patch.object(u.html5parser, 'document_fromstring')
-def test_html_document_fromstring_too_big(document_fromstring):
-    eq_(None, u.html_document_fromstring("<html></html>"))
-    assert_false(document_fromstring.called)
-
-
 @patch.object(u, 'html_fromstring', Mock(return_value=None))
 def test_bad_html_to_text():
     bad_html = "one<br>two<br>three"
     eq_(None, u.html_to_text(bad_html))
-
-
-@patch.object(u, '_MAX_TAGS_COUNT', 3)
-def test_html_too_big():
-    eq_(False, u.html_too_big("<div></div>"))
-    eq_(True, u.html_too_big("<div><span>Hi</span></div>"))
-
-
-@patch.object(u, '_MAX_TAGS_COUNT', 3)
-def test_html_to_text():
-    eq_(b"Hello", u.html_to_text("<div>Hello</div>"))
-    eq_(None, u.html_to_text("<div><span>Hi</span></div>"))

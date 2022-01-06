@@ -180,9 +180,6 @@ def html_fromstring(s):
     if isinstance(s, six.text_type):
         s = s.encode('utf8')
     try:
-        if html_too_big(s):
-            return None
-
         return html5parser.fromstring(s, parser=_html5lib_parser())
     except Exception:
         pass
@@ -194,9 +191,6 @@ def html_document_fromstring(s):
     if isinstance(s, six.text_type):
         s = s.encode('utf8')
     try:
-        if html_too_big(s):
-            return None
-
         return html5parser.document_fromstring(s, parser=_html5lib_parser())
     except Exception:
         pass
@@ -204,12 +198,6 @@ def html_document_fromstring(s):
 
 def cssselect(expr, tree):
     return CSSSelector(expr)(tree)
-
-
-def html_too_big(s):
-    if isinstance(s, six.text_type):
-        s = s.encode('utf8')
-    return s.count(b'<') > _MAX_TAGS_COUNT
 
 
 def _contains_charset_spec(s):
@@ -258,7 +246,3 @@ _BLOCKTAGS = ['div', 'p', 'ul', 'li', 'h1', 'h2', 'h3']
 _HARDBREAKS = ['br', 'hr', 'tr']
 
 _RE_EXCESSIVE_NEWLINES = re.compile("\n{2,10}")
-
-# an extensive research shows that exceeding this limit
-# might lead to excessive processing time
-_MAX_TAGS_COUNT = 419
