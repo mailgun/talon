@@ -193,9 +193,6 @@ RE_PARENTHESIS_LINK = re.compile("\(https?://")
 
 SPLITTER_MAX_LINES = 6
 MAX_LINES_COUNT = 1000
-# an extensive research shows that exceeding this limit
-# leads to excessive processing time
-MAX_HTML_LEN = 2794202
 
 QUOT_PATTERN = re.compile('^>+ ?')
 NO_QUOT_LINE = re.compile('^[^>].*[\S].*')
@@ -421,25 +418,31 @@ def extract_from_html(msg_body):
 
     Returns a unicode string.
     """
+    msg_body_bytes = msg_body
     if isinstance(msg_body, six.text_type):
-        msg_body = msg_body.encode('utf8')
-    elif not isinstance(msg_body, bytes):
-        msg_body = msg_body.encode('ascii')
+        msg_body_bytes = msg_body.encode('utf8')
 
-    result = _extract_from_html(msg_body)
-    if isinstance(result, bytes):
-        result = result.decode('utf8')
+    if msg_body_bytes.strip() == b'':
+        return msg_body
+
+    msg_body_bytes = msg_body_bytes.replace(b'\r\n', b'\n')
+    # Cut out xml and doctype tags to avoid conflict with unicode decoding.
+    msg_body_bytes = re.sub(br"\<\?xml.+\?\>|\<\!DOCTYPE.+]\>", b"", msg_body_bytes)
+    html_tree = html_document_fromstring(msg_body_bytes)
+    if html_tree is None:
+        return msg_body
+
+    result = extract_from_html_tree(html_tree)
+    if not result:
+        return msg_body
 
     return result
 
 
-def _extract_from_html(msg_body):
+def extract_from_html_tree(html_tree):
     """
-    Extract not quoted message from provided html message body
-    using tags and plain text algorithm.
-
-    Cut out first some encoding html tags such as xml and doctype
-    for avoiding conflict with unicode decoding
+    Extract not quoted message from provided parsed html tree using tags and
+    plain text algorithm.
 
     Cut out the 'blockquote', 'gmail_quote' tags.
     Cut Microsoft quotations.
@@ -452,18 +455,6 @@ def _extract_from_html(msg_body):
     then checking deleted checkpoints,
     then deleting necessary tags.
     """
-    if msg_body.strip() == b'':
-        return msg_body
-
-    msg_body = msg_body.replace(b'\r\n', b'\n')
-
-    msg_body = re.sub(br"\<\?xml.+\?\>|\<\!DOCTYPE.+]\>", "", msg_body)
-
-    html_tree = html_document_fromstring(msg_body)
-
-    if html_tree is None:
-        return msg_body
-
     cut_quotations = (html_quotations.cut_gmail_quote(html_tree) or
                       html_quotations.cut_zimbra_quote(html_tree) or
                       html_quotations.cut_blockquote(html_tree) or
@@ -481,7 +472,7 @@ def _extract_from_html(msg_body):
 
     # Don't process too long messages
     if len(lines) > MAX_LINES_COUNT:
-        return msg_body
+        return None
 
     # Collect checkpoints on each line
     line_checkpoints = [
@@ -500,7 +491,7 @@ def _extract_from_html(msg_body):
     lines_were_deleted, first_deleted, last_deleted = return_flags
 
     if not lines_were_deleted and not cut_quotations:
-        return msg_body
+        return None
 
     if lines_were_deleted:
         #collect checkpoints from deleted lines
@@ -514,7 +505,7 @@ def _extract_from_html(msg_body):
         )
 
     if _readable_text_empty(html_tree_copy):
-        return msg_body
+        return None
 
     # NOTE: We remove_namespaces() because we are using an HTML5 Parser, HTML
     # parsers do not recognize namespaces in HTML tags. As such the rendered
@@ -540,7 +531,11 @@ def _extract_from_html(msg_body):
     #    of replacing data outside the <tag> which might be essential to
     #    the customer.
     remove_namespaces(html_tree_copy)
-    return html.tostring(html_tree_copy)
+    s = html.tostring(html_tree_copy)
+    if not s:
+        return None
+
+    return s.decode('utf-8')
 
 
 def remove_namespaces(root):
