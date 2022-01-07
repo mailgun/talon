@@ -46,7 +46,7 @@ setup(name='talon',
       install_requires=[
           "lxml>=2.3.3",
           "regex>=1",
-          "numpy==1.20.1",
+          "numpy>=1.20.1",
           "scikit-learn==0.24.1",
           "scipy==1.6.2",
           'chardet>=1.0.1',
