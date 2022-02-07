@@ -6,18 +6,17 @@ original messages (without quoted messages)
 """
 
 from __future__ import absolute_import
-import regex as re
+
 import logging
 from copy import deepcopy
 
-from lxml import html, etree
-
-from talon.utils import (get_delimiter, html_tree_to_text,
-                         html_document_fromstring)
-from talon import html_quotations
+import regex as re
+from lxml import etree, html
 from six.moves import range
-import six
 
+from talon import html_quotations
+from talon.utils import (get_delimiter, html_document_fromstring,
+                         html_tree_to_text)
 
 log = logging.getLogger(__name__)
 
@@ -94,7 +93,7 @@ RE_ON_DATE_WROTE_SMB = re.compile(
     )
 
 RE_QUOTATION = re.compile(
-    r'''
+    r"""
     (
         # quotation border: splitter line or a number of quotation marker lines
         (?:
@@ -112,10 +111,10 @@ RE_QUOTATION = re.compile(
 
     # after quotations should be text only or nothing at all
     [te]*$
-    ''', re.VERBOSE)
+    """, re.VERBOSE)
 
 RE_EMPTY_QUOTATION = re.compile(
-    r'''
+    r"""
     (
         # quotation border: splitter line or a number of quotation marker lines
         (?:
@@ -125,7 +124,7 @@ RE_EMPTY_QUOTATION = re.compile(
         )
     )
     e*
-    ''', re.VERBOSE)
+    """, re.VERBOSE)
 
 # ------Original Message------ or ---- Reply Message ----
 # With variations in other languages.
@@ -343,9 +342,6 @@ def _replace_link_brackets(msg_body):
 
     Converts msg_body into a unicode
     """
-    if isinstance(msg_body, bytes):
-        msg_body = msg_body.decode('utf8')
-
     def link_wrapper(link):
         newline_index = msg_body[:link.start()].rfind("\n")
         if msg_body[newline_index + 1] == ">":
@@ -385,8 +381,6 @@ def postprocess(msg_body):
 
 def extract_from_plain(msg_body):
     """Extracts a non quoted message from provided plain text."""
-    stripped_text = msg_body
-
     delimiter = get_delimiter(msg_body)
     msg_body = preprocess(msg_body, delimiter)
     # don't process too long messages
@@ -418,17 +412,13 @@ def extract_from_html(msg_body):
 
     Returns a unicode string.
     """
-    msg_body_bytes = msg_body
-    if isinstance(msg_body, six.text_type):
-        msg_body_bytes = msg_body.encode('utf8')
-
-    if msg_body_bytes.strip() == b'':
+    if msg_body.strip() == "":
         return msg_body
 
-    msg_body_bytes = msg_body_bytes.replace(b'\r\n', b'\n')
+    msg_body = msg_body.replace("\r\n", "\n")
     # Cut out xml and doctype tags to avoid conflict with unicode decoding.
-    msg_body_bytes = re.sub(br"\<\?xml.+\?\>|\<\!DOCTYPE.+]\>", b"", msg_body_bytes)
-    html_tree = html_document_fromstring(msg_body_bytes)
+    msg_body = re.sub(r"\<\?xml.+\?\>|\<\!DOCTYPE.+]\>", "", msg_body)
+    html_tree = html_document_fromstring(msg_body)
     if html_tree is None:
         return msg_body
 
@@ -531,11 +521,11 @@ def extract_from_html_tree(html_tree):
     #    of replacing data outside the <tag> which might be essential to
     #    the customer.
     remove_namespaces(html_tree_copy)
-    s = html.tostring(html_tree_copy)
+    s = html.tostring(html_tree_copy, encoding="ascii")
     if not s:
         return None
 
-    return s.decode('utf-8')
+    return s.decode("ascii")
 
 
 def remove_namespaces(root):
@@ -654,10 +644,10 @@ def _readable_text_empty(html_tree):
 
 
 def is_splitter(line):
-    '''
+    """
     Returns Matcher object if provided string is a splitter and
     None otherwise.
-    '''
+    """
     for pattern in SPLITTER_PATTERNS:
         matcher = re.match(pattern, line)
         if matcher:
@@ -665,12 +655,12 @@ def is_splitter(line):
 
 
 def text_content(context):
-    '''XPath Extension function to return a node text content.'''
+    """XPath Extension function to return a node text content."""
     return context.context_node.xpath("string()").strip()
 
 
 def tail(context):
-    '''XPath Extension function to return a node tail text.'''
+    """XPath Extension function to return a node tail text."""
     return context.context_node.tail or ''
 
 

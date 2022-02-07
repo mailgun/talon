@@ -5,21 +5,17 @@
 * regexp's constants used when evaluating signature's features
 
 """
-
-from __future__ import absolute_import
 import unicodedata
+
 import regex as re
 
-from talon.utils import to_unicode
-
 from talon.signature.constants import SIGNATURE_MAX_LINES
-
 
 rc = re.compile
 
 RE_EMAIL = rc('\S@\S')
 RE_RELAX_PHONE = rc('(\(? ?[\d]{2,3} ?\)?.{,3}?){2,}')
-RE_URL = rc(r'''https?://|www\.[\S]+\.[\S]''')
+RE_URL = rc(r"""https?://|www\.[\S]+\.[\S]""")
 
 # Taken from:
 # http://www.cs.cmu.edu/~vitor/papers/sigFilePaper_finalversion.pdf
@@ -55,7 +51,7 @@ BAD_SENDER_NAMES = [
 
 
 def binary_regex_search(prog):
-    '''Returns a function that returns 1 or 0 depending on regex search result.
+    """Returns a function that returns 1 or 0 depending on regex search result.
 
     If regular expression compiled into prog is present in a string
     the result of calling the returned function with the string will be 1
@@ -66,12 +62,12 @@ def binary_regex_search(prog):
     1
     >>> binary_regex_search(re.compile("12"))("34")
     0
-    '''
+    """
     return lambda s: 1 if prog.search(s) else 0
 
 
 def binary_regex_match(prog):
-    '''Returns a function that returns 1 or 0 depending on regex match result.
+    """Returns a function that returns 1 or 0 depending on regex match result.
 
     If a string matches regular expression compiled into prog
     the result of calling the returned function with the string will be 1
@@ -82,7 +78,7 @@ def binary_regex_match(prog):
     1
     >>> binary_regex_match(re.compile("12"))("3 12")
     0
-    '''
+    """
     return lambda s: 1 if prog.match(s) else 0
 
 
@@ -135,7 +131,6 @@ def extract_names(sender):
     >>> extract_names('')
     []
     """
-    sender = to_unicode(sender, precise=True)
     # Remove non-alphabetical characters
     sender = "".join([char if char.isalpha() else ' ' for char in sender])
     # Remove too short words and words from "black" list i.e.
@@ -154,7 +149,7 @@ def extract_names(sender):
 
 
 def categories_percent(s, categories):
-    '''Returns category characters percent.
+    """Returns category characters percent.
 
     >>> categories_percent("qqq ggg hhh", ["Po"])
     0.0
@@ -166,9 +161,8 @@ def categories_percent(s, categories):
     50.0
     >>> categories_percent("s.s,5s", ["Po", "Nd"])
     50.0
-    '''
+    """
     count = 0
-    s = to_unicode(s, precise=True)
     for c in s:
         if unicodedata.category(c) in categories:
             count += 1
@@ -176,19 +170,18 @@ def categories_percent(s, categories):
 
 
 def punctuation_percent(s):
-    '''Returns punctuation percent.
+    """Returns punctuation percent.
 
     >>> punctuation_percent("qqq ggg hhh")
     0.0
     >>> punctuation_percent("q,w.")
     50.0
-    '''
+    """
     return categories_percent(s, ['Po'])
 
 
 def capitalized_words_percent(s):
-    '''Returns capitalized words percent.'''
-    s = to_unicode(s, precise=True)
+    """Returns capitalized words percent."""
     words = re.split('\s', s)
     words = [w for w in words if w.strip()]
     words = [w for w in words if len(w) > 2]    
