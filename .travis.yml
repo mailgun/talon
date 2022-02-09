@@ -1,0 +1,167 @@
+language: generic
+dist: trusty
+sudo: required
+services: docker
+
+matrix:
+  include:
+    # https://hub.docker.com/_/centos/
+    - os: linux
+      env: VARIANT='centos' VERSION='7' PYTHON='2'
+
+#    - os: linux
+#      env: VARIANT='centos' VERSION='7' PYTHON='3'
+
+    # https://hub.docker.com/_/debian/
+    - os: linux
+      env: VARIANT='debian' VERSION='latest' PYTHON='2'
+
+#    - os: linux
+#      env: VARIANT='debian' VERSION='latest' PYTHON='3'
+
+    # https://hub.docker.com/_/fedora/
+#    - os: linux
+#      env: VARIANT='fedora' VERSION='latest' PYTHON='3'
+
+    # https://hub.docker.com/_/ubuntu/
+    - os: linux
+      env: VARIANT='ubuntu' VERSION='latest' PYTHON='2'
+
+#    - os: linux
+#      env: VARIANT='ubuntu' VERSION='latest' PYTHON='3'
+
+    - os: linux
+      env: VARIANT='ubuntu' VERSION='devel' PYTHON='2'
+
+#    - os: linux
+#      env: VARIANT='ubuntu' VERSION='devel' PYTHON='3'
+
+#    - os: linux
+#      env: VARIANT='ubuntu' VERSION='rolling' PYTHON='3'
+
+    # https://docs.travis-ci.com/user/reference/osx/#OS-X-Version
+    - os: osx
+      env: VERSION='xcode9' PYTHON='2'
+
+#    - os: osx
+#      env: VERSION='xcode9' PYTHON='3'
+
+    - os: osx
+      env: VERSION='xcode10' PYTHON='2'
+
+#    - os: osx
+#      env: VERSION='xcode10' PYTHON='3'
+
+before_install:
+  - if [ "${TRAVIS_OS_NAME}" == "linux" ]; then
+      export CONTAINER="${VARIANT}_${VERSION}_python${PYTHON}";
+      docker pull "${VARIANT}:${VERSION}";
+      docker run -dit --name "${CONTAINER}" -v "$TRAVIS_BUILD_DIR":/"$TRAVIS_BUILD_DIR" "${VARIANT}:${VERSION}" sh;
+      if [ "${VARIANT}" == "centos" ]; then
+        if [ "${VERSION}" == "7" ]; then
+           docker exec -i "${CONTAINER}" yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm;
+        fi;
+        if [ "${PYTHON}" == "2" ]; then
+           docker exec -i "${CONTAINER}" yum -y install python${PYTHON}-pip;
+           docker exec -i "${CONTAINER}" yum -y install python-virtualenv;
+        else
+           docker exec -i "${CONTAINER}" yum -y install python34-pip;
+           docker exec -i "${CONTAINER}" yum -y install python34-virtualenv python-virtualenv;
+        fi;
+        docker exec -i "${CONTAINER}" yum -y install which;
+        docker exec -i "${CONTAINER}" yum -y install gcc;
+      fi;
+      if [ "${VARIANT}" == "debian" ]; then
+        docker exec -i "${CONTAINER}" apt-get update;
+        if [ "${PYTHON}" == "2" ]; then
+          docker exec -i "${CONTAINER}" apt-get -y install python-pip;
+          docker exec -i "${CONTAINER}" apt-get -y install python-virtualenv;
+        else
+          docker exec -i "${CONTAINER}" apt-get -y install python${PYTHON}-pip;
+          docker exec -i "${CONTAINER}" apt-get -y install python${PYTHON}-virtualenv virtualenv;
+        fi
+      fi;
+      if [ "${VARIANT}" == "fedora" ]; then
+        docker exec -i "${CONTAINER}" yum -y install which;
+        docker exec -i "${CONTAINER}" yum -y install gcc;
+        docker exec -i "${CONTAINER}" yum -y install python${PYTHON}-pip;
+        docker exec -i "${CONTAINER}" yum -y install python${PYTHON}-virtualenv python-virtualenv;
+      fi;
+      if [ "${VARIANT}" == "ubuntu" ]; then
+        docker exec -i "${CONTAINER}" apt-get update;
+        if [ "${PYTHON}" == "2" ]; then
+          docker exec -i "${CONTAINER}" apt-get -y install python-pip;
+          docker exec -i "${CONTAINER}" apt-get -y install python-virtualenv;
+        else
+          docker exec -i "${CONTAINER}" apt-get -y install python${PYTHON}-pip;
+          docker exec -i "${CONTAINER}" apt-get -y install python${PYTHON}-virtualenv virtualenv;
+        fi;
+      fi;
+      docker exec -i "${CONTAINER}" which pip${PYTHON};
+      docker exec -i "${CONTAINER}" pip${PYTHON} install --upgrade pip;
+      docker exec -i "${CONTAINER}" which pip${PYTHON};
+      docker exec -i "${CONTAINER}" pip${PYTHON} --version;
+    fi
+  - if [ "${TRAVIS_OS_NAME}" == "osx" ]; then
+      brew update > /dev/null;
+      brew upgrade python@${PYTHON} || :;
+      pip${PYTHON} install virtualenv;
+      which pip${PYTHON};
+      pip${PYTHON} --version;
+    fi
+
+# install test environment
+install:
+  - if [ "${TRAVIS_OS_NAME}" == "linux" ]; then
+      docker exec -i "${CONTAINER}"
+      bash -c "cd ${TRAVIS_BUILD_DIR}&&
+      virtualenv --python=python${PYTHON} VENV_TEST&&
+      . VENV_TEST/bin/activate&&
+      pip${PYTHON} install -r requirements-dev.txt&&
+      python${PYTHON} setup.py install";
+    fi
+  - if [ "${TRAVIS_OS_NAME}" == "osx" ]; then
+      bash -c "cd ${TRAVIS_BUILD_DIR}&&
+      virtualenv --python=python${PYTHON} VENV_TEST&&
+      . VENV_TEST/bin/activate&&
+      pip${PYTHON} install -r requirements-dev.txt&&
+      python${PYTHON} setup.py install";
+    fi
+
+# test
+script:
+  - if [ "${TRAVIS_OS_NAME}" == "linux" ]; then
+      docker exec -i "${CONTAINER}"
+      bash -c "cd ${TRAVIS_BUILD_DIR}&&
+      virtualenv --python=python${PYTHON} VENV_TEST&&
+      . VENV_TEST/bin/activate&&
+      python${PYTHON} -m nose";
+    fi;
+  - if [ "${TRAVIS_OS_NAME}" == "osx" ]; then
+      bash -c "cd ${TRAVIS_BUILD_DIR}&&
+      virtualenv --python=python${PYTHON} VENV_TEST&&
+      . VENV_TEST/bin/activate&&
+      python${PYTHON} -m nose";
+    fi;
+
+# install from sdist
+after_success:
+  - if [ "${TRAVIS_OS_NAME}" == "linux" ]; then
+      docker exec -i "${CONTAINER}"
+      bash -c "cd ${TRAVIS_BUILD_DIR}&&
+      virtualenv --python=python${PYTHON} VENV_INSTALL&&
+      . VENV_INSTALL/bin/activate&&
+      python${PYTHON} setup.py sdist&&
+      cd&&
+      pip${PYTHON} install ${TRAVIS_BUILD_DIR}/dist/*.tar.gz&&
+      python${PYTHON} -c 'import talon; print(talon.__file__)'";
+    fi
+  - if [ "${TRAVIS_OS_NAME}" == "osx" ]; then
+      bash -c "cd ${TRAVIS_BUILD_DIR}&&
+      virtualenv --python=python${PYTHON} VENV_INSTALL&&
+      . VENV_INSTALL/bin/activate&&
+      python${PYTHON} setup.py sdist&&
+      cd&&
+      pip${PYTHON} install ${TRAVIS_BUILD_DIR}/dist/*.tar.gz&&
+      python${PYTHON} -c 'import talon; print(talon.__file__)'";
+    fi
