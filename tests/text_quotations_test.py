@@ -194,6 +194,9 @@ def test_english_original_message():
     _check_pattern_original_message('Original Message')
     _check_pattern_original_message('Reply Message')
 
+def test_french_original_message():
+    _check_pattern_original_message('Message original')
+
 def test_german_original_message():
     _check_pattern_original_message(u'Ursprüngliche Nachricht')
     _check_pattern_original_message('Antwort Nachricht')
