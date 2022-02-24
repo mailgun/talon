@@ -234,6 +234,7 @@ def mark_message_lines(lines):
     * m - line that starts with quotation marker '>'
     * s - splitter line
     * t - presumably lines from the last message in the conversation
+    * f - forwarded message line
 
     >>> mark_message_lines(['answer', 'From: foo@bar.com', '', '> question'])
     'tsem'
@@ -283,9 +284,9 @@ def process_marked_lines(lines, markers, return_flags=[False, -1, -1]):
     if 's' not in markers and not re.search('(me*){3}', markers):
         markers = markers.replace('m', 't')
 
-    if re.match('[te]*f', markers):
-        return_flags[:] = [False, -1, -1]
-        return lines
+    # if re.match('[te]*f', markers):
+    #     return_flags[:] = [False, -1, -1]
+    #     return lines
 
     # inlined reply
     # use lookbehind assertions to find overlapping entries e.g. for 'mtmtm'
@@ -300,8 +301,8 @@ def process_marked_lines(lines, markers, return_flags=[False, -1, -1]):
             return_flags[:] = [False, -1, -1]
             return lines
 
-    # cut out text lines coming after splitter if there are no markers there
-    quotation = re.search('(se*)+((t|f)+e*)+', markers)
+    # cut out text lines coming after splitter or forwarded message line if there are no markers there
+    quotation = re.search('((se*)+((t|f)+e*)+|f)', markers)
     if quotation:
         return_flags[:] = [True, quotation.start(), len(lines)]
         return lines[:quotation.start()]
