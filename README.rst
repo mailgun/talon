@@ -25,6 +25,7 @@ message:
     Quote"""
 
     reply = quotations.extract_from(text, 'text/plain')
+    # -- OR --
     reply = quotations.extract_from_plain(text)
     # reply == "Reply"
 
@@ -46,6 +47,7 @@ To extract a reply from html:
     </blockquote>"""
 
     reply = quotations.extract_from(html, 'text/html')
+    # -- OR --
     reply = quotations.extract_from_html(html)
     # reply == "<html><body><p>Reply</p></body></html>"
 
