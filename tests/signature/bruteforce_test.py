@@ -42,7 +42,6 @@ Bob Smith'''
     eq_(('Wow. Awesome!', '--\nBob Smith'),
         bruteforce.extract_signature(msg_body))
 
-
 def test_signature_words():
     msg_body = '''Hey!
 
@@ -81,7 +80,6 @@ def test_mailbox_for_iphone_signature():
 Sent from Mailbox for iPhone"""
     eq_(("Blah", "Sent from Mailbox for iPhone"),
         bruteforce.extract_signature(msg_body))
-
 
 def test_line_starts_with_signature_word():
     msg_body = '''Hey man!
@@ -134,6 +132,19 @@ Enviado desde mi oficina mÃ³vil BlackBerryÂ® de Telcel"""
     eq_(('Blah', u'Enviado desde mi oficina mÃ³vil BlackBerryÂ® de Telcel'),
         bruteforce.extract_signature(msg_body))
 
+def test_k9_signature():
+    msg_body = """Heeyyoooo.
+-- 
+Sent from my Android device with K-9 Mail. Please excuse my brevity."""
+    eq_(('Heeyyoooo.', msg_body[len('Heeyyoooo.\n'):]),
+        bruteforce.extract_signature(msg_body))
+
+def test_french_k9_signature():
+    msg_body = """Heeyyoooo.
+-- 
+Envoyé de mon appareil Android avec Courriel K-9 Mail. Veuillez excuser ma brièveté."""
+    eq_(('Heeyyoooo.', msg_body[len('Heeyyoooo.\n'):]),
+        bruteforce.extract_signature(msg_body))
 
 @patch.object(bruteforce, 'get_delimiter', Mock(side_effect=Exception()))
 def test_crash_in_extract_signature():
