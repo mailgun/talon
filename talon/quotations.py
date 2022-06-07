@@ -11,6 +11,7 @@ from copy import deepcopy
 
 from lxml import html, etree
 
+from talon.constants import MAX_LINE_LENGTH_FOR_REGEX_SUB
 from talon.utils import (get_delimiter, html_tree_to_text, html_document_fromstring, logger)
 from talon import html_quotations
 from six.moves import range
@@ -346,6 +347,8 @@ def _replace_link_brackets(msg_body):
     msg_body = re.sub(RE_LINK, link_wrapper, msg_body)
     return msg_body
 
+def max_line_length(s):
+    return max(len(line) for line in s.split('\n'))
 
 def _wrap_splitter_with_newline(msg_body, delimiter, content_type='text/plain'):
     """
@@ -359,10 +362,17 @@ def _wrap_splitter_with_newline(msg_body, delimiter, content_type='text/plain'):
         else:
             return splitter.group()
 
-    if content_type == 'text/plain':
-        msg_body = re.sub(RE_ON_DATE_SMB_WROTE, splitter_wrapper, msg_body)
+    if content_type != 'text/plain':
+        return msg_body
 
-    return msg_body
+    # NOTE: The performance of the RE_ON_DATE_SMB_WROTE regex is extremely horrible
+    # when the message contains very long lines. See issue KAYAKO-40823.
+    # One way to mitigate this is to avoid running this regex altogether if a
+    # single line over a certain length-limit exists.
+    if max_line_length(msg_body) > MAX_LINE_LENGTH_FOR_REGEX_SUB:
+        return msg_body
+
+    return re.sub(RE_ON_DATE_SMB_WROTE, splitter_wrapper, msg_body)
 
 
 def postprocess(msg_body):
