@@ -453,7 +453,8 @@ def test_link_closed_with_quotation_marker_on_new_line():
     msg_body = '''8.45am-1pm
 
 From: somebody@example.com
-
+Date: Wed, 16 May 2012 00:15:02 -0600
+ 
 <http://email.example.com/c/dHJhY2tpbmdfY29kZT1mMDdjYzBmNzM1ZjYzMGIxNT
 >  <bob@example.com <mailto:bob@example.com> >
 
@@ -494,7 +495,9 @@ def test_from_block_starts_with_date():
     msg_body = """Blah
 
 Date: Wed, 16 May 2012 00:15:02 -0600
-To: klizhentas@example.com"""
+To: klizhentas@example.com
+
+"""
     eq_('Blah', quotations.extract_from_plain(msg_body))
 
 
@@ -564,11 +567,12 @@ def test_mark_message_lines():
              # next line should be marked as splitter
              '_____________',
              'From: foo@bar.com',
+             'Date: Wed, 16 May 2012 00:15:02 -0600',
              '',
              '> Hi',
              '',
              'Signature']
-    eq_('tessemet', quotations.mark_message_lines(lines))
+    eq_('tesssemet', quotations.mark_message_lines(lines))
 
     lines = ['Just testing the email reply',
              '',
@@ -807,7 +811,7 @@ def test_split_email():
         >
         >
 """
-    expected_markers = "stttttsttttetesetesmmmmmmssmmmmmmsmmmmmmmm"
+    expected_markers = "stttttsttttetesetesmmmmmmsmmmmmmmmmmmmmmmm"
     markers = quotations.split_emails(msg)
     eq_(markers, expected_markers)
 
@@ -823,3 +827,15 @@ that this line is intact."""
 
     parsed = quotations.extract_from_plain(msg_body)
     eq_(msg_body, parsed)
+
+
+def test_appointment():
+    msg_body = """Invitation for an interview:
+
+Date: Wednesday 3, October 2011 
+Time: 7 : 00am 
+Address: 130 Fox St
+
+Please bring in your ID."""
+    parsed = quotations.extract_from_plain(msg_body)
+    eq_(msg_body, parsed.decode('utf8'))

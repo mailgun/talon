@@ -18,7 +18,7 @@ from six.moves import range
 import six
 
 
-RE_FWD = re.compile("^[-]+[ ]*Forwarded message[ ]*[-]+$", re.I | re.M)
+RE_FWD = re.compile("^[-]+[ ]*Forwarded message[ ]*[-]+\s*$", re.I | re.M)
 
 RE_ON_DATE_SMB_WROTE = re.compile(
     u'(-*[>]?[ ]?({0})[ ].*({1})(.*\n){{0,2}}.*({2}):?-*)'.format(
@@ -34,6 +34,8 @@ RE_ON_DATE_SMB_WROTE = re.compile(
             'Op',
             # German
             'Am',
+            # Portuguese
+            'Em',
             # Norwegian
             u'På',
             # Swedish, Danish
@@ -60,6 +62,8 @@ RE_ON_DATE_SMB_WROTE = re.compile(
             'schreef','verzond','geschreven',
             # German
             'schrieb',
+            # Portuguese
+            'escreveu',
             # Norwegian, Swedish
             'skrev',
             # Vietnamese
@@ -131,13 +135,17 @@ RE_ORIGINAL_MESSAGE = re.compile(u'[\s]*[-]+[ ]*({})[ ]*[-]+'.format(
         'Oprindelig meddelelse',
     ))), re.I)
 
-RE_FROM_COLON_OR_DATE_COLON = re.compile(u'(_+\r?\n)?[\s]*(:?[*]?{})[\s]?:[*]?.*'.format(
+RE_FROM_COLON_OR_DATE_COLON = re.compile(u'((_+\r?\n)?[\s]*:?[*]?({})[\s]?:([^\n$]+\n){{1,2}}){{2,}}'.format(
     u'|'.join((
         # "From" in different languages.
         'From', 'Van', 'De', 'Von', 'Fra', u'Från',
         # "Date" in different languages.
-        'Date', 'Datum', u'Envoyé', 'Skickat', 'Sendt',
-    ))), re.I)
+        'Date', '[S]ent', 'Datum', u'Envoyé', 'Skickat', 'Sendt', 'Gesendet',
+        # "Subject" in different languages.
+        'Subject', 'Betreff', 'Objet', 'Emne', u'Ämne',
+        # "To" in different languages.
+        'To', 'An', 'Til', u'À', 'Till'
+    ))), re.I | re.M)
 
 # ---- John Smith wrote ----
 RE_ANDROID_WROTE = re.compile(u'[\s]*[-]+.*({})[ ]*[-]+'.format(
@@ -282,7 +290,7 @@ def process_marked_lines(lines, markers, return_flags=[False, -1, -1]):
     # inlined reply
     # use lookbehind assertions to find overlapping entries e.g. for 'mtmtm'
     # both 't' entries should be found
-    for inline_reply in re.finditer('(?<=m)e*((?:t+e*)+)m', markers):
+    for inline_reply in re.finditer('(?<=m)e*(t[te]*)m', markers):
         # long links could break sequence of quotation lines but they shouldn't
         # be considered an inline reply
         links = (
@@ -480,6 +488,7 @@ def _extract_from_html_beta(msg_body):
         return msg_body
 
     msg_body = msg_body.replace(b'\r\n', b'\n')
+    msg_body = re.sub(r'\<\?xml.+\?\>|\<\!DOCTYPE.+]\>', '', msg_body)
     html_tree = html_document_fromstring(msg_body)
 
     if html_tree is None:
@@ -567,6 +576,7 @@ def _extract_from_html(msg_body):
         return msg_body
 
     msg_body = msg_body.replace(b'\r\n', b'\n')
+    msg_body = re.sub(r'\<\?xml.+\?\>|\<\!DOCTYPE.+]\>', '', msg_body)
     html_tree = html_document_fromstring(msg_body)
 
     if html_tree is None:
