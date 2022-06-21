@@ -131,7 +131,7 @@ def html_tree_to_text(tree):
     for el in tree.iter():
         el_text = (el.text or '') + (el.tail or '')
         if len(el_text) > 1:
-            if el.tag in _BLOCKTAGS:
+            if el.tag in _BLOCKTAGS + _HARDBREAKS:
                 text += "\n"
             if el.tag == 'li':
                 text += "  * "
@@ -142,7 +142,8 @@ def html_tree_to_text(tree):
             if href:
                 text += "(%s) " % href
 
-        if el.tag in _HARDBREAKS and text and not text.endswith("\n"):
+        if (el.tag in _HARDBREAKS and text and
+            not text.endswith("\n") and not el_text):
             text += "\n"
 
     retval = _rm_excessive_newlines(text)
