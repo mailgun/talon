@@ -11,10 +11,11 @@ with open("tests/fixtures/OLK_SRC_BODY_SECTION.html") as f:
 with open("tests/fixtures/reply-separated-by-hr.html") as f:
     REPLY_SEPARATED_BY_HR = f.read()
 
+with open("tests/fixtures/BIG_EMAIL.html") as f:
+    BIG_EMAIL = f.read()
 
 REAL_HTML = []
 
 for htmlfile in glob.glob('tests/fixtures/real_data/*.html'):
     with open(htmlfile) as f:
         REAL_HTML.append(f.read())
-

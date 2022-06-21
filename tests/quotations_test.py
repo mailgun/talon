@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
+import time
 from . import *
 from . fixtures import *
 
@@ -30,3 +31,18 @@ def test_crash_inside_extract_from():
 
 def test_empty_body():
     eq_('', quotations.extract_from_plain(''))
+
+# How long do we expect the BIG_EMAIL.html file to be processed?
+# This should be a little generous just to ensure that slightly slow hardware.
+# This html email is tested using plain text processing to simulate exactly
+# what happened during downtime related to KAYAKO-40768. SendGrid sent us a request
+# with an html email they claimed was a text email (perhaps too big for them to parse).
+TIME_LIMIT_SECONDS = 15
+
+def test_succeed_on_kayako_40768_long_line_email():
+    t0 = time.time()
+    quotations.extract_from_plain(BIG_EMAIL)
+    t1 = time.time()
+    ok_(
+        t1 - t0 < TIME_LIMIT_SECONDS,
+        msg='BIG_EMAIL.html is taking too long. Perhaps there is a DoS issue with a regex, see KAYAKO-40768')
