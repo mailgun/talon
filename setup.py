@@ -1,30 +1,23 @@
-from __future__ import absolute_import
 from setuptools import setup, find_packages
+from ConfigParser import ConfigParser
 
+
+# Internal Contact
+# Sherub Thakur <sherub.thakur@kayako.com>
+
+config = ConfigParser()
+
+with open('setup.cfg') as fp:
+    config.readfp(fp, 'setup.cfg')
 
 setup(
-    name='talon',
-    version='1.4.6',
-    description=("Mailgun library "
-                 "to extract message quotations and signatures."),
-    long_description=open("README.rst").read(),
-    author='Kayako',
-    author_email='sherub.thakur@kayako.com',
-    url='https://github.com/kayako/talon',
-    license='APACHE2',
-    packages=find_packages(exclude=['tests', 'tests.*']),
-    include_package_data=True,
-    zip_safe=True,
-    install_requires=[
-        "lxml>=2.3.3",
-        "html5-parser",
-        "regex>=1",
-        'chardet>=1.0.1',
-        'cchardet>=0.3.5',
-        'cssselect',
-        'six>=1.10.0',
-        'html5lib',
-    ],
+    name=config.get('metadata', 'name'),
+    description=config.get('metadata', 'description'),
+    version=config.get('metadata', 'version'),
+    author=config.get('metadata', 'author'),
+    author_email=config.get('metadata', 'author_email'),
+    packages=find_packages(),
+    install_requires=[each.strip() for each in config.get('options', 'install_requires').split(';')],
     tests_require=[
         "mock",
         "nose>=1.2.1",
@@ -32,3 +25,4 @@ setup(
     ],
     setup_requires=["nose>=1.0"]
 )
+

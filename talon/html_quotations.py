@@ -6,7 +6,7 @@ messages (without quoted messages) from html
 from __future__ import absolute_import
 import regex as re
 
-from talon.utils import cssselect 
+from talon.utils import cssselect, logger
 
 CHECKPOINT_PREFIX = '#!%!'
 CHECKPOINT_SUFFIX = '!%!#'
@@ -21,22 +21,18 @@ def add_checkpoint(html_note, counter):
     """Recursively adds checkpoints to html tree.
     """
     if html_note.text:
-        html_note.text = (html_note.text + CHECKPOINT_PREFIX +
-                          str(counter) + CHECKPOINT_SUFFIX)
+        html_note.text = (html_note.text + CHECKPOINT_PREFIX + str(counter) + CHECKPOINT_SUFFIX)
     else:
-        html_note.text = (CHECKPOINT_PREFIX + str(counter) +
-                          CHECKPOINT_SUFFIX)
+        html_note.text = (CHECKPOINT_PREFIX + str(counter) + CHECKPOINT_SUFFIX)
     counter += 1
 
     for child in html_note.iterchildren():
         counter = add_checkpoint(child, counter)
 
     if html_note.tail:
-        html_note.tail = (html_note.tail + CHECKPOINT_PREFIX +
-                          str(counter) + CHECKPOINT_SUFFIX)
+        html_note.tail = (html_note.tail + CHECKPOINT_PREFIX + str(counter) + CHECKPOINT_SUFFIX)
     else:
-        html_note.tail = (CHECKPOINT_PREFIX + str(counter) +
-                          CHECKPOINT_SUFFIX)
+        html_note.tail = (CHECKPOINT_PREFIX + str(counter) + CHECKPOINT_SUFFIX)
     counter += 1
 
     return counter
@@ -77,6 +73,14 @@ def delete_quotation_tags(html_note, counter, quotation_checkpoints):
         return counter, tag_in_quotation
 
 
+def cut_kayako_quote(html_message):
+    ''' Cuts the outermost block element with id kayako_mail. '''
+    kayako_mail = cssselect('div[class*=kayako-mail-wrapper]', html_message)
+    if kayako_mail and (kayako_mail[0].text is None or not RE_FWD.match(kayako_mail[0].text)):
+        kayako_mail[0].getparent().remove(kayako_mail[0])
+        return True
+
+
 def cut_gmail_quote(html_message):
     ''' Cuts the outermost block element with class gmail_quote. '''
     gmail_quote = cssselect('div.gmail_quote', html_message)
@@ -87,23 +91,24 @@ def cut_gmail_quote(html_message):
 
 def cut_microsoft_quote(html_message):
     ''' Cuts splitter block and all following blocks. '''
+    #use EXSLT extensions to have a regex match() function with lxml
+    ns = {"re": "http://exslt.org/regular-expressions"}
+
+    #general pattern: @style='border:none;border-top:solid <color> 1.0pt;padding:3.0pt 0<unit> 0<unit> 0<unit>'
+    #outlook 2007, 2010 (international) <color=#B5C4DF> <unit=cm>
+    #outlook 2007, 2010 (american)      <color=#B5C4DF> <unit=pt>
+    #outlook 2013       (international) <color=#E1E1E1> <unit=cm>
+    #outlook 2013       (american)      <color=#E1E1E1> <unit=pt>
+    #also handles a variant with a space after the semicolon
     splitter = html_message.xpath(
-        #outlook 2007, 2010 (international)
-        "//div[@style='border:none;border-top:solid #B5C4DF 1.0pt;"
-        "padding:3.0pt 0cm 0cm 0cm']|"
-        #outlook 2007, 2010 (american)
-        "//div[@style='border:none;border-top:solid #B5C4DF 1.0pt;"
-        "padding:3.0pt 0in 0in 0in']|"
-        #outlook 2013 (international)
-        "//div[@style='border:none;border-top:solid #E1E1E1 1.0pt;"
-        "padding:3.0pt 0cm 0cm 0cm']|"
-        #outlook 2013 (american)
-        "//div[@style='border:none;border-top:solid #E1E1E1 1.0pt;"
-        "padding:3.0pt 0in 0in 0in']|"
+        #outlook 2007, 2010, 2013 (international, american)
+        "//div[@style[re:match(., 'border:none; ?border-top:solid #(E1E1E1|B5C4DF) 1.0pt; ?"
+        "padding:3.0pt 0(in|cm) 0(in|cm) 0(in|cm)')]]|"
         #windows mail
         "//div[@style='padding-top: 5px; "
         "border-top-color: rgb(229, 229, 229); "
         "border-top-width: 1px; border-top-style: solid;']"
+        , namespaces=ns
     )
 
     if splitter:
@@ -167,13 +172,14 @@ def cut_from_block(html_message):
     # handle the case when From: block is enclosed in some tag
     block = html_message.xpath(
         ("//*[starts-with(mg:text_content(), 'From:')]|"
+         "//*[starts-with(mg:text_content(), 'Van:')]|"
          "//*[starts-with(mg:text_content(), 'Date:')]"))
 
     if block:
         block = block[-1]
         parent_div = None
         while block.getparent() is not None:
-            if block.tag == 'div':
+            if block.tag in ['div', 'p']:
                 parent_div = block
                 break
             block = block.getparent()
@@ -209,6 +215,7 @@ def cut_from_block(html_message):
     # and not enclosed in some tag
     block = html_message.xpath(
         ("//*[starts-with(mg:tail(), 'From:')]|"
+         "//*[starts-with(mg:tail(), 'Van:')]|"
          "//*[starts-with(mg:tail(), 'Date:')]"))
     if block:
         block = block[0]

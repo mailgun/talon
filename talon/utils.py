@@ -4,6 +4,7 @@ from __future__ import absolute_import
 
 from random import shuffle
 
+import logging
 import cchardet
 import chardet
 import regex as re
@@ -130,7 +131,7 @@ def html_tree_to_text(tree):
     for el in tree.iter():
         el_text = (el.text or '') + (el.tail or '')
         if len(el_text) > 1:
-            if el.tag in _BLOCKTAGS:
+            if el.tag in _BLOCKTAGS + _HARDBREAKS:
                 text += "\n"
             if el.tag == 'li':
                 text += "  * "
@@ -141,7 +142,8 @@ def html_tree_to_text(tree):
             if href:
                 text += "(%s) " % href
 
-        if el.tag in _HARDBREAKS and text and not text.endswith("\n"):
+        if (el.tag in _HARDBREAKS and text and
+            not text.endswith("\n") and not el_text):
             text += "\n"
 
     retval = _rm_excessive_newlines(text)
@@ -244,4 +246,11 @@ _RE_EXCESSIVE_NEWLINES = re.compile("\n{2,10}")
 
 # an extensive research shows that exceeding this limit
 # might lead to excessive processing time
-_MAX_TAGS_COUNT = 419
+# NOTE: Increasing it from the recomended 419 to 2L kinda like unlimted as mails with more than 419
+# tags are fairly common (due to message chains that they carry).
+_MAX_TAGS_COUNT = 25000  # 419
+
+
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)

@@ -7,22 +7,18 @@ original messages (without quoted messages)
 
 from __future__ import absolute_import
 import regex as re
-import logging
 from copy import deepcopy
 
 from lxml import html, etree
 
-from talon.utils import (get_delimiter, html_tree_to_text,
-                         html_document_fromstring)
+from talon.constants import MAX_LINE_LENGTH_FOR_REGEX_SUB
+from talon.utils import (get_delimiter, html_tree_to_text, html_document_fromstring, logger)
 from talon import html_quotations
 from six.moves import range
 import six
 
 
-log = logging.getLogger(__name__)
-
-
-RE_FWD = re.compile("^[-]+[ ]*Forwarded message[ ]*[-]+$", re.I | re.M)
+RE_FWD = re.compile("^[-]+[ ]*Forwarded message[ ]*[-]+\s*$", re.I | re.M)
 
 RE_ON_DATE_SMB_WROTE = re.compile(
     u'(-*[>]?[ ]?({0})[ ].*({1})(.*\n){{0,2}}.*({2}):?-*)'.format(
@@ -38,6 +34,8 @@ RE_ON_DATE_SMB_WROTE = re.compile(
             'Op',
             # German
             'Am',
+            # Portuguese
+            'Em',
             # Norwegian
             u'På',
             # Swedish, Danish
@@ -64,6 +62,8 @@ RE_ON_DATE_SMB_WROTE = re.compile(
             'schreef','verzond','geschreven',
             # German
             'schrieb',
+            # Portuguese
+            'escreveu',
             # Norwegian, Swedish
             'skrev',
             # Vietnamese
@@ -135,13 +135,17 @@ RE_ORIGINAL_MESSAGE = re.compile(u'[\s]*[-]+[ ]*({})[ ]*[-]+'.format(
         'Oprindelig meddelelse',
     ))), re.I)
 
-RE_FROM_COLON_OR_DATE_COLON = re.compile(u'(_+\r?\n)?[\s]*(:?[*]?{})[\s]?:[*]?.*'.format(
+RE_FROM_COLON_OR_DATE_COLON = re.compile(u'((_+\r?\n)?[\s]*:?[*]?({})[\s]?:([^\n$]+\n){{1,2}}){{2,}}'.format(
     u'|'.join((
         # "From" in different languages.
         'From', 'Van', 'De', 'Von', 'Fra', u'Från',
         # "Date" in different languages.
-        'Date', 'Datum', u'Envoyé', 'Skickat', 'Sendt',
-    ))), re.I)
+        'Date', '[S]ent', 'Datum', u'Envoyé', 'Skickat', 'Sendt', 'Gesendet',
+        # "Subject" in different languages.
+        'Subject', 'Betreff', 'Objet', 'Emne', u'Ämne',
+        # "To" in different languages.
+        'To', 'An', 'Til', u'À', 'Till'
+    ))), re.I | re.M)
 
 # ---- John Smith wrote ----
 RE_ANDROID_WROTE = re.compile(u'[\s]*[-]+.*({})[ ]*[-]+'.format(
@@ -203,7 +207,7 @@ def extract_from(msg_body, content_type='text/plain'):
         elif content_type == 'text/html':
             return extract_from_html(msg_body)
     except Exception:
-        log.exception('ERROR extracting message')
+        logger.exception('ERROR extracting message')
 
     return msg_body
 
@@ -286,7 +290,7 @@ def process_marked_lines(lines, markers, return_flags=[False, -1, -1]):
     # inlined reply
     # use lookbehind assertions to find overlapping entries e.g. for 'mtmtm'
     # both 't' entries should be found
-    for inline_reply in re.finditer('(?<=m)e*((?:t+e*)+)m', markers):
+    for inline_reply in re.finditer('(?<=m)e*(t[te]*)m', markers):
         # long links could break sequence of quotation lines but they shouldn't
         # be considered an inline reply
         links = (
@@ -351,6 +355,8 @@ def _replace_link_brackets(msg_body):
     msg_body = re.sub(RE_LINK, link_wrapper, msg_body)
     return msg_body
 
+def max_line_length(s):
+    return max(len(line) for line in s.split('\n'))
 
 def _wrap_splitter_with_newline(msg_body, delimiter, content_type='text/plain'):
     """
@@ -364,10 +370,17 @@ def _wrap_splitter_with_newline(msg_body, delimiter, content_type='text/plain'):
         else:
             return splitter.group()
 
-    if content_type == 'text/plain':
-        msg_body = re.sub(RE_ON_DATE_SMB_WROTE, splitter_wrapper, msg_body)
+    if content_type != 'text/plain':
+        return msg_body
 
-    return msg_body
+    # NOTE: The performance of the RE_ON_DATE_SMB_WROTE regex is extremely horrible
+    # when the message contains very long lines. See issue KAYAKO-40823.
+    # One way to mitigate this is to avoid running this regex altogether if a
+    # single line over a certain length-limit exists.
+    if max_line_length(msg_body) > MAX_LINE_LENGTH_FOR_REGEX_SUB:
+        return msg_body
+
+    return re.sub(RE_ON_DATE_SMB_WROTE, splitter_wrapper, msg_body)
 
 
 def postprocess(msg_body):
@@ -393,6 +406,36 @@ def extract_from_plain(msg_body):
     msg_body = delimiter.join(lines)
     msg_body = postprocess(msg_body)
     return msg_body
+
+
+def extract_from_html_beta(msg_body):
+    """
+    Extract not quoted message from provided html message body
+    using tags and plain text algorithm.
+
+    Cut out the 'blockquote', 'gmail_quote' tags.
+    Cut Microsoft quotations.
+
+    Then use plain text algorithm to cut out splitter or
+    leftover quotation.
+    This works by adding checkpoint text to all html tags,
+    then converting html to text,
+    then extracting quotations from text,
+    then checking deleted checkpoints,
+    then deleting necessary tags.
+
+    Returns a unicode string.
+    """
+    if isinstance(msg_body, six.text_type):
+        msg_body = msg_body.encode('utf8')
+    elif not isinstance(msg_body, bytes):
+        msg_body = msg_body.encode('ascii')
+
+    result = _extract_from_html_beta(msg_body)
+    if isinstance(result, bytes):
+        result = result.decode('utf8')
+
+    return result
 
 
 def extract_from_html(msg_body):
@@ -425,6 +468,94 @@ def extract_from_html(msg_body):
     return result
 
 
+def _extract_from_html_beta(msg_body):
+    """
+    Extract not quoted message from provided html message body
+    using tags and plain text algorithm.
+
+    Cut out the 'blockquote', 'gmail_quote' tags.
+    Cut Microsoft quotations.
+
+    Then use plain text algorithm to cut out splitter or
+    leftover quotation.
+    This works by adding checkpoint text to all html tags,
+    then converting html to text,
+    then extracting quotations from text,
+    then checking deleted checkpoints,
+    then deleting necessary tags.
+    """
+    if msg_body.strip() == b'':
+        return msg_body
+
+    msg_body = msg_body.replace(b'\r\n', b'\n')
+    msg_body = re.sub(r'\<\?xml.+\?\>|\<\!DOCTYPE.+]\>', '', msg_body)
+    html_tree = html_document_fromstring(msg_body)
+
+    if html_tree is None:
+        return msg_body
+
+    cut_quotations = (html_quotations.cut_gmail_quote(html_tree)
+                      or html_quotations.cut_zimbra_quote(html_tree)
+                      or html_quotations.cut_by_id(html_tree)
+                      or html_quotations.cut_microsoft_quote(html_tree))
+
+    if not cut_quotations:
+        k_quote = html_quotations.cut_kayako_quote(html_tree)
+        cut_quotations = k_quote
+
+    if not cut_quotations:
+        blockquote = html_quotations.cut_blockquote(html_tree)
+        from_block = html_quotations.cut_from_block(html_tree)
+        cut_quotations = blockquote or from_block
+
+    html_tree_copy = deepcopy(html_tree)
+
+    number_of_checkpoints = html_quotations.add_checkpoint(html_tree, 0)
+    quotation_checkpoints = [False] * number_of_checkpoints
+    plain_text = html_tree_to_text(html_tree)
+    plain_text = preprocess(plain_text, '\n', content_type='text/html')
+    lines = plain_text.splitlines()
+
+    # Don't process too long messages
+    if len(lines) > MAX_LINES_COUNT:
+        return msg_body
+
+    # Collect checkpoints on each line
+    line_checkpoints = [
+        [int(i[4:-4])  # Only checkpoint number
+         for i in re.findall(html_quotations.CHECKPOINT_PATTERN, line)]
+        for line in lines]
+
+    # Remove checkpoints
+    lines = [re.sub(html_quotations.CHECKPOINT_PATTERN, '', line)
+             for line in lines]
+
+    # Use plain text quotation extracting algorithm
+    markers = mark_message_lines(lines)
+    return_flags = []
+    process_marked_lines(lines, markers, return_flags)
+    lines_were_deleted, first_deleted, last_deleted = return_flags
+
+    if not lines_were_deleted and not cut_quotations:
+        return msg_body
+
+    if lines_were_deleted:
+        #collect checkpoints from deleted lines
+        for i in range(first_deleted, last_deleted):
+            for checkpoint in line_checkpoints[i]:
+                quotation_checkpoints[checkpoint] = True
+
+        # Remove tags with quotation checkpoints
+        html_quotations.delete_quotation_tags(
+            html_tree_copy, 0, quotation_checkpoints
+        )
+
+    if _readable_text_empty(html_tree_copy):
+        return msg_body
+
+    return html.tostring(html_tree_copy)
+
+
 def _extract_from_html(msg_body):
     """
     Extract not quoted message from provided html message body
@@ -445,6 +576,7 @@ def _extract_from_html(msg_body):
         return msg_body
 
     msg_body = msg_body.replace(b'\r\n', b'\n')
+    msg_body = re.sub(r'\<\?xml.+\?\>|\<\!DOCTYPE.+]\>', '', msg_body)
     html_tree = html_document_fromstring(msg_body)
 
     if html_tree is None:
