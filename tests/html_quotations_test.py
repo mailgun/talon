@@ -4,14 +4,17 @@ from __future__ import absolute_import
 
 # noinspection PyUnresolvedReferences
 import re
+from unittest.mock import Mock, patch
 
+from nose.tools import assert_false, assert_true, eq_, ok_
+
+from tests.fixtures import (OLK_SRC_BODY_SECTION,
+                            REPLY_QUOTATIONS_SHARE_BLOCK,
+                            REPLY_SEPARATED_BY_HR)
 from talon import quotations, utils as u
-from . import *
-from .fixtures import *
-from lxml import html
 
-RE_WHITESPACE = re.compile("\s")
-RE_DOUBLE_WHITESPACE = re.compile("\s")
+RE_WHITESPACE = re.compile(r"\s")
+RE_DOUBLE_WHITESPACE = re.compile(r"\s")
 
 
 def test_quotation_splitter_inside_blockquote():
@@ -187,7 +190,7 @@ def test_unicode_in_reply():
 
 <blockquote>
   Quote
-</blockquote>""".encode("utf-8")
+</blockquote>"""
 
     eq_("<html><head></head><body>Reply&#160;&#160;Text<br><div><br></div>"
         "</body></html>",
@@ -335,7 +338,6 @@ def extract_reply_and_check(filename):
     msg_body = f.read()
     reply = quotations.extract_from_html(msg_body)
     plain_reply = u.html_to_text(reply)
-    plain_reply = plain_reply.decode('utf8')
 
     eq_(RE_WHITESPACE.sub('', "Hi. I am fine.\n\nThanks,\nAlex"),
         RE_WHITESPACE.sub('', plain_reply))
@@ -414,18 +416,6 @@ def test_gmail_forwarded_msg():
 </div><br></div>"""
     extracted = quotations.extract_from_html(msg_body)
     eq_(RE_WHITESPACE.sub('', msg_body), RE_WHITESPACE.sub('', extracted))
-
-
-@patch.object(u, '_MAX_TAGS_COUNT', 4)
-def test_too_large_html():
-    msg_body = 'Reply' \
-               '<div class="gmail_quote">' \
-               '<div class="gmail_quote">On 11-Apr-2011, at 6:54 PM, Bob &lt;bob@example.com&gt; wrote:' \
-               '<div>Test</div>' \
-               '</div>' \
-               '</div>'
-    eq_(RE_WHITESPACE.sub('', msg_body),
-        RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body)))
 
 
 def test_readable_html_empty():

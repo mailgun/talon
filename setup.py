@@ -29,7 +29,7 @@ class InstallCommand(install):
 
 
 setup(name='talon',
-      version='1.4.8',
+      version='1.6.0',
       description=("Mailgun library "
                    "to extract message quotations and signatures."),
       long_description=open("README.rst").read(),
@@ -44,21 +44,21 @@ setup(name='talon',
       include_package_data=True,
       zip_safe=True,
       install_requires=[
-          "lxml>=2.3.3",
-          "regex>=1",
+          "lxml",
+          "regex",
           "numpy",
           "scipy",
-          "scikit-learn==0.24.1", # pickled versions of classifier, else rebuild
-          "chardet>=1.0.1",
-          "cchardet>=0.3.5",
+          "scikit-learn>=1.0.0",
+          "chardet",
+          "cchardet",
           "cssselect",
-          "six>=1.10.0",
+          "six",
           "html5lib",
           "joblib",
           ],
       tests_require=[
           "mock",
-          "nose>=1.2.1",
+          "nose",
           "coverage"
           ]
       )

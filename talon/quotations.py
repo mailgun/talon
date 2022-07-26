@@ -6,18 +6,17 @@ original messages (without quoted messages)
 """
 
 from __future__ import absolute_import
-import regex as re
+
 import logging
 from copy import deepcopy
 
-from lxml import html, etree
-
-from talon.utils import (get_delimiter, html_tree_to_text,
-                         html_document_fromstring)
-from talon import html_quotations
+import regex as re
+from lxml import etree, html
 from six.moves import range
-import six
 
+from talon import html_quotations
+from talon.utils import (get_delimiter, html_document_fromstring,
+                         html_tree_to_text)
 
 log = logging.getLogger(__name__)
 
@@ -94,7 +93,7 @@ RE_ON_DATE_WROTE_SMB = re.compile(
     )
 
 RE_QUOTATION = re.compile(
-    r'''
+    r"""
     (
         # quotation border: splitter line or a number of quotation marker lines
         (?:
@@ -112,10 +111,10 @@ RE_QUOTATION = re.compile(
 
     # after quotations should be text only or nothing at all
     [te]*$
-    ''', re.VERBOSE)
+    """, re.VERBOSE)
 
 RE_EMPTY_QUOTATION = re.compile(
-    r'''
+    r"""
     (
         # quotation border: splitter line or a number of quotation marker lines
         (?:
@@ -125,7 +124,7 @@ RE_EMPTY_QUOTATION = re.compile(
         )
     )
     e*
-    ''', re.VERBOSE)
+    """, re.VERBOSE)
 
 # ------Original Message------ or ---- Reply Message ----
 # With variations in other languages.
@@ -193,9 +192,6 @@ RE_PARENTHESIS_LINK = re.compile("\(https?://")
 
 SPLITTER_MAX_LINES = 6
 MAX_LINES_COUNT = 1000
-# an extensive research shows that exceeding this limit
-# leads to excessive processing time
-MAX_HTML_LEN = 2794202
 
 QUOT_PATTERN = re.compile('^>+ ?')
 NO_QUOT_LINE = re.compile('^[^>].*[\S].*')
@@ -346,9 +342,6 @@ def _replace_link_brackets(msg_body):
 
     Converts msg_body into a unicode
     """
-    if isinstance(msg_body, bytes):
-        msg_body = msg_body.decode('utf8')
-
     def link_wrapper(link):
         newline_index = msg_body[:link.start()].rfind("\n")
         if msg_body[newline_index + 1] == ">":
@@ -388,8 +381,6 @@ def postprocess(msg_body):
 
 def extract_from_plain(msg_body):
     """Extracts a non quoted message from provided plain text."""
-    stripped_text = msg_body
-
     delimiter = get_delimiter(msg_body)
     msg_body = preprocess(msg_body, delimiter)
     # don't process too long messages
@@ -421,25 +412,27 @@ def extract_from_html(msg_body):
 
     Returns a unicode string.
     """
-    if isinstance(msg_body, six.text_type):
-        msg_body = msg_body.encode('utf8')
-    elif not isinstance(msg_body, bytes):
-        msg_body = msg_body.encode('ascii')
+    if msg_body.strip() == "":
+        return msg_body
 
-    result = _extract_from_html(msg_body)
-    if isinstance(result, bytes):
-        result = result.decode('utf8')
+    msg_body = msg_body.replace("\r\n", "\n")
+    # Cut out xml and doctype tags to avoid conflict with unicode decoding.
+    msg_body = re.sub(r"\<\?xml.+\?\>|\<\!DOCTYPE.+]\>", "", msg_body)
+    html_tree = html_document_fromstring(msg_body)
+    if html_tree is None:
+        return msg_body
+
+    result = extract_from_html_tree(html_tree)
+    if not result:
+        return msg_body
 
     return result
 
 
-def _extract_from_html(msg_body):
+def extract_from_html_tree(html_tree):
     """
-    Extract not quoted message from provided html message body
-    using tags and plain text algorithm.
-
-    Cut out first some encoding html tags such as xml and doctype
-    for avoiding conflict with unicode decoding
+    Extract not quoted message from provided parsed html tree using tags and
+    plain text algorithm.
 
     Cut out the 'blockquote', 'gmail_quote' tags.
     Cut Microsoft quotations.
@@ -452,18 +445,6 @@ def _extract_from_html(msg_body):
     then checking deleted checkpoints,
     then deleting necessary tags.
     """
-    if msg_body.strip() == b'':
-        return msg_body
-
-    msg_body = msg_body.replace(b'\r\n', b'\n')
-
-    msg_body = re.sub(br"\<\?xml.+\?\>|\<\!DOCTYPE.+]\>", "", msg_body)
-
-    html_tree = html_document_fromstring(msg_body)
-
-    if html_tree is None:
-        return msg_body
-
     cut_quotations = (html_quotations.cut_gmail_quote(html_tree) or
                       html_quotations.cut_yahoo_quote(html_tree) or
                       html_quotations.cut_zimbra_quote(html_tree) or
@@ -482,7 +463,7 @@ def _extract_from_html(msg_body):
 
     # Don't process too long messages
     if len(lines) > MAX_LINES_COUNT:
-        return msg_body
+        return None
 
     # Collect checkpoints on each line
     line_checkpoints = [
@@ -501,7 +482,7 @@ def _extract_from_html(msg_body):
     lines_were_deleted, first_deleted, last_deleted = return_flags
 
     if not lines_were_deleted and not cut_quotations:
-        return msg_body
+        return None
 
     if lines_were_deleted:
         #collect checkpoints from deleted lines
@@ -515,7 +496,7 @@ def _extract_from_html(msg_body):
         )
 
     if _readable_text_empty(html_tree_copy):
-        return msg_body
+        return None
 
     # NOTE: We remove_namespaces() because we are using an HTML5 Parser, HTML
     # parsers do not recognize namespaces in HTML tags. As such the rendered
@@ -541,7 +522,11 @@ def _extract_from_html(msg_body):
     #    of replacing data outside the <tag> which might be essential to
     #    the customer.
     remove_namespaces(html_tree_copy)
-    return html.tostring(html_tree_copy)
+    s = html.tostring(html_tree_copy, encoding="ascii")
+    if not s:
+        return None
+
+    return s.decode("ascii")
 
 
 def remove_namespaces(root):
@@ -660,10 +645,10 @@ def _readable_text_empty(html_tree):
 
 
 def is_splitter(line):
-    '''
+    """
     Returns Matcher object if provided string is a splitter and
     None otherwise.
-    '''
+    """
     for pattern in SPLITTER_PATTERNS:
         matcher = re.match(pattern, line)
         if matcher:
@@ -671,12 +656,12 @@ def is_splitter(line):
 
 
 def text_content(context):
-    '''XPath Extension function to return a node text content.'''
+    """XPath Extension function to return a node text content."""
     return context.context_node.xpath("string()").strip()
 
 
 def tail(context):
-    '''XPath Extension function to return a node tail text.'''
+    """XPath Extension function to return a node tail text."""
     return context.context_node.tail or ''
 
 
