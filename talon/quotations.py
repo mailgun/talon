@@ -446,6 +446,7 @@ def extract_from_html_tree(html_tree):
     then deleting necessary tags.
     """
     cut_quotations = (html_quotations.cut_gmail_quote(html_tree) or
+                      html_quotations.cut_yahoo_quote(html_tree) or
                       html_quotations.cut_zimbra_quote(html_tree) or
                       html_quotations.cut_blockquote(html_tree) or
                       html_quotations.cut_microsoft_quote(html_tree) or
