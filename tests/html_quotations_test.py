@@ -8,7 +8,8 @@ from unittest.mock import Mock, patch
 
 from nose.tools import assert_false, assert_true, eq_, ok_
 
-from tests.fixtures import (OLK_SRC_BODY_SECTION,
+from tests.fixtures import (FIXTURES_DIR,
+                            OLK_SRC_BODY_SECTION,
                             REPLY_QUOTATIONS_SHARE_BLOCK,
                             REPLY_SEPARATED_BY_HR)
 from talon import quotations, utils as u
@@ -323,39 +324,39 @@ def extract_reply_and_check(filename):
 
 
 def test_gmail_reply():
-    extract_reply_and_check("tests/fixtures/html_replies/gmail.html")
+    extract_reply_and_check(FIXTURES_DIR + "/html_replies/gmail.html")
 
 
 def test_mail_ru_reply():
-    extract_reply_and_check("tests/fixtures/html_replies/mail_ru.html")
+    extract_reply_and_check(FIXTURES_DIR + "/html_replies/mail_ru.html")
 
 
 def test_hotmail_reply():
-    extract_reply_and_check("tests/fixtures/html_replies/hotmail.html")
+    extract_reply_and_check(FIXTURES_DIR + "/html_replies/hotmail.html")
 
 
 def test_ms_outlook_2003_reply():
-    extract_reply_and_check("tests/fixtures/html_replies/ms_outlook_2003.html")
+    extract_reply_and_check(FIXTURES_DIR + "/html_replies/ms_outlook_2003.html")
 
 
 def test_ms_outlook_2007_reply():
-    extract_reply_and_check("tests/fixtures/html_replies/ms_outlook_2007.html")
+    extract_reply_and_check(FIXTURES_DIR + "/html_replies/ms_outlook_2007.html")
 
 
 def test_ms_outlook_2010_reply():
-    extract_reply_and_check("tests/fixtures/html_replies/ms_outlook_2010.html")
+    extract_reply_and_check(FIXTURES_DIR + "/html_replies/ms_outlook_2010.html")
 
 
 def test_thunderbird_reply():
-    extract_reply_and_check("tests/fixtures/html_replies/thunderbird.html")
+    extract_reply_and_check(FIXTURES_DIR + "/html_replies/thunderbird.html")
 
 
 def test_windows_mail_reply():
-    extract_reply_and_check("tests/fixtures/html_replies/windows_mail.html")
+    extract_reply_and_check(FIXTURES_DIR + "/html_replies/windows_mail.html")
 
 
 def test_yandex_ru_reply():
-    extract_reply_and_check("tests/fixtures/html_replies/yandex_ru.html")
+    extract_reply_and_check(FIXTURES_DIR + "/html_replies/yandex_ru.html")
 
 
 def test_CRLF():
