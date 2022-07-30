@@ -2,7 +2,7 @@
 
 from __future__ import absolute_import
 
-from talon import utils as u
+from talon_core import utils as u
 from . import *
 
 
