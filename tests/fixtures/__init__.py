@@ -14,6 +14,9 @@ with open("tests/fixtures/reply-separated-by-hr.html") as f:
 with open("tests/fixtures/BIG_EMAIL.html") as f:
     BIG_EMAIL = f.read()
 
+with open("tests/fixtures/missing_text.html") as f:
+    MISSING_TEXT = f.read()
+
 REAL_HTML = []
 
 for htmlfile in glob.glob('tests/fixtures/real_data/*.html'):
