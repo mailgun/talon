@@ -46,3 +46,12 @@ def test_succeed_on_kayako_40768_long_line_email():
     ok_(
         t1 - t0 < TIME_LIMIT_SECONDS,
         msg='BIG_EMAIL.html is taking too long. Perhaps there is a DoS issue with a regex, see KAYAKO-40768')
+
+
+def test_missing_html_text():
+    ohtml = quotations.extract_from_html_beta(MISSING_TEXT)
+
+    eq_("May I know how much time it takes normally for the migration?" in ohtml, True)
+    eq_("Can I say that Kayako Cloud is a combination of different software?" in ohtml, True)
+    eq_("I went through some research, and I come across below URL" in ohtml, True)
+    eq_("if we decided to go with Email + Whatsapp + Skype, Live Chat not sure" in ohtml, True)
