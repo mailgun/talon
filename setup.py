@@ -2,8 +2,8 @@ from setuptools import setup, find_packages
 from ConfigParser import ConfigParser
 
 
-# Internal Contact
-# Sherub Thakur <sherub.thakur@kayako.com>
+# In order to publish updates, please check the README,
+# there is a runbook for this.
 
 config = ConfigParser()
 

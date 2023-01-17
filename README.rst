@@ -145,3 +145,8 @@ Non Open-source Dataset
 -----------------------
 There are tests that run on data that is not open, for more info
 https://kayako.atlassian.net/browse/PDM-8894
+
+Publishing Updates
+------------------
+In order to publish new versions of this package, please see this runbook:
+https://trilogy-confluence.atlassian.net/wiki/spaces/KAYAK/pages/935297028/HOWTO+Publish+new+versions+of+kayako-talon+to+PyPI

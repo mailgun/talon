@@ -45,6 +45,7 @@ nosetests.xml
 auto-save-list
 tramp
 .\#*
+*.history
 
 # Org-mode
 .org-id-locations
