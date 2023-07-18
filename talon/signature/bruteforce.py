@@ -23,6 +23,8 @@ RE_SIGNATURE = re.compile(r'''
                        ^cheers[\s,!]*$
                        |
                        ^best[ a-z]*[\s,!]*$
+                       |
+                       ^sincerely[ a-z]*[\s,!]*$
                    )
                    .*
                )
