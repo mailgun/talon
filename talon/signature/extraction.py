@@ -22,8 +22,8 @@ RE_REVERSE_SIGNATURE = re.compile(r'''
 (?:
    # it could end with empty line
    e*
-   # there could be text lines but no more than 2 in a row
-   (te*){,2}
+   # there could be text lines but no more than 60 in a row
+   (te*){,60}
    # every block should end with signature line
    s
 )+
@@ -110,4 +110,3 @@ def _process_marked_lines(lines, markers):
         return (lines[:-signature.end()], lines[-signature.end():])
 
     return (lines, None)
-

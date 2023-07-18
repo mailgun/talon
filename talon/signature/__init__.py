@@ -30,7 +30,8 @@ from talon.signature.learning import classifier
 
 def initialize():
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
-    extractor_filename = os.path.join(data_dir, 'classifier')
-    extractor_data_filename = os.path.join(data_dir, 'train.data')
-    extraction.EXTRACTOR = classifier.load(extractor_filename,
-                                           extractor_data_filename)
+    default_extractor_filename = os.path.join(data_dir, 'classifier')
+    default_extractor_data_filename = os.path.join(data_dir, 'train.data')
+    extractor_filename = os.environ.get('TALON_EXTRACTOR_FILENAME', default_extractor_filename)
+    extractor_data_filename = os.environ.get('TALON_EXTRACTOR_DATA_FILENAME', default_extractor_data_filename)
+    extraction.EXTRACTOR = classifier.load(extractor_filename, extractor_data_filename)

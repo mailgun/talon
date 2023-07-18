@@ -14,7 +14,7 @@ from sklearn.svm import LinearSVC
 
 def init():
     """Inits classifier with optimal options."""
-    return LinearSVC(C=10.0)
+    return LinearSVC(dual="auto", C=10.0)
 
 
 def train(classifier, train_data_filename, save_classifier_filename=None):
