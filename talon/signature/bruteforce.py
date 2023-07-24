@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 import logging
 
-import regex as re
+import re
 
 from talon.signature.constants import (SIGNATURE_MAX_LINES,
                                        TOO_LONG_SIGNATURE_LINE)
@@ -18,11 +18,15 @@ RE_SIGNATURE = re.compile(r'''
                        |
                        ^thanks[\s,!]*$
                        |
+                       ^thank(s)*[\s]+you[\s,!]*$
+                       |
                        ^regards[\s,!]*$
                        |
                        ^cheers[\s,!]*$
                        |
                        ^best[ a-z]*[\s,!]*$
+                       |
+                       ^All\s+[my|the]+\s+best[ a-z]*[\s,!]*$
                        |
                        ^sincerely[ a-z]*[\s,!]*$
                    )
@@ -37,6 +41,8 @@ RE_PHONE_SIGNATURE = re.compile(r'''
                        ^sent[ ]{1}from[ ]{1}my[\s,!\w]*$
                        |
                        ^sent[ ]from[ ]Mailbox[ ]for[ ]iPhone.*$
+                       |
+                       ^sent[ ]from[ ]a[ ]phone.*$
                        |
                        ^sent[ ]([\S]*[ ])?from[ ]my[ ]BlackBerry.*$
                        |
