@@ -4,7 +4,7 @@ messages (without quoted messages) from html
 """
 
 from __future__ import absolute_import
-import re
+import regex as re
 
 from talon.utils import cssselect
 

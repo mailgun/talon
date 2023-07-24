@@ -24,6 +24,7 @@ from __future__ import absolute_import
 import os
 
 from talon.signature import extraction
+from talon.signature.extraction import extract
 from talon.signature.learning import classifier
 
 

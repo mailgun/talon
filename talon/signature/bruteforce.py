@@ -2,10 +2,9 @@ from __future__ import absolute_import
 
 import logging
 
-import re
+import regex as re
 
-from talon.signature.constants import (SIGNATURE_MAX_LINES,
-                                       TOO_LONG_SIGNATURE_LINE)
+from talon.signature.constants import (SIGNATURE_MAX_LINES, TOO_LONG_SIGNATURE_LINE)
 from talon.utils import get_delimiter
 
 log = logging.getLogger(__name__)
@@ -18,7 +17,7 @@ RE_SIGNATURE = re.compile(r'''
                        |
                        ^thanks[\s,!]*$
                        |
-                       ^thank(s)*[\s]+you[\s,!]*$
+                       ^thanks?[\s]+you[\s,!]*$
                        |
                        ^regards[\s,!]*$
                        |
@@ -26,7 +25,7 @@ RE_SIGNATURE = re.compile(r'''
                        |
                        ^best[ a-z]*[\s,!]*$
                        |
-                       ^All\s+[my|the]+\s+best[ a-z]*[\s,!]*$
+                       ^All\s+[my|the]\s+best[ a-z]*[\s,!]*$
                        |
                        ^sincerely[ a-z]*[\s,!]*$
                    )
