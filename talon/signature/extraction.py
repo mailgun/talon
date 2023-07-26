@@ -6,7 +6,7 @@ import logging
 
 import numpy
 import regex as re
-from talon.signature.bruteforce import get_signature_candidate
+from talon.signature.bruteforce import get_signature_candidate, RE_FOOTER_WORDS
 from talon.signature.learning.featurespace import features, build_pattern
 from talon.signature.learning.helpers import has_signature
 from talon.utils import get_delimiter
@@ -52,7 +52,6 @@ def extract(body, sender):
 
             markers = _mark_lines(lines, sender)
             text, signature = _process_marked_lines(lines, markers)
-
             if signature:
                 text = delimiter.join(text)
                 if text.strip():
@@ -76,7 +75,6 @@ def _mark_lines(lines, sender):
     'tes'
     """
     global EXTRACTOR
-
     candidate = get_signature_candidate(lines)
 
     # at first consider everything to be text no signature

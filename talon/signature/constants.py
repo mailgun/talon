@@ -1,4 +1,0 @@
-import os
-
-SIGNATURE_MAX_LINES = int(os.environ.get('TALON_SIGNATURE_MAX_LINES', 15))
-TOO_LONG_SIGNATURE_LINE = int(os.environ.get('TALON_TOO_LONG_SIGNATURE_LINE', 60))

@@ -4,7 +4,8 @@ import logging
 
 import regex as re
 
-from talon.signature.constants import (SIGNATURE_MAX_LINES, TOO_LONG_SIGNATURE_LINE)
+from talon.signature.constants import (SIGNATURE_MAX_LINES,
+                                       TOO_LONG_SIGNATURE_LINE)
 from talon.utils import get_delimiter
 
 log = logging.getLogger(__name__)
@@ -15,23 +16,70 @@ RE_SIGNATURE = re.compile(r'''
                    (?:
                        ^[\s]*--*[\s]*[a-z \.]*$
                        |
-                       ^thanks[\s,!]*$
+                       ^thanks[\s,!\.]*$
                        |
-                       ^thanks?[\s]+you[\s,!]*$
+                       ^thanks*[\s]+you[\s,!\.]*$
                        |
-                       ^regards[\s,!]*$
+                       ^regards[\s,!\.]*$
                        |
-                       ^cheers[\s,!]*$
+                       ^cheers[\s,!\.]*$
                        |
-                       ^best[ a-z]*[\s,!]*$
+                       ^best[a-z\s,!\.]*$
                        |
-                       ^All\s+[my|the]\s+best[ a-z]*[\s,!]*$
-                       |
-                       ^sincerely[ a-z]*[\s,!]*$
+                       ^sincerely[a-z,!\.]*$
                    )
                    .*
                )
                ''', re.I | re.X | re.M | re.S)
+
+RE_FOOTER_WORDS = re.compile(r'''
+                (
+                    (?:
+                        privileged
+                        |
+                        confidential
+                        |
+                        intended[\s]+recipient
+                        |
+                        all\s+rights\s+reserved
+                        |
+                        copyright
+                        |
+                        consent
+                        |
+                        registered
+                        |
+                        privacy
+                        |
+                        unsubscribe
+                        |
+                        disclose
+                        |
+                        disclosure
+                        |
+                        received[\w\s]+error
+                        |
+                        electronic\s+mail
+                        |
+                        information
+                        |
+                        emails*
+                        |
+                        policy
+                        |
+                        preferences
+                        |
+                        delivery
+                        |
+                        receive
+                        |
+                        secure
+                        |
+                        edelivery
+                    )
+                    .*
+                )
+    ''', re.I | re.X | re.M | re.S)
 
 # signatures appended by phone email clients
 RE_PHONE_SIGNATURE = re.compile(r'''
@@ -167,17 +215,26 @@ def _mark_candidate_indexes(lines, candidate):
     >>> _mark_candidate_lines(['Some text', '', '-', 'Bob'], [0, 2, 3])
     'cdc'
     """
+    # Footers start at the last line whene we traverse backwords. So once it's broken, we don't accept matches to the word.
+    search_for_footer = True
     # at first consider everything to be potential signature lines
     markers = list('c' * len(candidate))
-
     # mark lines starting from bottom up
     for i, line_idx in reversed(list(enumerate(candidate))):
-        if len(lines[line_idx].strip()) > TOO_LONG_SIGNATURE_LINE:
+        # This allows us to keep longer footer lines as potential candidates until we see a break in a signature footer
+        if search_for_footer and RE_FOOTER_WORDS.search(lines[line_idx]):
+            markers[i] = 'c'
+        elif search_for_footer and RE_SIGNATURE.search(lines[line_idx]):
+            markers[i] = 'c'
+            search_for_footer = False
+        elif len(lines[line_idx].strip()) > TOO_LONG_SIGNATURE_LINE:
             markers[i] = 'l'
+            search_for_footer = False
         else:
             line = lines[line_idx].strip()
-            if line.startswith('-') and line.strip("-"):
+            if (line.startswith('-') and line.strip("-")):
                 markers[i] = 'd'
+            search_for_footer = False
 
     return "".join(markers)
 

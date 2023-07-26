@@ -8,8 +8,7 @@ applying features to them.
 """
 
 from __future__ import absolute_import
-from talon.signature.constants import (SIGNATURE_MAX_LINES,
-                                       TOO_LONG_SIGNATURE_LINE)
+from talon.signature.constants import (SIGNATURE_MAX_LINES, TOO_LONG_SIGNATURE_LINE)
 from talon.signature.learning.helpers import *
 from six.moves import zip
 from functools import reduce
@@ -37,6 +36,8 @@ def features(sender=''):
         binary_regex_search(RE_SPECIAL_CHARS),
         # Line contains any typical signature words.
         binary_regex_search(RE_SIGNATURE_WORDS),
+        # Line contains any typical signature footer words
+        binary_regex_search(RE_FOOTER_WORDS),
         # Line contains a pattern like Vitor R. Carvalho or William W. Cohen.
         binary_regex_search(RE_NAME),
         # Percentage of punctuation symbols in the line is larger than 50%
