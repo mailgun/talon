@@ -8,11 +8,10 @@ applying features to them.
 """
 
 from __future__ import absolute_import
-from talon.signature.constants import (SIGNATURE_MAX_LINES, TOO_LONG_SIGNATURE_LINE)
-from talon.signature.learning.helpers import *
+from talon.constants import (SIGNATURE_MAX_LINES, TOO_LONG_SIGNATURE_LINE,RE_SEPARATOR,RE_SPECIAL_CHARS,RE_FOOTER_WORDS,RE_NAME,RE_EMAIL,RE_URL,RE_RELAX_PHONE,RE_SIGNATURE_WORDS)
+from talon.signature.learning.helpers import (binary_regex_search, binary_regex_match, many_capitalized_words,punctuation_percent,contains_sender_names)
 from six.moves import zip
 from functools import reduce
-
 
 def features(sender=''):
     '''Returns a list of signature features.'''

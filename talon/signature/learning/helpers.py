@@ -6,56 +6,8 @@
 
 """
 import unicodedata
-
 import regex as re
-
-from talon.constants import SIGNATURE_MAX_LINES, SIGNATURE_LINE_MAX_CHARS, RE_EMAIL, RE_RELAX_PHONE, RE_URL, RE_SEPARATOR, RE_SPECIAL_CHARS, RE_SIGNATURE_WORDS, RE_FOOTER_WORDS, RE_NAME, INVALID_WORD_START, BAD_SENDER_NAMES
-
-rc = re.compile
-
-RE_EMAIL = rc('\S@\S')
-RE_RELAX_PHONE = rc('(\(? ?[\d]{2,3} ?\)?.{,3}?){2,}')
-RE_URL = rc(r"""https?://|www\.[\S]+\.[\S]""")
-
-# Taken from:
-# http://www.cs.cmu.edu/~vitor/papers/sigFilePaper_finalversion.pdf
-# Line matches the regular expression "^[\s]*---*[\s]*$".
-RE_SEPARATOR = rc('^[\s]*---*[\s]*$')
-
-# Taken from:
-# http://www.cs.cmu.edu/~vitor/papers/sigFilePaper_finalversion.pdf
-# Line has a sequence of 10 or more special characters.
-RE_SPECIAL_CHARS = rc(('^[\s]*([\*]|#|[\+]|[\^]|-|[\~]|[\&]|[\$]|_|[\!]|'
-                    '[\/]|[\%]|[\:]|[\=]){10,}[\s]*$'))
-
-RE_SIGNATURE_WORDS = rc(('(T|t)hank.*[,\.!]?|(B|b)est[,\.]?|(R|r)egards[,\.!]?|^(C|c)heers[,\.!]?|'
-                    '^sent[ ]{1}from[ ]{1}my[\s,!\w]*$|BR|^(S|s)incerely[,\.]?|'
-                    '(C|c)orporation|Group'))
-
-RE_FOOTER_WORDS = rc(('(P|p)rivileged|(C|c)onfidential|(I|i)ntended[\s]+recipient|'
-                    '(A|a)ll[ ](R|r)ights[ ](R|r)eserved|(C|c)opyright|(C|c)onsent|(R|r)egistered|'
-                    '(P|p)rivacy|(U|u)nsubscribe|(D|d)isclose|(D|d)isclosure|(R|r)eceived[\w\s]+error|'
-                    '(E|e)lectronic[\s]+mail|(I|i)nformation|(E|e)mail|(P|p)olicy|(D|d)elivery|(R|r)eceive|'
-                    '(E|e)delivery|(S|s)ecure|'
-                    '^sent[ ]{1}from[ ]{1}my[\s,!\w]*$|^sent[ ]from[ ]Mailbox[ ]for[ ]iPhone.*$|'
-                    '^sent[ ]from[ ]a[ ]phone.*$|^sent[ ]([\S]*[ ])?from[ ]my[ ]BlackBerry.*$|^Enviado[ ]desde[ ]mi[ ]([\S]+[ ]){0,2}BlackBerry.*$'))
-
-# Taken from:
-# http://www.cs.cmu.edu/~vitor/papers/sigFilePaper_finalversion.pdf
-# Line contains a pattern like Vitor R. Carvalho or William W. Cohen.
-RE_NAME = rc('[A-Z][a-z]+\s\s?[A-Z][\.]?\s\s?[A-Z][a-z]+')
-
-INVALID_WORD_START = rc('\(|\+|[\d]')
-
-BAD_SENDER_NAMES = [
-    # known mail domains
-    'hotmail', 'gmail', 'yandex', 'mail', 'yahoo', 'mailgun', 'mailgunhq',
-    'example',
-    # first level domains
-    'com', 'org', 'net', 'ru',
-    # bad words
-    'mailto'
-]
+from talon.constants import (SIGNATURE_MAX_LINES, SIGNATURE_LINE_MAX_CHARS, RE_EMAIL, RE_RELAX_PHONE, RE_URL, RE_SIGNATURE_WORDS, INVALID_WORD_START, BAD_SENDER_NAMES)
 
 def binary_regex_search(prog):
     """Returns a function that returns 1 or 0 depending on regex search result.
