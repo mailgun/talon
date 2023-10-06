@@ -168,10 +168,10 @@ def cut_blockquote(html_message):
 
 
 def cut_from_block(html_message):
-    """Cuts div tag which wraps block starting with "From:"."""
+    """Cuts div tag which wraps block starting with "From :"."""
     # handle the case when From: block is enclosed in some tag
     block = html_message.xpath(
-        ("//*[starts-with(mg:text_content(), 'From:')]|"
+        ("//*[starts-with(mg:text_content(), '<b>From:</b>')]|"
          "//*[starts-with(mg:text_content(), 'Van:')]|"
          "//*[starts-with(mg:text_content(), 'Date:')]"))
 
