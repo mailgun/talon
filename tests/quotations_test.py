@@ -19,14 +19,14 @@ def test_extract_from_respects_content_type(extract_from_plain,
     quotations.extract_from(msg_body, 'text/html')
     extract_from_html.assert_called_with(msg_body)
 
-    eq_(msg_body, quotations.extract_from(msg_body, 'text/blah'))
+    assert msg_body == quotations.extract_from(msg_body, 'text/blah')
 
 
 @patch.object(quotations, 'extract_from_plain', Mock(side_effect=Exception()))
 def test_crash_inside_extract_from():
     msg_body = "Hi there"
-    eq_(msg_body, quotations.extract_from(msg_body, 'text/plain'))
+    assert msg_body == quotations.extract_from(msg_body, 'text/plain')
 
 
 def test_empty_body():
-    eq_('', quotations.extract_from_plain(''))
+    assert '' == quotations.extract_from_plain('')
