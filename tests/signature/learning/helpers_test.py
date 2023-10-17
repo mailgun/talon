@@ -45,28 +45,28 @@ VALID_PHONE_NUMBERS = [e.strip() for e in VALID.splitlines() if e.strip()]
 
 def test_match_phone_numbers():
     for phone in VALID_PHONE_NUMBERS:
-        ok_(RE_RELAX_PHONE.search(phone), "{} should be matched".format(phone))
+        assert RE_RELAX_PHONE.search(phone), "{} should be matched".format(phone)
 
 
 def test_match_names():
     names = ['John R. Doe']
     for name in names:
-        ok_(RE_NAME.match(name), "{} should be matched".format(name))
+        assert RE_NAME.match(name), "{} should be matched".format(name)
 
 
 # Now test helpers functions
 def test_binary_regex_search():
-    eq_(1, h.binary_regex_search(re.compile("12"))("12"))
-    eq_(0, h.binary_regex_search(re.compile("12"))("34"))
+    assert 1 == h.binary_regex_search(re.compile("12"))("12")
+    assert 0 == h.binary_regex_search(re.compile("12"))("34")
 
 
 def binary_regex_match(prog):
-    eq_(1, h.binary_regex_match(re.compile("12"))("12 3"))
-    eq_(0, h.binary_regex_match(re.compile("12"))("3 12"))
+    assert 1 == h.binary_regex_match(re.compile("12"))("12 3")
+    assert 0 == h.binary_regex_match(re.compile("12"))("3 12")
 
 
 def test_flatten_list():
-    eq_([1, 2, 3, 4, 5], h.flatten_list([[1, 2], [3, 4, 5]]))
+    assert [1, 2, 3, 4, 5] == h.flatten_list([[1, 2], [3, 4, 5]])
 
 
 @patch.object(h.re, 'compile')
@@ -76,17 +76,17 @@ def test_contains_sender_names(re_compile):
         has_sender_names = h.contains_sender_names("bob.smith@example.com")
         extract_names.assert_called_with("bob.smith@example.com")
         for name in ["bob", "Bob", "smith", "Smith"]:
-            ok_(has_sender_names(name))
+            assert has_sender_names(name)
 
         extract_names.return_value = ''
         has_sender_names = h.contains_sender_names("bob.smith@example.com")
         # if no names could be extracted fallback to the email address
-        ok_(has_sender_names('bob.smith@example.com'))
+        assert has_sender_names('bob.smith@example.com')
 
         # don't crash if there are no sender
         extract_names.return_value = ''
         has_sender_names = h.contains_sender_names("")
-        assert_false(has_sender_names(''))
+        assert not has_sender_names('')
 
 
 def test_extract_names():
@@ -157,30 +157,30 @@ def test_extract_names():
         try:
             re.compile(r"|".join(map(re.escape, extracted_names)))
         except Exception as e:
-            ok_(False, ("Failed to compile extracted names {}"
-                        "\n\nReason: {}").format(extracted_names, e))
+            assert False, ("Failed to compile extracted names {}"
+                           "\n\nReason: {}").format(extracted_names, e)
         if expected_names:
             for name in expected_names:
-                assert_in(name, extracted_names)
+                assert name in extracted_names
         else:
-            eq_(expected_names, extracted_names)
+            assert expected_names == extracted_names
 
     # words like `ru`, `gmail`, `com`, `org`, etc. are not considered
     # sender's names
     for word in h.BAD_SENDER_NAMES:
-        eq_(h.extract_names(word), [])
+        assert h.extract_names(word) == []
 
     # duplicates are not allowed
-    eq_(h.extract_names("sergey <sergey@example.com"), ["sergey"])
+    assert h.extract_names("sergey <sergey@example.com") == ["sergey"]
 
 
 def test_categories_percent():
-    eq_(0.0, h.categories_percent("qqq ggg hhh", ["Po"]))
-    eq_(50.0, h.categories_percent("q,w.", ["Po"]))
-    eq_(0.0, h.categories_percent("qqq ggg hhh", ["Nd"]))
-    eq_(50.0, h.categories_percent("q5", ["Nd"]))
-    eq_(50.0, h.categories_percent("s.s,5s", ["Po", "Nd"]))
-    eq_(0.0, h.categories_percent("", ["Po", "Nd"]))
+    assert 0.0 == h.categories_percent("qqq ggg hhh", ["Po"])
+    assert 50.0 == h.categories_percent("q,w.", ["Po"])
+    assert 0.0 == h.categories_percent("qqq ggg hhh", ["Nd"])
+    assert 50.0 == h.categories_percent("q5", ["Nd"])
+    assert 50.0 == h.categories_percent("s.s,5s", ["Po", "Nd"])
+    assert 0.0 == h.categories_percent("", ["Po", "Nd"])
 
 
 @patch.object(h, 'categories_percent')
@@ -190,27 +190,27 @@ def test_punctuation_percent(categories_percent):
 
 
 def test_capitalized_words_percent():
-    eq_(0.0, h.capitalized_words_percent(''))
-    eq_(100.0, h.capitalized_words_percent('Example Corp'))
-    eq_(50.0, h.capitalized_words_percent('Qqq qqq Aqs 123 sss'))
-    eq_(100.0, h.capitalized_words_percent('Cell 713-444-7368'))
-    eq_(100.0, h.capitalized_words_percent('8th Floor'))
-    eq_(0.0, h.capitalized_words_percent('(212) 230-9276'))
-    eq_(50.0, h.capitalized_words_percent('Password: REMARKABLE'))
+    assert 0.0 == h.capitalized_words_percent('')
+    assert 100.0 == h.capitalized_words_percent('Example Corp')
+    assert 50.0 == h.capitalized_words_percent('Qqq qqq Aqs 123 sss')
+    assert 100.0 == h.capitalized_words_percent('Cell 713-444-7368')
+    assert 100.0 == h.capitalized_words_percent('8th Floor')
+    assert 0.0 == h.capitalized_words_percent('(212) 230-9276')
+    assert 50.0 == h.capitalized_words_percent('Password: REMARKABLE')
 
 
 def test_has_signature():
-    ok_(h.has_signature('sender', 'sender@example.com'))
-    ok_(h.has_signature('http://www.example.com\n555 555 5555',
-                        'sender@example.com'))
-    ok_(h.has_signature('http://www.example.com\naddress@example.com',
-                        'sender@example.com'))
-    assert_false(h.has_signature('http://www.example.com/555-555-5555',
-                                 'sender@example.com'))
+    assert h.has_signature('sender', 'sender@example.com')
+    assert h.has_signature('http://www.example.com\n555 555 5555',
+                           'sender@example.com')
+    assert h.has_signature('http://www.example.com\naddress@example.com',
+                           'sender@example.com')
+    assert not h.has_signature('http://www.example.com/555-555-5555',
+                               'sender@example.com')
     long_line = ''.join(['q' for e in range(28)])
-    assert_false(h.has_signature(long_line + ' sender', 'sender@example.com'))
+    assert not h.has_signature(long_line + ' sender', 'sender@example.com')
     # wont crash on an empty string
-    assert_false(h.has_signature('', ''))
+    assert not h.has_signature('', '')
     # dont consider empty strings when analysing signature
     with patch.object(h, 'SIGNATURE_MAX_LINES', 1):
-        ok_('sender\n\n', 'sender@example.com')
+        assert 'sender\n\n', 'sender@example.com'
