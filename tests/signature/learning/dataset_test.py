@@ -25,25 +25,22 @@ def test_parse_msg_sender():
     sender, msg = d.parse_msg_sender(EML_MSG_FILENAME)
     # if the message in eml format
     with open(EML_MSG_FILENAME) as f:
-        eq_(sender,
-            " Alex Q <xxx@yahoo.com>")
+        eq_(sender, " Alex Q <xxx@yahoo.com>")
         eq_(msg, f.read())
 
     # if the message sender is stored in a separate file
     sender, msg = d.parse_msg_sender(MSG_FILENAME_WITH_BODY_SUFFIX)
     with open(MSG_FILENAME_WITH_BODY_SUFFIX) as f:
-        eq_(sender, u"john@example.com")
+        eq_(sender, "john@example.com")
         eq_(msg, f.read())
 
 
 def test_build_extraction_dataset():
-    if os.path.exists(os.path.join(TMP_DIR, 'extraction.data')):
-        os.remove(os.path.join(TMP_DIR, 'extraction.data'))
-    d.build_extraction_dataset(os.path.join(EMAILS_DIR, 'P'),
-                               os.path.join(TMP_DIR,
-                                            'extraction.data'), 1)
+    if os.path.exists(os.path.join(TMP_DIR, "extraction.data")):
+        os.remove(os.path.join(TMP_DIR, "extraction.data"))
+    d.build_extraction_dataset(os.path.join(EMAILS_DIR, "P"), os.path.join(TMP_DIR, "extraction.data"), 1)
 
-    filename = os.path.join(TMP_DIR, 'extraction.data')
+    filename = os.path.join(TMP_DIR, "extraction.data")
     file_data = genfromtxt(filename, delimiter=",")
     test_data = file_data[:, :-1]
 
@@ -51,4 +48,4 @@ def test_build_extraction_dataset():
     # 32 comes from 3 emails in emails/P folder, 11 lines checked to be
     # a signature, one email has only 10 lines
     eq_(test_data.shape[0], 32)
-    eq_(len(features('')), test_data.shape[1])
+    eq_(len(features("")), test_data.shape[1])

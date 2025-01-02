@@ -111,7 +111,7 @@ To regenerate the model files, you can run
 or
 
 .. code:: python
-    
+
     from talon.signature import EXTRACTOR_FILENAME, EXTRACTOR_DATA
     from talon.signature.learning.classifier import train, init
     train(init(), EXTRACTOR_DATA, EXTRACTOR_FILENAME)
@@ -137,8 +137,8 @@ talon comes with a pre-processed dataset and a pre-trained classifier. To retrai
 .. code:: python
 
     from talon.signature.learning.dataset import build_extraction_dataset
-    from talon.signature.learning import classifier as c 
-    
+    from talon.signature.learning import classifier as c
+
     build_extraction_dataset("/path/to/your/P/folder", "/path/to/talon/signature/data/train.data")
     c.train(c.init(), "/path/to/talon/signature/data/train.data", "/path/to/talon/signature/data/classifier")
 

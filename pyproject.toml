@@ -1,0 +1,77 @@
+[tool.poetry]
+name = "talon"
+version = "v1.0.0"
+description = "Forked repository to use version of cchardet compatible with newer versions of python"
+authors = [ "Jacob Hessellund <jacob.hessellund@goautonomous.io>" ]
+license = "MIT"
+
+  [tool.poetry.dependencies]
+  python = "3.12.4"
+  chardet = "^1.0.1"
+  faust_cchardet = "^2.1.19"
+  cssselect = "^1.2.0"
+  html5lib = "^1.1"
+  joblib = "^1.4.2"
+  lxml = "^5.3.0"
+  numpy = "^2.2.1"
+  regex = "^2024.11.6"
+  scikit-learn = "^1.6.0"
+  scipy = "^1.14.1"
+  six = "^1.17.0"
+
+    [tool.poetry.dependencies.uvicorn]
+    version = ">=0.29.0"
+    extras = [ "standard" ]
+
+  [tool.poetry.dev-dependencies]
+  ipykernel = "^6.25.0"
+  ipywidgets = "^8.1.0"
+  jupyterlab = "^4.0.4"
+  isort = "^5.12.0"
+  autoflake = "^2.2.0"
+  flake8 = "^6.1.0"
+  pytest-black = "^0.3.12"
+  pytest-clarity = "^1.0.1"
+  pytest-mock = "^3.11.1"
+  pytest-asyncio = "^0.21.1"
+  pytest-cov = "^4.1.0"
+  Faker = "^19.2.0"
+  ruff = "^0.1.8"
+
+[tool.ruff]
+line-length = 135
+indent-width = 4
+target-version = "py310"
+
+  [tool.ruff.lint]
+  select = [ "E4", "E7", "E9", "F" ]
+  ignore = [ ]
+  fixable = [ "ALL" ]
+  unfixable = [ ]
+  dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+  [tool.ruff.format]
+  quote-style = "double"
+  indent-style = "space"
+  skip-magic-trailing-comma = false
+  line-ending = "auto"
+  docstring-code-format = false
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "--cov --cov-report=xml:cov.xml --black"
+testpaths = [ "tests" ]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 15
+exclude_lines = [ "pragma: no cover", "raise NotImplementedError" ]
+
+[tool.isort]
+multi_line_output = 3
+line_length = 88
+include_trailing_comma = true
+
+[build-system]
+requires = [ "poetry>=1.1.8" ]
+build-backend = "poetry.masonry.api"

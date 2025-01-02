@@ -17,7 +17,8 @@ EXTRACTOR = None
 
 # regex signature pattern for reversed lines
 # assumes that all long lines have been excluded
-RE_REVERSE_SIGNATURE = re.compile(r'''
+RE_REVERSE_SIGNATURE = re.compile(
+    r"""
 # signature should consists of blocks like this
 (?:
    # it could end with empty line
@@ -27,11 +28,13 @@ RE_REVERSE_SIGNATURE = re.compile(r'''
    # every block should end with signature line
    s
 )+
-''', re.I | re.X | re.M | re.S)
+""",
+    re.I | re.X | re.M | re.S,
+)
 
 
 def is_signature_line(line, sender, classifier):
-    '''Checks if the line belongs to signature. Returns True or False.'''
+    """Checks if the line belongs to signature. Returns True or False."""
     data = numpy.array(build_pattern(line, features(sender))).reshape(1, -1)
     return classifier.predict(data) > 0
 
@@ -58,7 +61,7 @@ def extract(body, sender):
                 if text.strip():
                     return (text, delimiter.join(signature))
     except Exception as e:
-        log.exception('ERROR when extracting signature with classifiers')
+        log.exception("ERROR when extracting signature with classifiers")
 
     return (body, None)
 
@@ -80,7 +83,7 @@ def _mark_lines(lines, sender):
     candidate = get_signature_candidate(lines)
 
     # at first consider everything to be text no signature
-    markers = list('t' * len(lines))
+    markers = list("t" * len(lines))
 
     # mark lines starting from bottom up
     # mark only lines that belong to candidate
@@ -91,9 +94,9 @@ def _mark_lines(lines, sender):
         # relative to lines not candidate
         j = len(lines) - len(candidate) + i
         if not line.strip():
-            markers[j] = 'e'
+            markers[j] = "e"
         elif is_signature_line(line, sender, EXTRACTOR):
-            markers[j] = 's'
+            markers[j] = "s"
 
     return "".join(markers)
 
@@ -107,7 +110,6 @@ def _process_marked_lines(lines, markers):
     # reverse lines and match signature pattern for reversed lines
     signature = RE_REVERSE_SIGNATURE.match(markers[::-1])
     if signature:
-        return (lines[:-signature.end()], lines[-signature.end():])
+        return (lines[: -signature.end()], lines[-signature.end() :])
 
     return (lines, None)
-

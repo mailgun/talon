@@ -7,9 +7,9 @@ from . import *
 
 
 def test_get_delimiter():
-    eq_('\r\n', u.get_delimiter('abc\r\n123'))
-    eq_('\n', u.get_delimiter('abc\n123'))
-    eq_('\n', u.get_delimiter('abc'))
+    eq_("\r\n", u.get_delimiter("abc\r\n123"))
+    eq_("\n", u.get_delimiter("abc\n123"))
+    eq_("\n", u.get_delimiter("abc"))
 
 
 def test_html_to_text():
@@ -26,10 +26,10 @@ Haha
 </body>"""
     text = u.html_to_text(html)
     eq_("Hello world! \n\n  * One! \n  * Two \nHaha", text)
-    eq_(u"привет!", u.html_to_text("<b>привет!</b>"))
+    eq_("привет!", u.html_to_text("<b>привет!</b>"))
 
-    html = '<body><br/><br/>Hi</body>'
-    eq_('Hi', u.html_to_text(html))
+    html = "<body><br/><br/>Hi</body>"
+    eq_("Hi", u.html_to_text(html))
 
     html = """Hi
 <style type="text/css">
@@ -49,23 +49,23 @@ font: 13px 'Lucida Grande', Arial, sans-serif;
 
 }
 </style>"""
-    eq_('Hi', u.html_to_text(html))
+    eq_("Hi", u.html_to_text(html))
 
     html = """<div>
 <!-- COMMENT 1 -->
 <span>TEXT 1</span>
 <p>TEXT 2 <!-- COMMENT 2 --></p>
 </div>"""
-    eq_('TEXT 1 \nTEXT 2', u.html_to_text(html))
+    eq_("TEXT 1 \nTEXT 2", u.html_to_text(html))
 
 
 def test_comment_no_parent():
-    s = '<!-- COMMENT 1 --> no comment'
+    s = "<!-- COMMENT 1 --> no comment"
     d = u.html_document_fromstring(s)
     eq_("no comment", u.html_tree_to_text(d))
 
 
-@patch.object(u, 'html_fromstring', Mock(return_value=None))
+@patch.object(u, "html_fromstring", Mock(return_value=None))
 def test_bad_html_to_text():
     bad_html = "one<br>two<br>three"
     eq_(None, u.html_to_text(bad_html))

@@ -1,5 +1,5 @@
 chardet>=1.0.1
-cchardet>=0.3.5
+faust_cchardet>=2.1.19
 cssselect
 html5lib
 joblib

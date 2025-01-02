@@ -13,15 +13,15 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 
-Hello 
+Hello
 
 ----- Original Message -----
-From: bob@xxx.mailgun.org 
-To: xxx@gmail.com, xxx@hotmail.com, xxx@yahoo.com, xxx@aol.com, xxx@comcast.net, lsloan6@nyc.rr.com 
-Sent: Monday, April 2, 2012 5:44:22 PM 
-Subject: Test 
+From: bob@xxx.mailgun.org
+To: xxx@gmail.com, xxx@hotmail.com, xxx@yahoo.com, xxx@aol.com, xxx@comcast.net, lsloan6@nyc.rr.com
+Sent: Monday, April 2, 2012 5:44:22 PM
+Subject: Test
 
-Hi 
+Hi
 
 --===============3552566137977633461==
 MIME-Version: 1.0
@@ -30,4 +30,3 @@ Content-Transfer-Encoding: 7bit
 
 <html><head><style type='text/css'>p { margin: 0; }</style></head><body><div style='font-family: Arial; font-size: 12pt; color: #000000'>Hello<br><br><hr id="zwchr"><b>From: </b>bob@xxx.mailgun.org<br><b>To: </b>xxx@gmail.com, xxx@hotmail.com, xxx@yahoo.com, xxx@aol.com, xxx@comcast.net, lsloan6@nyc.rr.com<br><b>Sent: </b>Monday, April 2, 2012 5:44:22 PM<br><b>Subject: </b>Test<br><br>Hi<br></div></body></html>
 --===============3552566137977633461==--
-

@@ -13,41 +13,49 @@ from talon.signature.constants import SIGNATURE_MAX_LINES
 
 rc = re.compile
 
-RE_EMAIL = rc('\S@\S')
-RE_RELAX_PHONE = rc('(\(? ?[\d]{2,3} ?\)?.{,3}?){2,}')
+RE_EMAIL = rc("\S@\S")
+RE_RELAX_PHONE = rc("(\(? ?[\d]{2,3} ?\)?.{,3}?){2,}")
 RE_URL = rc(r"""https?://|www\.[\S]+\.[\S]""")
 
 # Taken from:
 # http://www.cs.cmu.edu/~vitor/papers/sigFilePaper_finalversion.pdf
 # Line matches the regular expression "^[\s]*---*[\s]*$".
-RE_SEPARATOR = rc('^[\s]*---*[\s]*$')
+RE_SEPARATOR = rc("^[\s]*---*[\s]*$")
 
 # Taken from:
 # http://www.cs.cmu.edu/~vitor/papers/sigFilePaper_finalversion.pdf
 # Line has a sequence of 10 or more special characters.
-RE_SPECIAL_CHARS = rc(('^[\s]*([\*]|#|[\+]|[\^]|-|[\~]|[\&]|[\$]|_|[\!]|'
-                       '[\/]|[\%]|[\:]|[\=]){10,}[\s]*$'))
+RE_SPECIAL_CHARS = rc(("^[\s]*([\*]|#|[\+]|[\^]|-|[\~]|[\&]|[\$]|_|[\!]|" "[\/]|[\%]|[\:]|[\=]){10,}[\s]*$"))
 
-RE_SIGNATURE_WORDS = rc(('(T|t)hank.*,|(B|b)est|(R|r)egards|'
-                         '^sent[ ]{1}from[ ]{1}my[\s,!\w]*$|BR|(S|s)incerely|'
-                         '(C|c)orporation|Group'))
+RE_SIGNATURE_WORDS = rc(
+    ("(T|t)hank.*,|(B|b)est|(R|r)egards|" "^sent[ ]{1}from[ ]{1}my[\s,!\w]*$|BR|(S|s)incerely|" "(C|c)orporation|Group")
+)
 
 # Taken from:
 # http://www.cs.cmu.edu/~vitor/papers/sigFilePaper_finalversion.pdf
 # Line contains a pattern like Vitor R. Carvalho or William W. Cohen.
-RE_NAME = rc('[A-Z][a-z]+\s\s?[A-Z][\.]?\s\s?[A-Z][a-z]+')
+RE_NAME = rc("[A-Z][a-z]+\s\s?[A-Z][\.]?\s\s?[A-Z][a-z]+")
 
-INVALID_WORD_START = rc('\(|\+|[\d]')
+INVALID_WORD_START = rc("\(|\+|[\d]")
 
 BAD_SENDER_NAMES = [
     # known mail domains
-    'hotmail', 'gmail', 'yandex', 'mail', 'yahoo', 'mailgun', 'mailgunhq',
-    'example',
+    "hotmail",
+    "gmail",
+    "yandex",
+    "mail",
+    "yahoo",
+    "mailgun",
+    "mailgunhq",
+    "example",
     # first level domains
-    'com', 'org', 'net', 'ru',
+    "com",
+    "org",
+    "net",
+    "ru",
     # bad words
-    'mailto'
-    ]
+    "mailto",
+]
 
 
 def binary_regex_search(prog):
@@ -112,10 +120,9 @@ def contains_sender_names(sender):
     >>> contains_sender_names("<serobnic@mail.ru>")("serobnic")
     1
     """
-    names = '( |$)|'.join(flatten_list([[e, e.capitalize()]
-                                        for e in extract_names(sender)]))
+    names = "( |$)|".join(flatten_list([[e, e.capitalize()] for e in extract_names(sender)]))
     names = names or sender
-    if names != '':
+    if names != "":
         return binary_regex_search(re.compile(names))
     return lambda s: 0
 
@@ -132,7 +139,7 @@ def extract_names(sender):
     []
     """
     # Remove non-alphabetical characters
-    sender = "".join([char if char.isalpha() else ' ' for char in sender])
+    sender = "".join([char if char.isalpha() else " " for char in sender])
     # Remove too short words and words from "black" list i.e.
     # words like `ru`, `gmail`, `com`, `org`, etc.
     names = list()
@@ -177,14 +184,14 @@ def punctuation_percent(s):
     >>> punctuation_percent("q,w.")
     50.0
     """
-    return categories_percent(s, ['Po'])
+    return categories_percent(s, ["Po"])
 
 
 def capitalized_words_percent(s):
     """Returns capitalized words percent."""
-    words = re.split('\s', s)
+    words = re.split("\s", s)
     words = [w for w in words if w.strip()]
-    words = [w for w in words if len(w) > 2]    
+    words = [w for w in words if len(w) > 2]
     capitalized_words_counter = 0
     valid_words_counter = 0
     for word in words:
@@ -221,9 +228,7 @@ def has_signature(body, sender):
         if sender_check(line):
             return True
 
-        if (binary_regex_search(RE_RELAX_PHONE)(line) +
-                binary_regex_search(RE_EMAIL)(line) +
-                binary_regex_search(RE_URL)(line) == 1):
+        if binary_regex_search(RE_RELAX_PHONE)(line) + binary_regex_search(RE_EMAIL)(line) + binary_regex_search(RE_URL)(line) == 1:
             upvotes += 1
 
     if upvotes > 1:

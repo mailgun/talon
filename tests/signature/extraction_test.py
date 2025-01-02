@@ -19,27 +19,28 @@ def test_message_shorter_SIGNATURE_MAX_LINES():
 Thanks in advance,
 Bob"""
     text, extracted_signature = extract(body, sender)
-    eq_('\n'.join(body.splitlines()[:2]), text)
-    eq_('\n'.join(body.splitlines()[-2:]), extracted_signature)
+    eq_("\n".join(body.splitlines()[:2]), text)
+    eq_("\n".join(body.splitlines()[-2:]), extracted_signature)
 
 
 def test_messages_longer_SIGNATURE_MAX_LINES():
     import sys
+
     kwargs = {}
     if sys.version_info > (3, 0):
         kwargs["encoding"] = "utf8"
 
     for filename in os.listdir(STRIPPED):
         filename = os.path.join(STRIPPED, filename)
-        if not filename.endswith('_body'):
+        if not filename.endswith("_body"):
             continue
         sender, body = dataset.parse_msg_sender(filename)
         text, extracted_signature = extract(body, sender)
-        extracted_signature = extracted_signature or ''
-        with open(filename[:-len('body')] + 'signature', **kwargs) as ms:
+        extracted_signature = extracted_signature or ""
+        with open(filename[: -len("body")] + "signature", **kwargs) as ms:
             msg_signature = ms.read()
             eq_(msg_signature.strip(), extracted_signature.strip())
-            stripped_msg = body.strip()[:len(body.strip()) - len(msg_signature)]
+            stripped_msg = body.strip()[: len(body.strip()) - len(msg_signature)]
             eq_(stripped_msg.strip(), text.strip())
 
 
@@ -53,8 +54,8 @@ some text which doesn't seem to be a signature at all
 Bob"""
 
     text, extracted_signature = extract(body, sender)
-    eq_('\n'.join(body.splitlines()[:2]), text)
-    eq_('\n'.join(body.splitlines()[-3:]), extracted_signature)
+    eq_("\n".join(body.splitlines()[:2]), text)
+    eq_("\n".join(body.splitlines()[-3:]), extracted_signature)
 
 
 def test_long_line_in_signature():
@@ -66,8 +67,8 @@ some long text here which doesn't seem to be a signature at all
 Bob"""
 
     text, extracted_signature = extract(body, sender)
-    eq_('\n'.join(body.splitlines()[:-1]), text)
-    eq_('Bob', extracted_signature)
+    eq_("\n".join(body.splitlines()[:-1]), text)
+    eq_("Bob", extracted_signature)
 
     body = """Thanks David,
 
@@ -77,9 +78,8 @@ Bob"""
 
 
 def test_basic():
-    msg_body = 'Blah\r\n--\r\n\r\nSergey Obukhov'
-    eq_(('Blah', '--\r\n\r\nSergey Obukhov'),
-        extract(msg_body, 'Sergey'))
+    msg_body = "Blah\r\n--\r\n\r\nSergey Obukhov"
+    eq_(("Blah", "--\r\n\r\nSergey Obukhov"), extract(msg_body, "Sergey"))
 
 
 def test_capitalized():
@@ -87,7 +87,7 @@ def test_capitalized():
 
 Do you still need a DJ for your wedding? I've included a video demo of one of our DJs available for your wedding date.
 
-DJ Doe 
+DJ Doe
 http://example.com
 Password: SUPERPASSWORD
 
@@ -104,7 +104,7 @@ Doe Inc
 Doe Inc
 555-531-7967"""
 
-    eq_(sig, extract(msg_body, 'Doe')[1])
+    eq_(sig, extract(msg_body, "Doe")[1])
 
 
 def test_over_2_text_lines_after_signature():
@@ -129,50 +129,38 @@ def test_handles_unicode():
     text, extracted_signature = extract(body, sender)
 
 
-@patch.object(extraction, 'has_signature')
+@patch.object(extraction, "has_signature")
 def test_signature_extract_crash(has_signature):
-    has_signature.side_effect = Exception('Bam!')
-    msg_body = u'Blah\r\n--\r\n\r\nСергей'
-    eq_((msg_body, None), extract(msg_body, 'Сергей'))
+    has_signature.side_effect = Exception("Bam!")
+    msg_body = "Blah\r\n--\r\n\r\nСергей"
+    eq_((msg_body, None), extract(msg_body, "Сергей"))
 
 
 def test_mark_lines():
-    with patch.object(bruteforce, 'SIGNATURE_MAX_LINES', 2):
+    with patch.object(bruteforce, "SIGNATURE_MAX_LINES", 2):
         # we analyse the 2nd line as well though it's the 6th line
         # (starting from the bottom) because we don't count empty line
-        eq_('ttset',
-            e._mark_lines(['Bob Smith',
-                           'Bob Smith',
-                           'Bob Smith',
-                           '',
-                           'some text'], 'Bob Smith'))
+        eq_("ttset", e._mark_lines(["Bob Smith", "Bob Smith", "Bob Smith", "", "some text"], "Bob Smith"))
 
-    with patch.object(bruteforce, 'SIGNATURE_MAX_LINES', 3):
+    with patch.object(bruteforce, "SIGNATURE_MAX_LINES", 3):
         # we don't analyse the 1st line because
         # signature cant start from the 1st line
-        eq_('tset',
-            e._mark_lines(['Bob Smith',
-                           'Bob Smith',
-                           '',
-                           'some text'], 'Bob Smith'))
+        eq_("tset", e._mark_lines(["Bob Smith", "Bob Smith", "", "some text"], "Bob Smith"))
 
 
 def test_process_marked_lines():
     # no signature found
-    eq_((list(range(5)), None), e._process_marked_lines(list(range(5)), 'telt'))
+    eq_((list(range(5)), None), e._process_marked_lines(list(range(5)), "telt"))
 
     # signature in the middle of the text
-    eq_((list(range(9)), None), e._process_marked_lines(list(range(9)), 'tesestelt'))
+    eq_((list(range(9)), None), e._process_marked_lines(list(range(9)), "tesestelt"))
 
     # long line splits signature
-    eq_((list(range(7)), [7, 8]),
-        e._process_marked_lines(list(range(9)), 'tsslsless'))
+    eq_((list(range(7)), [7, 8]), e._process_marked_lines(list(range(9)), "tsslsless"))
 
-    eq_((list(range(20)), [20]),
-        e._process_marked_lines(list(range(21)), 'ttttttstttesllelelets'))
+    eq_((list(range(20)), [20]), e._process_marked_lines(list(range(21)), "ttttttstttesllelelets"))
 
     # some signature lines could be identified as text
-    eq_(([0], list(range(1, 9))), e._process_marked_lines(list(range(9)), 'tsetetest'))
+    eq_(([0], list(range(1, 9))), e._process_marked_lines(list(range(9)), "tsetetest"))
 
-    eq_(([], list(range(5))),
-        e._process_marked_lines(list(range(5)), "ststt"))
+    eq_(([], list(range(5))), e._process_marked_lines(list(range(5)), "ststt"))
