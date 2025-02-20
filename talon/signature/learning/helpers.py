@@ -13,31 +13,31 @@ from talon.signature.constants import SIGNATURE_MAX_LINES
 
 rc = re.compile
 
-RE_EMAIL = rc('\S@\S')
-RE_RELAX_PHONE = rc('(\(? ?[\d]{2,3} ?\)?.{,3}?){2,}')
+RE_EMAIL = rc(r'\S@\S')
+RE_RELAX_PHONE = rc(r'(\(? ?[\d]{2,3} ?\)?.{,3}?){2,}')
 RE_URL = rc(r"""https?://|www\.[\S]+\.[\S]""")
 
 # Taken from:
 # http://www.cs.cmu.edu/~vitor/papers/sigFilePaper_finalversion.pdf
 # Line matches the regular expression "^[\s]*---*[\s]*$".
-RE_SEPARATOR = rc('^[\s]*---*[\s]*$')
+RE_SEPARATOR = rc(r'^[\s]*---*[\s]*$')
 
 # Taken from:
 # http://www.cs.cmu.edu/~vitor/papers/sigFilePaper_finalversion.pdf
 # Line has a sequence of 10 or more special characters.
-RE_SPECIAL_CHARS = rc(('^[\s]*([\*]|#|[\+]|[\^]|-|[\~]|[\&]|[\$]|_|[\!]|'
-                       '[\/]|[\%]|[\:]|[\=]){10,}[\s]*$'))
+RE_SPECIAL_CHARS = rc((r'^[\s]*([\*]|#|[\+]|[\^]|-|[\~]|[\&]|[\$]|_|[\!]|'
+                       r'[\/]|[\%]|[\:]|[\=]){10,}[\s]*$'))
 
-RE_SIGNATURE_WORDS = rc(('(T|t)hank.*,|(B|b)est|(R|r)egards|'
-                         '^sent[ ]{1}from[ ]{1}my[\s,!\w]*$|BR|(S|s)incerely|'
-                         '(C|c)orporation|Group'))
+RE_SIGNATURE_WORDS = rc((r'(T|t)hank.*,|(B|b)est|(R|r)egards|'
+                         r'^sent[ ]{1}from[ ]{1}my[\s,!\w]*$|BR|(S|s)incerely|'
+                         r'(C|c)orporation|Group'))
 
 # Taken from:
 # http://www.cs.cmu.edu/~vitor/papers/sigFilePaper_finalversion.pdf
 # Line contains a pattern like Vitor R. Carvalho or William W. Cohen.
-RE_NAME = rc('[A-Z][a-z]+\s\s?[A-Z][\.]?\s\s?[A-Z][a-z]+')
+RE_NAME = rc(r'[A-Z][a-z]+\s\s?[A-Z][\.]?\s\s?[A-Z][a-z]+')
 
-INVALID_WORD_START = rc('\(|\+|[\d]')
+INVALID_WORD_START = rc(r'\(|\+|[\d]')
 
 BAD_SENDER_NAMES = [
     # known mail domains
@@ -58,9 +58,9 @@ def binary_regex_search(prog):
     and 0 otherwise.
 
     >>> import regex as re
-    >>> binary_regex_search(re.compile("12"))("12")
+    >>> binary_regex_search(re.compile(r"12"))("12")
     1
-    >>> binary_regex_search(re.compile("12"))("34")
+    >>> binary_regex_search(re.compile(r"12"))("34")
     0
     """
     return lambda s: 1 if prog.search(s) else 0
@@ -74,9 +74,9 @@ def binary_regex_match(prog):
     and 0 otherwise.
 
     >>> import regex as re
-    >>> binary_regex_match(re.compile("12"))("12 3")
+    >>> binary_regex_match(re.compile(r"12"))("12 3")
     1
-    >>> binary_regex_match(re.compile("12"))("3 12")
+    >>> binary_regex_match(re.compile(r"12"))("3 12")
     0
     """
     return lambda s: 1 if prog.match(s) else 0
@@ -112,8 +112,8 @@ def contains_sender_names(sender):
     >>> contains_sender_names("<serobnic@mail.ru>")("serobnic")
     1
     """
-    names = '( |$)|'.join(flatten_list([[e, e.capitalize()]
-                                        for e in extract_names(sender)]))
+    names = r'( |$)|'.join(flatten_list([[e, e.capitalize()]
+                                         for e in extract_names(sender)]))
     names = names or sender
     if names != '':
         return binary_regex_search(re.compile(names))
@@ -182,7 +182,7 @@ def punctuation_percent(s):
 
 def capitalized_words_percent(s):
     """Returns capitalized words percent."""
-    words = re.split('\s', s)
+    words = re.split(r'\s', s)
     words = [w for w in words if w.strip()]
     words = [w for w in words if len(w) > 2]    
     capitalized_words_counter = 0

@@ -132,4 +132,4 @@ _UTF8_DECLARATION = ('<meta http-equiv="Content-Type" content="text/html;'
 _BLOCKTAGS = ['div', 'p', 'ul', 'li', 'h1', 'h2', 'h3']
 _HARDBREAKS = ['br', 'hr', 'tr']
 
-_RE_EXCESSIVE_NEWLINES = re.compile("\n{2,10}")
+_RE_EXCESSIVE_NEWLINES = re.compile(r"\n{2,10}")

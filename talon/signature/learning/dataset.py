@@ -78,7 +78,7 @@ def parse_msg_sender(filename, sender_known=True):
                     # and it is ok
                     lines = msg.splitlines()
                     for line in lines:
-                        match = re.match('From:(.*)', line)
+                        match = re.match(r'From:(.*)', line)
                         if match:
                             sender = match.group(1)
                             break
@@ -104,7 +104,7 @@ def build_detection_class(folder, dataset_filename,
             sender, msg = parse_msg_sender(filename, sender_known)
             if sender is None or msg is None:
                 continue
-            msg = re.sub('|'.join(ANNOTATIONS), '', msg)
+            msg = re.sub(r'|'.join(ANNOTATIONS), '', msg)
             X = build_pattern(msg, features(sender))
             X.append(label)
             labeled_pattern = ','.join([str(e) for e in X])
