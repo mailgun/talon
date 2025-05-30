@@ -60,6 +60,8 @@ BAD_SENDER_NAMES = [
     "ru",
     # bad words
     "mailto",
+    "sender",
+    "Sender",
 ]
 
 

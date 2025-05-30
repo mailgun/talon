@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import numpy as np
 
 # from six.moves import range # Removed
 from unittest.mock import patch, Mock
@@ -8,6 +9,8 @@ from unittest.mock import patch, Mock
 from talon.signature import bruteforce, extraction, extract
 from talon.signature import extraction as e
 from talon.signature.learning import dataset
+from talon.signature.learning import classifier as c
+from talon.signature.constants import SIGNATURE_MAX_LINES
 # from .. import * # Removed
 
 
@@ -143,8 +146,8 @@ def test_handles_unicode():
 
 
 @patch.object(extraction, "has_signature")
-def test_signature_extract_crash(has_signature):
-    has_signature.side_effect = Exception("Bam!")
+def test_signature_extract_crash(mock_has_signature):
+    mock_has_signature.side_effect = Exception("Bam!")
     msg_body = "Blah\r\n--\r\n\r\nСергей"
     assert (msg_body, None) == extract(msg_body, "Сергей")
 
@@ -189,3 +192,136 @@ def test_process_marked_lines():
     )
 
     assert (([], list(range(5)))) == e._process_marked_lines(list(range(5)), "ststt")
+
+
+FEATURE_VALUES = [
+    [1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1],
+    [0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1],
+]
+
+
+@patch('talon.signature.extraction.build_pattern')
+@patch('talon.signature.extraction.features')
+@patch.object(extraction, 'EXTRACTOR')
+@patch('talon.signature.extraction.has_signature')
+def test_extract(mock_has_signature, mock_extractor_obj, mock_features, mock_build_pattern):
+    sender = 'SENDER'
+    body = "--\nSIGNATURE_LINE1\nSIGNATURE_LINE2"
+
+    mock_has_signature.return_value = True
+
+    # Mock features and build_pattern
+    # features() is called once per extract() if signature candidate is found
+    mock_features.return_value = "mock_feature_data_for_sender"
+    # build_pattern() is called for each candidate line
+    # Let's say "SIGNATURE_LINE1" -> pattern1, "SIGNATURE_LINE2" -> pattern2
+    mock_build_pattern.side_effect = [
+        np.array([1,1,1]), # pattern for SIGNATURE_LINE1
+        np.array([2,2,2])  # pattern for SIGNATURE_LINE2
+    ]
+
+    # Mock EXTRACTOR.predict()
+    # Called once for each candidate line by is_signature_line()
+    # First call (for SIGNATURE_LINE1) -> not signature
+    # Second call (for SIGNATURE_LINE2) -> is signature
+    mock_extractor_obj.predict.side_effect = [
+        np.array([0]), # prediction for pattern1
+        np.array([1])  # prediction for pattern2
+    ]
+
+    text, signature = extraction.extract(body, sender)
+
+    # Check calls
+    mock_features.assert_called_with(sender)
+    assert mock_build_pattern.call_count == 2
+    mock_build_pattern.assert_any_call("SIGNATURE_LINE1", "mock_feature_data_for_sender")
+    mock_build_pattern.assert_any_call("SIGNATURE_LINE2", "mock_feature_data_for_sender")
+    
+    assert mock_extractor_obj.predict.call_count == 2
+    # Check that predict was called with the reshaped output of build_pattern
+    # First call: np.array([[1,1,1]])
+    # Second call: np.array([[2,2,2]])
+    # Using np.array_equal for comparing numpy arrays in mock calls
+    args, _ = mock_extractor_obj.predict.call_args_list[0]
+    assert np.array_equal(args[0], np.array([[1,1,1]]))
+    args, _ = mock_extractor_obj.predict.call_args_list[1]
+    assert np.array_equal(args[0], np.array([[2,2,2]]))
+
+
+    # Based on predictions (LINE1=no, LINE2=yes), markers for (L2, L1) -> ('s', 't') -> "ts"
+    # RE_REVERSE_SIGNATURE.match("ts") should identify 's' as signature
+    # If original lines for markers were L1, L2 and markers were t,s -> reversed string "st"
+    # This would mean L2 is sig, L1 is text.
+    # If full lines are ["--", "SIGNATURE_LINE1", "SIGNATURE_LINE2"] and markers are "tts"
+    # Reversed markers "stt", RE_REVERSE_SIGNATURE matches "st". end() is 2.
+    # Text part is lines[:-2] = ["--"]
+    # Signature part is lines[-2:] = ["SIGNATURE_LINE1", "SIGNATURE_LINE2"]
+    expected_text = "--" 
+    expected_signature = "SIGNATURE_LINE1\nSIGNATURE_LINE2"
+    
+    assert text == expected_text
+    assert signature == expected_signature
+
+
+@patch('talon.signature.extraction.build_pattern')
+@patch('talon.signature.extraction.features')
+@patch.object(extraction, 'EXTRACTOR') # Instance is passed to is_signature_line
+def test_is_signature_line(mock_classifier_instance, mock_features, mock_build_pattern):
+    line_text = 'Hey there, this is a signature line.'
+    sender_email = 'test@example.com'
+    
+    mock_features.return_value = "sender_feature_data"
+    # build_pattern returns a 1D array
+    mock_build_pattern.return_value = np.array([1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1])
+    
+    # Case 1: Classifier predicts it IS a signature line (returns > 0)
+    mock_classifier_instance.predict.return_value = np.array([1]) # e.g. probability or class label > 0
+    
+    assert extraction.is_signature_line(line_text, sender_email, mock_classifier_instance) == True
+    mock_features.assert_called_once_with(sender_email)
+    mock_build_pattern.assert_called_once_with(line_text, "sender_feature_data")
+    # Check that predict was called with the reshaped output of build_pattern
+    args, _ = mock_classifier_instance.predict.call_args
+    expected_input_to_predict = np.array(mock_build_pattern.return_value).reshape(1, -1)
+    assert np.array_equal(args[0], expected_input_to_predict)
+
+    # Reset mocks for the next case
+    mock_classifier_instance.reset_mock()
+    mock_features.reset_mock()
+    mock_build_pattern.reset_mock()
+    mock_features.return_value = "sender_feature_data_case2" # ensure it's called again
+    mock_build_pattern.return_value = np.array([0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0])
+
+
+    # Case 2: Classifier predicts it IS NOT a signature line (returns <= 0)
+    mock_classifier_instance.predict.return_value = np.array([0]) # e.g. probability or class label <= 0
+    
+    assert extraction.is_signature_line(line_text, sender_email, mock_classifier_instance) == False
+    mock_features.assert_called_once_with(sender_email) # Called again for this case
+    mock_build_pattern.assert_called_once_with(line_text, "sender_feature_data_case2")
+    args, _ = mock_classifier_instance.predict.call_args
+    expected_input_to_predict_case2 = np.array(mock_build_pattern.return_value).reshape(1, -1)
+    assert np.array_equal(args[0], expected_input_to_predict_case2)
+
+
+@patch('talon.signature.extraction.EXTRACTOR.predict')
+@patch('talon.signature.extraction.has_signature')
+def test_max_signature_lines(mock_has_signature, mock_extractor_predict):
+    mock_has_signature.return_value = True
+    mock_extractor_predict.return_value = np.array([0]) # Add this to prevent TypeError
+    lines = []
+    max_lines_to_test = SIGNATURE_MAX_LINES
+
+    for i in range(max_lines_to_test + 1):
+        lines.append(str(i))
+    body = '\n'.join(lines)
+
+    # We need to ensure EXTRACTOR is not None when extract is called.
+    # If initialize() from talon.signature hasn't run, EXTRACTOR could be None.
+    # For this test, we are mocking its predict method, so its actual state might not matter
+    # as long as the mock intercepts the call.
+    extraction.extract(body, 'sender')
+
+    # mock_extractor_predict is the mock for talon.signature.extraction.EXTRACTOR.predict
+    # The first argument to predict is `data`. We check its length (number of feature vectors).
+    assert max_lines_to_test == mock_extractor_predict.call_count

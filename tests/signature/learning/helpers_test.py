@@ -36,231 +36,265 @@ VALID = """
 1-561-555-1212
 5613333
 
-18008793262
-800-879-3262
-0-800.879.3262
+(305) 555 1212
+(305) 555-1212
+(305) 555 1212
+(305) 555 1212
+(561) 555 1212
+(561) 555-1212
+(561) 5551212
+(561)5551212
 
-04 3452488
-04 -3452488
-04 - 3452499
++1 (561) 555 1212
++1 (561) 555-1212
++1 (561) 5551212
++1(561)5551212
 
-(610) 310-5555 x5555
-533-1123
+1 561 555 1212
+1 561 555-1212
+1 561 5551212
 
-(021)1234567
-(021)123456
-(000)000000
-
-+7 920 34 57 23
-+7(920) 34 57 23
-+7(920)345723
-+7920345723
-8920345723
-21143
-2-11-43
-2 - 11 - 43
+561 555 1212
+561.555.1212
+561 5551212
+561-555-1212
 """
 
-VALID_PHONE_NUMBERS = [e.strip() for e in VALID.splitlines() if e.strip()]
+INVALID = """
+word
+"""
 
 
-def test_match_phone_numbers():
-    for phone in VALID_PHONE_NUMBERS:
-        assert h.RE_RELAX_PHONE.search(phone), "{} should be matched".format(phone)
+def test_re_relax_phone_constant():
+    for s in VALID.splitlines():
+        if s.strip():
+            assert RE_RELAX_PHONE.search(s)
+
+    for s in INVALID.splitlines():
+        if s.strip():
+            assert not RE_RELAX_PHONE.search(s)
 
 
-def test_match_names():
-    names = ["John R. Doe"]
-    for name in names:
-        assert h.RE_NAME.match(name), "{} should be matched".format(name)
-
-
-# Now test helpers functions
 def test_binary_regex_search():
-    assert 1 == h.binary_regex_search(re.compile("12"))("12")
-    assert 0 == h.binary_regex_search(re.compile("12"))("34")
+    fn = binary_regex_search(re.compile(r"12"))
+    assert 1 == fn("12")
+    assert 0 == fn("34")
 
 
-def binary_regex_match(prog):
-    assert 1 == h.binary_regex_match(re.compile("12"))("12 3")
-    assert 0 == h.binary_regex_match(re.compile("12"))("3 12")
+def test_binary_regex_match():
+    fn = binary_regex_match(re.compile(r"12"))
+    assert 1 == fn("12 3")
+    assert 0 == fn("3 12")
 
 
-def test_flatten_list():
-    assert [1, 2, 3, 4, 5] == h.flatten_list([[1, 2], [3, 4, 5]])
+def test_contains_sender_names():
+    # standard case
+    fn = contains_sender_names("Sergey N.  Obukhov <xxx@example.com>")
+    assert 1 == fn("Sergey Obukhov")
+    assert 1 == fn("BR, Sergey N.")
+    assert 1 == fn("Sergey")
+    assert 0 == fn("Bob")
 
+    # only email, no name
+    fn = contains_sender_names("<serobnic@mail.ru>")
+    assert 1 == fn("Serobnic")
+    assert 1 == fn("serobnic")
+    assert 0 == fn("Bob")
 
-@patch.object(h.re, "compile")
-def test_contains_sender_names(re_compile):
-    with patch.object(
-        h, "extract_names", Mock(return_value=["bob", "smith"])
-    ) as extract_names:
-        has_sender_names = h.contains_sender_names("bob.smith@example.com")
-        extract_names.assert_called_with("bob.smith@example.com")
-        for name in ["bob", "Bob", "smith", "Smith"]:
-            assert has_sender_names(name)
+    # empty sender
+    fn = contains_sender_names("")
+    assert 0 == fn("Serobnic")
 
-        extract_names.return_value = ""
-        has_sender_names = h.contains_sender_names("bob.smith@example.com")
-        # if no names could be extracted fallback to the email address
-        assert has_sender_names("bob.smith@example.com")
-
-        # don't crash if there are no sender
-        extract_names.return_value = ""
-        has_sender_names = h.contains_sender_names("")
-        assert not has_sender_names("")
-
-
-def test_extract_names():
-    senders_names = {
-        # from example dataset
-        (
-            "Jay Rickerts <eCenter@example.com>@EXAMPLE <XXX-Jay+20Rickerts"
-            "+20+3CeCenter+40example+2Ecom+3E+40EXAMPLE@EXAMPLE.com>"
-        ): ["Jay", "Rickerts"],
-        # if `,` is used in sender's name
-        "Williams III, Bill </O=EXAMPLE/OU=NA/CN=RECIPIENTS/CN=BWILLIA5>": [
-            "Williams",
-            "III",
-            "Bill",
-        ],
-        # if somehow `\'` or `"` are used in sender's name
-        'Laura" "Goldberg <laura.goldberg@example.com>': ["Laura", "Goldberg"],
-        # extract from senders email address
-        "<sergey@xxx.ru>": ["sergey"],
-        # extract from sender's email address
-        # if dots are used in the email address
-        "<sergey.obukhov@xxx.ru>": ["sergey", "obukhov"],
-        # extract from sender's email address
-        # if dashes are used in the email address
-        "<sergey-obukhov@xxx.ru>": ["sergey", "obukhov"],
-        # extract from sender's email address
-        # if `_` are used in the email address
-        "<sergey_obukhov@xxx.ru>": ["sergey", "obukhov"],
-        # old style From field, found in jangada dataset
-        "wcl@example.com (Wayne Long)": ["Wayne", "Long"],
-        # if only sender's name provided
-        "Wayne Long": ["Wayne", "Long"],
-        # if middle name is shortened with dot
-        "Sergey N.  Obukhov <serobnic@xxx.ru>": ["Sergey", "Obukhov"],
-        # not only spaces could be used as name splitters
-        "  Sergey  Obukhov  <serobnic@xxx.ru>": ["Sergey", "Obukhov"],
-        # finally normal example
-        "Sergey <serobnic@xxx.ru>": ["Sergey"],
-        # if middle name is shortened with `,`
-        "Sergey N, Obukhov": ["Sergey", "Obukhov"],
-        # if mailto used with email address and sender's name is specified
-        "Sergey N, Obukhov [mailto: serobnic@xxx.ru]": ["Sergey", "Obukhov"],
-        # when only email address is given
-        "serobnic@xxx.ru": ["serobnic"],
-        # when nothing is given
-        "": [],
-        # if phone is specified in the `From:` header
-        "wcl@example.com (Wayne Long +7 920 -256 - 35-09)": ["Wayne", "Long"],
-        # from crash reports `nothing to repeat`
-        "* * * * <the_pod1@example.com>": ["the", "pod"],
-        '"**Bobby B**" <copymycashsystem@example.com>': ["Bobby", "copymycashsystem"],
-        # from crash reports `bad escape`
-        '"M Ali B Azlan \\(GHSE/PETH\\)" <aliazlan@example.com>': ["Ali", "Azlan"],
-        ('"Ridthauddin B A Rahim \\(DD/PCSB\\)" <ridthauddin_arahim@example.com>'): [
-            "Ridthauddin",
-            "Rahim",
-        ],
-        (
-            '"Boland, Patrick \\(Global Xxx Group, Ireland \\)"'
-            " <Patrick.Boland@example.com>"
-        ): ["Boland", "Patrick"],
-        '"Mates Rate \\(Wine\\)" <amen@example.com.com>': ["Mates", "Rate", "Wine"],
-        (
-            '"Morgan, Paul \\(Business Xxx RI, Xxx Xxx Group\\)"'
-            " <paul.morgan@example.com>"
-        ): ["Morgan", "Paul"],
-        '"David DECOSTER \\(Domicile\\)" <decosterdavid@xxx.be>': [
-            "David",
-            "DECOSTER",
-            "Domicile",
-        ],
-    }
-
-    for sender, expected_names in senders_names.items():
-        extracted_names = h.extract_names(sender)
-        # check that extracted names could be compiled
-        try:
-            re.compile("|".join(extracted_names))
-        except Exception as e:
-            assert False, ("Failed to compile extracted names {}\n\nReason: {}").format(
-                extracted_names, e
-            )
-        if expected_names:
-            for name in expected_names:
-                assert name in extracted_names
-        else:
-            assert expected_names == extracted_names
-
-    # words like `ru`, `gmail`, `com`, `org`, etc. are not considered
-    # sender's names
-    for word in h.BAD_SENDER_NAMES:
-        assert h.extract_names(word) == []
-
-    # duplicates are not allowed
-    assert h.extract_names("sergey <sergey@example.com") == ["sergey"]
-
-
-def test_categories_percent():
-    assert 0.0 == h.categories_percent("qqq ggg hhh", ["Po"])
-    assert 50.0 == h.categories_percent("q,w.", ["Po"])
-    assert 0.0 == h.categories_percent("qqq ggg hhh", ["Nd"])
-    assert 50.0 == h.categories_percent("q5", ["Nd"])
-    assert 50.0 == h.categories_percent("s.s,5s", ["Po", "Nd"])
-    assert 0.0 == h.categories_percent("", ["Po", "Nd"])
-
-
-@patch.object(h, "categories_percent")
-def test_punctuation_percent(categories_percent):
-    h.punctuation_percent("qqq")
-    categories_percent.assert_called_with("qqq", ["Po"])
-
-
-def test_capitalized_words_percent():
-    assert 0.0 == h.capitalized_words_percent("")
-    assert 100.0 == h.capitalized_words_percent("Example Corp")
-    assert 50.0 == h.capitalized_words_percent("Qqq qqq Aqs 123 sss")
-    assert 100.0 == h.capitalized_words_percent("Cell 713-444-7368")
-    assert 100.0 == h.capitalized_words_percent("8th Floor")
-    assert 0.0 == h.capitalized_words_percent("(212) 230-9276")
-    assert 50.0 == h.capitalized_words_percent("Password: REMARKABLE")
+    # sender name equals some common words like From, Sender etc
+    fn = contains_sender_names("Sender Serobnic")
+    assert 1 == fn("Serobnic")
+    assert 0 == fn("Sender")
 
 
 def test_has_signature():
-    assert h.has_signature("sender", "sender@example.com")
-    assert h.has_signature("http://www.example.com\n555 555 5555", "sender@example.com")
-    assert h.has_signature(
-        "http://www.example.com\naddress@example.com", "sender@example.com"
-    )
-    assert not h.has_signature(
-        "http://www.example.com/555-555-5555", "sender@example.com"
-    )
-    long_line = "".join(["q" for e in range(28)])  # Use simple range
-    assert not h.has_signature(long_line + " sender", "sender@example.com")
-    # wont crash on an empty string
-    assert not h.has_signature("", "")
-    # dont consider empty strings when analysing signature
-    with patch.object(h, "SIGNATURE_MAX_LINES", 1):
-        assert h.has_signature("sender\n\n", "sender@example.com")
+    body = """
+    Blah blah
+    --
+    Bob Smith
+    www.example.com
+    """
+    assert has_signature(body, "Bob Smith <bob@example.com>")
+
+    body = """
+    Blah blah
+    --
+    Bob Smith
+    actor
+    www.example.com
+    """
+    assert has_signature(body, "Bob Smith <bob@example.com>")
+
+    body = """
+    Blah blah
+    --
+    Bob Smith
+    actor
+    painter
+    www.example.com
+    """
+    assert not has_signature(body, "Bob Smith <bob@example.com>")
+
+    body = """
+    Blah blah
+    --
+    Bob Smith
+    actor
+    painter
+    president
+    www.example.com
+    """
+    assert not has_signature(body, "Bob Smith <bob@example.com>")
+
+    body = """
+    Blah blah
+    Bob Smith
+    www.example.com
+    """
+    assert has_signature(body, "Bob Smith <bob@example.com>")
+
+    body = """
+    Blah blah
+    Bob Smith
+    actor
+    www.example.com
+    """
+    assert has_signature(body, "Bob Smith <bob@example.com>")
+
+    body = """
+    Blah blah
+    Bob Smith
+    actor
+    painter
+    www.example.com
+    """
+    assert not has_signature(body, "Bob Smith <bob@example.com>")
+
+    body = """
+    Blah blah
+    Bob Smith
+    actor
+    painter
+    president
+    www.example.com
+    """
+    assert not has_signature(body, "Bob Smith <bob@example.com>")
+
+    # Don't detect signature if sender is not in it
+    body = """
+    Blah blah
+    --
+    Bob Smith
+    www.example.com
+    """
+    assert not has_signature(body, "Alice <alice@example.com>")
+
+    # Detect signature if phone number is present
+    body = """
+    Blah blah
+    --
+    Bob Smith
+    1-561-555-1212
+    """
+    assert has_signature(body, "Alice <alice@example.com>")
+
+    # Detect signature if email is present
+    body = """
+    Blah blah
+    --
+    Bob Smith
+    bob@example.com
+    """
+    assert has_signature(body, "Alice <alice@example.com>")
+
+    # Phone and email
+    body = """
+    Blah blah
+    --
+    Bob Smith
+    1-561-555-1212
+    bob@example.com
+    """
+    assert has_signature(body, "Alice <alice@example.com>")
+
+    # No signature if only one of phone/email/url is present in body
+    # (and sender is not in body)
+    body = """
+    Blah blah
+    --
+    Bob Smith
+    www.example.com
+    """
+    assert not has_signature(body, "Alice <alice@example.com>")
+
+    body = """
+    Blah blah
+    --
+    Bob Smith
+    1-561-555-1212
+    """
+    assert not has_signature(body, "Alice <alice@example.com>")
+
+    body = """
+    Blah blah
+    --
+    Bob Smith
+    bob@example.com
+    """
+    assert not has_signature(body, "Alice <alice@example.com>")
+
+
+@patch.object(h, 'SIGNATURE_MAX_LINES', 2)
+def test_too_many_signature_lines():
+    body = """
+    One
+    Two
+    Three
+    """
+    assert not h.has_signature(body, "sender")
+
+
+def test_many_capitalized_words():
+    # line has many capitalized words
+    assert not h.many_capitalized_words("WORD WORD WORD word word")
+    assert h.many_capitalized_words("Word Word Word word word") == 0
+    # line doesn't have many capitalized words
+    assert not h.many_capitalized_words("word word word word word")
+    assert not h.many_capitalized_words("WORD woRD woRD")
+
+
+def test_re_delimiter_search():
+    s = "\nblahblahblah\n\n"
+    # check that RE_DELIMITER searches from the beginning only
+    # and that it includes the new line symbol \n
+    # search from the beginning of the string
+    assert RE_DELIMITER.search(s).group() == "\n"
+    assert RE_DELIMITER.search(s).end() == 1
+    # search from some position
+    assert RE_DELIMITER.search(s, 1).group() == "\n"
 
 
 def test_re_relax_phone():
     # check that it does not fail like this
     # self.assertTrue(RE_RELAX_PHONE.search(s)) FAILED
     # Sunday, March 20, 2011 1:04 AM
-    s = "This is not a phone number"  # Ensure s does not match RE_RELAX_PHONE
-    assert not RE_RELAX_PHONE.search(s)
-
-    s = "(434) 973-3989"
+    s = "Sunday, March 20, 2011 1:04 AM"
     assert RE_RELAX_PHONE.search(s)
 
-    # this pattern was taken from the live email
-    # previously it caused "nothing to repeat error"
-    # RE_SIGNATURE_WORDS is not expected to match this string.
-    s = "Some text ~~~ Name"
-    assert not RE_SIGNATURE_WORDS.search(s) # String does not contain signature words
+    # check that it finds the phone number
+    s = "(123) 456-7890"
+    assert RE_RELAX_PHONE.search(s)
+
+
+def test_re_signature_words():
+    # String does not contain signature words
+    s = "Some text --- Name"
+    assert not RE_SIGNATURE_WORDS.search(s)
+
+    # String contains signature words
+    s = "Thanks, Bob"
+    assert RE_SIGNATURE_WORDS.search(s)

@@ -8,6 +8,7 @@ from talon.signature.bruteforce import get_signature_candidate
 from talon.signature.learning.featurespace import features, build_pattern
 from talon.signature.learning.helpers import has_signature
 from talon.utils import get_delimiter
+from .constants import SIGNATURE_MAX_LINES
 
 log = logging.getLogger(__name__)
 
