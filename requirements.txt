@@ -1,5 +1,4 @@
 chardet>=1.0.1
-cchardet>=0.3.5
 cssselect
 html5lib
 joblib
@@ -8,4 +7,3 @@ numpy
 regex>=1
 scikit-learn>=1.0.0
 scipy
-six>=1.10.0

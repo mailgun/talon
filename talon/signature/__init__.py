@@ -20,7 +20,6 @@ trained against, don't forget to regenerate:
 * signature/data/classifier
 """
 
-from __future__ import absolute_import
 import os
 
 from talon.signature import extraction
@@ -29,8 +28,7 @@ from talon.signature.learning import classifier
 
 
 def initialize():
-    data_dir = os.path.join(os.path.dirname(__file__), 'data')
-    extractor_filename = os.path.join(data_dir, 'classifier')
-    extractor_data_filename = os.path.join(data_dir, 'train.data')
-    extraction.EXTRACTOR = classifier.load(extractor_filename,
-                                           extractor_data_filename)
+    data_dir = os.path.join(os.path.dirname(__file__), "data")
+    extractor_filename = os.path.join(data_dir, "classifier")
+    extractor_data_filename = os.path.join(data_dir, "train.data")
+    extraction.EXTRACTOR = classifier.load(extractor_filename, extractor_data_filename)

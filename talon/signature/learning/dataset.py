@@ -16,21 +16,18 @@ suffix and the corresponding sender file has the same name except for the
 suffix which should be `_sender`.
 """
 
-from __future__ import absolute_import
-
 import os
 
 import regex as re
-from six.moves import range
 
 from talon.signature.constants import SIGNATURE_MAX_LINES
 from talon.signature.learning.featurespace import build_pattern, features
 
-SENDER_SUFFIX = '_sender'
-BODY_SUFFIX = '_body'
+SENDER_SUFFIX = "_sender"
+BODY_SUFFIX = "_body"
 
-SIGNATURE_ANNOTATION = '#sig#'
-REPLY_ANNOTATION = '#reply#'
+SIGNATURE_ANNOTATION = "#sig#"
+REPLY_ANNOTATION = "#reply#"
 
 ANNOTATIONS = [SIGNATURE_ANNOTATION, REPLY_ANNOTATION]
 
@@ -42,7 +39,7 @@ def is_sender_filename(filename):
 
 def build_sender_filename(msg_filename):
     """By the message filename gives expected sender's filename."""
-    return msg_filename[:-len(BODY_SUFFIX)] + SENDER_SUFFIX
+    return msg_filename[: -len(BODY_SUFFIX)] + SENDER_SUFFIX
 
 
 def parse_msg_sender(filename, sender_known=True):
@@ -59,6 +56,7 @@ def parse_msg_sender(filename, sender_known=True):
     >>> parse_msg_sender(filename, False)
     """
     import sys
+
     kwargs = {}
     if sys.version_info > (3, 0):
         kwargs["encoding"] = "utf8"
@@ -67,26 +65,25 @@ def parse_msg_sender(filename, sender_known=True):
     if os.path.isfile(filename) and not is_sender_filename(filename):
         with open(filename, **kwargs) as f:
             msg = f.read()
-            sender = u''
+            sender = ""
             if sender_known:
                 sender_filename = build_sender_filename(filename)
                 if os.path.exists(sender_filename):
-                    with open(sender_filename) as sender_file:
+                    with open(sender_filename, encoding="utf-8") as sender_file:
                         sender = sender_file.read().strip()
                 else:
                     # if sender isn't found then the next line fails
                     # and it is ok
                     lines = msg.splitlines()
                     for line in lines:
-                        match = re.match('From:(.*)', line)
+                        match = re.match("From:(.*)", line)
                         if match:
                             sender = match.group(1)
                             break
     return (sender, msg)
 
 
-def build_detection_class(folder, dataset_filename,
-                          label, sender_known=True):
+def build_detection_class(folder, dataset_filename, label, sender_known=True):
     """Builds signature detection class.
 
     Signature detection dataset includes patterns for two classes:
@@ -98,21 +95,20 @@ def build_detection_class(folder, dataset_filename,
 
     >>> build_signature_detection_class('emails/P', 'train.data', 1)
     """
-    with open(dataset_filename, 'a') as dataset:
+    with open(dataset_filename, "a", encoding="utf-8") as dataset:
         for filename in os.listdir(folder):
             filename = os.path.join(folder, filename)
             sender, msg = parse_msg_sender(filename, sender_known)
             if sender is None or msg is None:
                 continue
-            msg = re.sub('|'.join(ANNOTATIONS), '', msg)
+            msg = re.sub("|".join(ANNOTATIONS), "", msg)
             X = build_pattern(msg, features(sender))
             X.append(label)
-            labeled_pattern = ','.join([str(e) for e in X])
-            dataset.write(labeled_pattern + '\n')
+            labeled_pattern = ",".join([str(e) for e in X])
+            dataset.write(labeled_pattern + "\n")
 
 
-def build_detection_dataset(folder, dataset_filename,
-                            sender_known=True):
+def build_detection_dataset(folder, dataset_filename, sender_known=True):
     """Builds signature detection dataset using emails from folder.
 
     folder should have the following structure:
@@ -130,14 +126,11 @@ def build_detection_dataset(folder, dataset_filename,
     """
     if os.path.exists(dataset_filename):
         os.remove(dataset_filename)
-    build_detection_class(os.path.join(folder, u'P'),
-                          dataset_filename, 1)
-    build_detection_class(os.path.join(folder, u'N'),
-                          dataset_filename, -1)
+    build_detection_class(os.path.join(folder, "P"), dataset_filename, 1)
+    build_detection_class(os.path.join(folder, "N"), dataset_filename, -1)
 
 
-def build_extraction_dataset(folder, dataset_filename,
-                             sender_known=True):
+def build_extraction_dataset(folder, dataset_filename, sender_known=True):
     """Builds signature extraction dataset using emails in the `folder`.
 
     The emails in the `folder` should be annotated i.e. signature lines
@@ -145,25 +138,23 @@ def build_extraction_dataset(folder, dataset_filename,
     """
     if os.path.exists(dataset_filename):
         os.remove(dataset_filename)
-    with open(dataset_filename, 'a') as dataset:
+    with open(dataset_filename, "a", encoding="utf-8") as dataset:
         for filename in os.listdir(folder):
             filename = os.path.join(folder, filename)
             sender, msg = parse_msg_sender(filename, sender_known)
             if not sender or not msg:
                 continue
             lines = msg.splitlines()
-            for i in range(1, min(SIGNATURE_MAX_LINES,
-                                  len(lines)) + 1):
+            for i in range(1, min(SIGNATURE_MAX_LINES, len(lines)) + 1):
                 line = lines[-i]
                 label = -1
-                if line[:len(SIGNATURE_ANNOTATION)] == \
-                        SIGNATURE_ANNOTATION:
+                if line[: len(SIGNATURE_ANNOTATION)] == SIGNATURE_ANNOTATION:
                     label = 1
-                    line = line[len(SIGNATURE_ANNOTATION):]
-                elif line[:len(REPLY_ANNOTATION)] == REPLY_ANNOTATION:
-                    line = line[len(REPLY_ANNOTATION):]
+                    line = line[len(SIGNATURE_ANNOTATION) :]
+                elif line[: len(REPLY_ANNOTATION)] == REPLY_ANNOTATION:
+                    line = line[len(REPLY_ANNOTATION) :]
 
                 X = build_pattern(line, features(sender))
                 X.append(label)
-                labeled_pattern = ','.join([str(e) for e in X])
-                dataset.write(labeled_pattern + '\n')
+                labeled_pattern = ",".join([str(e) for e in X])
+                dataset.write(labeled_pattern + "\n")

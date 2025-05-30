@@ -16,16 +16,16 @@ def get_delimiter(msg_body: str) -> str:
     if delimiter:
         delimiter = delimiter.group()
     else:
-        delimiter = '\n'
+        delimiter = "\n"
 
     return delimiter
 
 
 def html_tree_to_text(tree: _Element) -> str:
-    for style in CSSSelector('style')(tree):
+    for style in CSSSelector("style")(tree):
         style.getparent().remove(style)
 
-    for c in tree.xpath('//comment()'):
+    for c in tree.xpath("//comment()"):
         parent = c.getparent()
 
         # comment with no parent does not impact produced text
@@ -36,21 +36,20 @@ def html_tree_to_text(tree: _Element) -> str:
 
     text = ""
     for el in tree.iter():
-        el_text = (el.text or '') + (el.tail or '')
+        el_text = (el.text or "") + (el.tail or "")
         if len(el_text) > 1:
             if el.tag in _BLOCKTAGS + _HARDBREAKS:
                 text += "\n"
-            if el.tag == 'li':
+            if el.tag == "li":
                 text += "  * "
             text += el_text.strip() + " "
 
             # add href to the output
-            href = el.attrib.get('href')
+            href = el.attrib.get("href")
             if href:
                 text += "(%s) " % href
 
-        if (el.tag in _HARDBREAKS and text and
-            not text.endswith("\n") and not el_text):
+        if el.tag in _HARDBREAKS and text and not text.endswith("\n") and not el_text:
             text += "\n"
 
     text = _rm_excessive_newlines(text)
@@ -78,14 +77,12 @@ def html_to_text(s: str) -> str | None:
 
 
 def html_fromstring(s: str) -> _Element:
-    """Parse html tree from string. Return None if the string can't be parsed.
-    """
+    """Parse html tree from string. Return None if the string can't be parsed."""
     return html5parser.fromstring(s, parser=_html5lib_parser())
 
 
 def html_document_fromstring(s: str) -> _Element:
-    """Parse html tree from string. Return None if the string can't be parsed.
-    """
+    """Parse html tree from string. Return None if the string can't be parsed."""
     return html5parser.document_fromstring(s, parser=_html5lib_parser())
 
 
@@ -94,20 +91,17 @@ def cssselect(expr: str, tree: str) -> list[_Element]:
 
 
 def _contains_charset_spec(s: str) -> str:
-    """Return True if the first 4KB contain charset spec
-    """
-    return s.lower().find('html; charset=', 0, 4096) != -1
+    """Return True if the first 4KB contain charset spec"""
+    return s.lower().find("html; charset=", 0, 4096) != -1
 
 
 def _prepend_utf8_declaration(s: str) -> str:
-    """Prepend 'utf-8' encoding declaration if the first 4KB don't have any
-    """
+    """Prepend 'utf-8' encoding declaration if the first 4KB don't have any"""
     return s if _contains_charset_spec(s) else _UTF8_DECLARATION + s
 
 
 def _rm_excessive_newlines(s: str) -> str:
-    """Remove excessive newlines that often happen due to tons of divs
-    """
+    """Remove excessive newlines that often happen due to tons of divs"""
     return _RE_EXCESSIVE_NEWLINES.sub("\n\n", s).strip()
 
 
@@ -122,14 +116,13 @@ def _html5lib_parser() -> HTMLParser:
         # remove namespace value from inside lxml.html.html5paser element tag
         # otherwise it yields something like "{http://www.w3.org/1999/xhtml}div"
         # instead of "div", throwing the algo off
-        namespaceHTMLElements=False
+        namespaceHTMLElements=False,
     )
 
 
-_UTF8_DECLARATION = ('<meta http-equiv="Content-Type" content="text/html;'
-                     'charset=utf-8">')
+_UTF8_DECLARATION = '<meta http-equiv="Content-Type" content="text/html;charset=utf-8">'
 
-_BLOCKTAGS = ['div', 'p', 'ul', 'li', 'h1', 'h2', 'h3']
-_HARDBREAKS = ['br', 'hr', 'tr']
+_BLOCKTAGS = ["div", "p", "ul", "li", "h1", "h2", "h3"]
+_HARDBREAKS = ["br", "hr", "tr"]
 
 _RE_EXCESSIVE_NEWLINES = re.compile("\n{2,10}")

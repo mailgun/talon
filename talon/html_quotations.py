@@ -6,49 +6,47 @@ messages (without quoted messages) from html
 from __future__ import absolute_import
 import regex as re
 
-from talon.utils import cssselect 
+from talon.utils import cssselect
 
-CHECKPOINT_PREFIX = '#!%!'
-CHECKPOINT_SUFFIX = '!%!#'
-CHECKPOINT_PATTERN = re.compile(CHECKPOINT_PREFIX + '\d+' + CHECKPOINT_SUFFIX)
+CHECKPOINT_PREFIX = "#!%!"
+CHECKPOINT_SUFFIX = "!%!#"
+CHECKPOINT_PATTERN = re.compile(CHECKPOINT_PREFIX + r"\d+" + CHECKPOINT_SUFFIX)
 
 # HTML quote indicators (tag ids)
-QUOTE_IDS = ['OLK_SRC_BODY_SECTION']
+QUOTE_IDS = ["OLK_SRC_BODY_SECTION"]
 RE_FWD = re.compile("^[-]+[ ]*Forwarded message[ ]*[-]+$", re.I | re.M)
 
 
 def add_checkpoint(html_note, counter):
-    """Recursively adds checkpoints to html tree.
-    """
+    """Recursively adds checkpoints to html tree."""
     if html_note.text:
-        html_note.text = (html_note.text + CHECKPOINT_PREFIX +
-                          str(counter) + CHECKPOINT_SUFFIX)
+        html_note.text = (
+            html_note.text + CHECKPOINT_PREFIX + str(counter) + CHECKPOINT_SUFFIX
+        )
     else:
-        html_note.text = (CHECKPOINT_PREFIX + str(counter) +
-                          CHECKPOINT_SUFFIX)
+        html_note.text = CHECKPOINT_PREFIX + str(counter) + CHECKPOINT_SUFFIX
     counter += 1
 
     for child in html_note.iterchildren():
         counter = add_checkpoint(child, counter)
 
     if html_note.tail:
-        html_note.tail = (html_note.tail + CHECKPOINT_PREFIX +
-                          str(counter) + CHECKPOINT_SUFFIX)
+        html_note.tail = (
+            html_note.tail + CHECKPOINT_PREFIX + str(counter) + CHECKPOINT_SUFFIX
+        )
     else:
-        html_note.tail = (CHECKPOINT_PREFIX + str(counter) +
-                          CHECKPOINT_SUFFIX)
+        html_note.tail = CHECKPOINT_PREFIX + str(counter) + CHECKPOINT_SUFFIX
     counter += 1
 
     return counter
 
 
 def delete_quotation_tags(html_note, counter, quotation_checkpoints):
-    """Deletes tags with quotation checkpoints from html tree.
-    """
+    """Deletes tags with quotation checkpoints from html tree."""
     tag_in_quotation = True
 
     if quotation_checkpoints[counter]:
-        html_note.text = ''
+        html_note.text = ""
     else:
         tag_in_quotation = False
     counter += 1
@@ -56,14 +54,13 @@ def delete_quotation_tags(html_note, counter, quotation_checkpoints):
     quotation_children = []  # Children tags which are in quotation.
     for child in html_note.iterchildren():
         counter, child_tag_in_quotation = delete_quotation_tags(
-            child, counter,
-            quotation_checkpoints
+            child, counter, quotation_checkpoints
         )
         if child_tag_in_quotation:
             quotation_children.append(child)
 
     if quotation_checkpoints[counter]:
-        html_note.tail = ''
+        html_note.tail = ""
     else:
         tag_in_quotation = False
     counter += 1
@@ -78,42 +75,44 @@ def delete_quotation_tags(html_note, counter, quotation_checkpoints):
 
 
 def cut_gmail_quote(html_message):
-    ''' Cuts the outermost block element with class gmail_quote. '''
-    gmail_quote = cssselect('div.gmail_quote', html_message)
-    if gmail_quote and (gmail_quote[0].text is None or not RE_FWD.match(gmail_quote[0].text)):
+    """Cuts the outermost block element with class gmail_quote."""
+    gmail_quote = cssselect("div.gmail_quote", html_message)
+    if gmail_quote and (
+        gmail_quote[0].text is None or not RE_FWD.match(gmail_quote[0].text)
+    ):
         gmail_quote[0].getparent().remove(gmail_quote[0])
         return True
 
 
 def cut_microsoft_quote(html_message):
-    ''' Cuts splitter block and all following blocks. '''
-    #use EXSLT extensions to have a regex match() function with lxml
+    """Cuts splitter block and all following blocks."""
+    # use EXSLT extensions to have a regex match() function with lxml
     ns = {"re": "http://exslt.org/regular-expressions"}
 
-    #general pattern: @style='border:none;border-top:solid <color> 1.0pt;padding:3.0pt 0<unit> 0<unit> 0<unit>'
-    #outlook 2007, 2010 (international) <color=#B5C4DF> <unit=cm>
-    #outlook 2007, 2010 (american)      <color=#B5C4DF> <unit=pt>
-    #outlook 2013       (international) <color=#E1E1E1> <unit=cm>
-    #outlook 2013       (american)      <color=#E1E1E1> <unit=pt>
-    #also handles a variant with a space after the semicolon
+    # general pattern: @style='border:none;border-top:solid <color> 1.0pt;padding:3.0pt 0<unit> 0<unit> 0<unit>'
+    # outlook 2007, 2010 (international) <color=#B5C4DF> <unit=cm>
+    # outlook 2007, 2010 (american)      <color=#B5C4DF> <unit=pt>
+    # outlook 2013       (international) <color=#E1E1E1> <unit=cm>
+    # outlook 2013       (american)      <color=#E1E1E1> <unit=pt>
+    # also handles a variant with a space after the semicolon
     splitter = html_message.xpath(
-        #outlook 2007, 2010, 2013 (international, american)
+        # outlook 2007, 2010, 2013 (international, american)
         "//div[@style[re:match(., 'border:none; ?border-top:solid #(E1E1E1|B5C4DF) 1.0pt; ?"
         "padding:3.0pt 0(in|cm) 0(in|cm) 0(in|cm)')]]|"
-        #windows mail
+        # windows mail
         "//div[@style='padding-top: 5px; "
         "border-top-color: rgb(229, 229, 229); "
-        "border-top-width: 1px; border-top-style: solid;']"
-        , namespaces=ns
+        "border-top-width: 1px; border-top-style: solid;']",
+        namespaces=ns,
     )
 
     if splitter:
         splitter = splitter[0]
-        #outlook 2010
+        # outlook 2010
         if splitter == splitter.getparent().getchildren()[0]:
             splitter = splitter.getparent()
     else:
-        #outlook 2003
+        # outlook 2003
         splitter = html_message.xpath(
             "//div"
             "/div[@class='MsoNormal' and @align='center' "
@@ -143,7 +142,7 @@ def cut_microsoft_quote(html_message):
 def cut_by_id(html_message):
     found = False
     for quote_id in QUOTE_IDS:
-        quote = cssselect('#{}'.format(quote_id), html_message)
+        quote = cssselect("#{}".format(quote_id), html_message)
         if quote:
             found = True
             quote[0].getparent().remove(quote[0])
@@ -151,30 +150,64 @@ def cut_by_id(html_message):
 
 
 def cut_blockquote(html_message):
-    ''' Cuts the last non-nested blockquote with wrapping elements.'''
-    quote = html_message.xpath(
-        '(.//blockquote)'
-        '[not(@class="gmail_quote") and not(ancestor::blockquote)]'
-        '[last()]')
+    """Cuts the last non-nested blockquote with wrapping elements.
 
-    if quote:
-        quote = quote[0]
-        quote.getparent().remove(quote)
-        return True
+    Only cuts if there is preceding content at the same level or in the parent,
+    to avoid removing a blockquote that might be the entire message.
+    """
+    # Find the last blockquote that is not a gmail_quote and not nested within another blockquote
+    quote_elements = html_message.xpath(
+        "(.//blockquote)"
+        '[not(@class="gmail_quote") and not(ancestor::blockquote)]'
+        "[last()]"
+    )
+
+    if quote_elements:
+        quote = quote_elements[0]
+        parent = quote.getparent()
+
+        if parent is not None:
+            # Check for preceding siblings or text content in the parent before this quote
+            preceding_content = False
+            # Check 1: Preceding sibling elements
+            if quote.getprevious() is not None:
+                preceding_content = True
+            # Check 2: Text content directly in parent before this specific quote element
+            # This requires iterating children of parent until `quote` is found
+            # and checking `text` of parent or `tail` of previous siblings.
+            else: # If no direct preceding sibling, check parent's text or previous siblings' tails
+                if parent.text and parent.text.strip():
+                    preceding_content = True
+                else:
+                    # Check tail of siblings before this quote element if parent.text is empty
+                    # This is a simplified check; a more robust one would inspect all content before the quote.
+                    # For now, we assume if the quote is the first child and parent.text is empty,
+                    # there isn't significant preceding content at this level.
+                    # A better check would be to see if the quote is the *only* significant content.
+                    pass # Keep preceding_content as False if it's the first element and parent has no text
+
+            # Only remove the quote if there's evidence of content before it.
+            if preceding_content:
+                parent.remove(quote)
+                return True
+    return False
 
 
 def cut_from_block(html_message):
     """Cuts div tag which wraps block starting with "From:"."""
     # handle the case when From: block is enclosed in some tag
     block = html_message.xpath(
-        ("//*[starts-with(mg:text_content(), 'From:')]|"
-         "//*[starts-with(mg:text_content(), 'Date:')]"))
+        (
+            "//*[starts-with(mg:text_content(), 'From:')]|"
+            "//*[starts-with(mg:text_content(), 'Date:')]"
+        )
+    )
 
     if block:
         block = block[-1]
         parent_div = None
         while block.getparent() is not None:
-            if block.tag == 'div':
+            if block.tag == "div":
                 parent_div = block
                 break
             block = block.getparent()
@@ -183,8 +216,10 @@ def cut_from_block(html_message):
             # In cases where removing this enclosing div will remove all
             # content, we should assume the quote is not enclosed in a tag.
             parent_div_is_all_content = (
-                maybe_body is not None and maybe_body.tag == 'body' and
-                len(maybe_body.getchildren()) == 1)
+                maybe_body is not None
+                and maybe_body.tag == "body"
+                and len(maybe_body.getchildren()) == 1
+            )
 
             if not parent_div_is_all_content:
                 parent = block.getparent()
@@ -209,21 +244,55 @@ def cut_from_block(html_message):
     # handle the case when From: block goes right after e.g. <hr>
     # and not enclosed in some tag
     block = html_message.xpath(
-        ("//*[starts-with(mg:tail(), 'From:')]|"
-         "//*[starts-with(mg:tail(), 'Date:')]"))
+        ("//*[starts-with(mg:tail(), 'From:')]|//*[starts-with(mg:tail(), 'Date:')]")
+    )
     if block:
         block = block[0]
 
-        if RE_FWD.match(block.getparent().text or ''):
+        if RE_FWD.match(block.getparent().text or ""):
             return False
-        
-        while(block.getnext() is not None):
+
+        while block.getnext() is not None:
             block.getparent().remove(block.getnext())
         block.getparent().remove(block)
         return True
+
 
 def cut_zimbra_quote(html_message):
     zDivider = html_message.xpath('//hr[@data-marker="__DIVIDER__"]')
     if zDivider:
         zDivider[0].getparent().remove(zDivider[0])
         return True
+
+
+def cut_outlook_quote(html_message):
+    # Outlook sometimes doesn't include the <!--[if !mso]> part for the reply
+    # and only has the <hr id="stopSpelling"> tag, so we look for that too.
+    for el in html_message.xpath("//hr[@id='stopSpelling']"):
+        if el.tag == "hr" and el.get("id") == "stopSpelling":
+            # If it's the HR, then the parent DIV is the quote
+            # unless the parent div is the body, in which case this HR is the quote
+            parent = el.getparent()
+            if (
+                parent is not None
+                and parent.tag == "div"
+                and parent.getparent() is not None
+                and parent.getparent().tag == "body"
+            ):
+                cut_self_and_siblings_after(parent)
+                return True
+            # Special case for cases where hr is child of body tag (e.g. OLK_SRC_BODY_SECTION)
+            elif parent is not None and parent.tag == "body":
+                cut_self_and_siblings_after(el)
+                return True
+            elif parent is not None:  # Default to parent if not body
+                cut_self_and_siblings_after(parent)
+                return True
+
+    # Cutting logic based on 'div' with 'style' attribute containing 'border-top'
+    for el in html_message.xpath("//div[@style='border-top:']"):
+        for el in parent.xpath("following-sibling::node()"):
+            parent.getparent().remove(el)
+        parent.getparent().remove(parent)
+
+    return False
