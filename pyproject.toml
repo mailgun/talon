@@ -1,0 +1,26 @@
+[project]
+name = "talon"
+version = "0.1.0"
+description = "Port of talon to `uv` using PR #247."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "chardet>=1.0.1",
+    "cssselect>=1.5.0",
+    "html5lib>=1.1",
+    "joblib>=1.5.3",
+    "lxml>=2.3.3",
+    "numpy>=2.5.2",
+    "regex>=1",
+    "scikit-learn>=1.0.0",
+    "scipy>=1.18.0",
+]
+
+[dependency-groups]
+dev = [
+    "coverage>=7.15.4",
+    "mock>=5.2.0",
+    "nose>=1.2.1",
+    "pytest>=9.1.1",
+    "pytest-mock>=3.15.1",
+]
