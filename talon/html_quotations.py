@@ -6,7 +6,7 @@ messages (without quoted messages) from html
 from __future__ import absolute_import
 import regex as re
 
-from talon.utils import cssselect 
+from talon.utils import cssselect
 
 CHECKPOINT_PREFIX = '#!%!'
 CHECKPOINT_SUFFIX = '!%!#'
@@ -15,6 +15,10 @@ CHECKPOINT_PATTERN = re.compile(CHECKPOINT_PREFIX + '\d+' + CHECKPOINT_SUFFIX)
 # HTML quote indicators (tag ids)
 QUOTE_IDS = ['OLK_SRC_BODY_SECTION']
 RE_FWD = re.compile("^[-]+[ ]*Forwarded message[ ]*[-]+$", re.I | re.M)
+# Leading "On ... wrote:" header inside a Gmail quote (classic compose).
+RE_GMAIL_QUOTE_HEADER = re.compile(r"On\s.{0,500}wrote\s*:", re.I | re.S)
+# Leftover greeting/name after removing a gmail_quote that actually wraps the body.
+GMAIL_QUOTE_STUB_MAX_CHARS = 40
 
 
 def add_checkpoint(html_note, counter):
@@ -77,12 +81,64 @@ def delete_quotation_tags(html_note, counter, quotation_checkpoints):
         return counter, tag_in_quotation
 
 
-def cut_gmail_quote(html_message):
-    ''' Cuts the outermost block element with class gmail_quote. '''
-    gmail_quote = cssselect('div.gmail_quote', html_message)
-    if gmail_quote and (gmail_quote[0].text is None or not RE_FWD.match(gmail_quote[0].text)):
-        gmail_quote[0].getparent().remove(gmail_quote[0])
+def _tree_text(element):
+    """Return concatenated descendant text without mutating the tree."""
+    return (element.xpath('string()') or '').strip()
+
+
+def _gmail_quote_looks_like_quotation(quote):
+    """True if the node looks like quoted history rather than the current body."""
+    if cssselect('.gmail_attr', quote) or cssselect('blockquote.gmail_quote', quote):
         return True
+    return bool(RE_GMAIL_QUOTE_HEADER.search(_tree_text(quote)))
+
+
+def _should_preserve_gmail_quote(remaining_text, original_text, looks_like_quotation):
+    """True if cutting the gmail_quote would leave almost no readable text.
+
+    Mirrors cut_from_block's parent_div_is_all_content / _readable_text_empty:
+    do not strip when the quote wrapper holds the message. Completely empty
+    leftover is always preserved. A short leftover (greeting) is preserved
+    only when the node does not look like a real Gmail quote, so short replies
+    to quoted threads are still stripped.
+    """
+    if not remaining_text:
+        return True
+    if looks_like_quotation or not original_text:
+        return False
+    return (
+        len(remaining_text) <= GMAIL_QUOTE_STUB_MAX_CHARS
+        and len(remaining_text) < 0.05 * len(original_text)
+    )
+
+
+def cut_gmail_quote(html_message):
+    ''' Cuts the outermost block element with class gmail_quote.
+
+    Does not cut if that would leave the message with almost no readable text.
+    '''
+    gmail_quote = cssselect('div.gmail_quote', html_message)
+    if not gmail_quote:
+        return False
+    quote = gmail_quote[0]
+    if quote.text is not None and RE_FWD.match(quote.text):
+        return False
+
+    parent = quote.getparent()
+    if parent is None:
+        return False
+
+    original_text = _tree_text(html_message)
+    looks_like_quotation = _gmail_quote_looks_like_quotation(quote)
+    idx = parent.index(quote)
+    parent.remove(quote)
+    remaining_text = _tree_text(html_message)
+
+    if _should_preserve_gmail_quote(
+            remaining_text, original_text, looks_like_quotation):
+        parent.insert(idx, quote)
+        return False
+    return True
 
 
 def cut_microsoft_quote(html_message):
