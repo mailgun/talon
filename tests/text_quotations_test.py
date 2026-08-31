@@ -618,7 +618,7 @@ def test_process_marked_lines():
     lines = ['1', '2', '3', '4', '5', '6']
     eq_(['1'], quotations.process_marked_lines(lines, markers))
 
-    # test links wrapped with paranthesis
+    # test links wrapped with parenthesis
     # link starts on the marker line
     markers = 'tsmttem'
     lines = ['text',
@@ -652,7 +652,7 @@ def test_process_marked_lines():
              '>']
     eq_(lines, quotations.process_marked_lines(lines, markers))
 
-    # inline reply with link not wrapped in paranthesis
+    # inline reply with link not wrapped in parenthesis
     markers = 'tsmtm'
     lines = ['text',
              'splitter',
@@ -661,7 +661,7 @@ def test_process_marked_lines():
              '>']
     eq_(lines, quotations.process_marked_lines(lines, markers))
 
-    # inline reply with link wrapped in paranthesis
+    # inline reply with link wrapped in parenthesis
     markers = 'tsmtm'
     lines = ['text',
              'splitter',
