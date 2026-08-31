@@ -10,11 +10,11 @@ from talon.utils import cssselect
 
 CHECKPOINT_PREFIX = '#!%!'
 CHECKPOINT_SUFFIX = '!%!#'
-CHECKPOINT_PATTERN = re.compile(CHECKPOINT_PREFIX + '\d+' + CHECKPOINT_SUFFIX)
+CHECKPOINT_PATTERN = re.compile(CHECKPOINT_PREFIX + r'\d+' + CHECKPOINT_SUFFIX)
 
 # HTML quote indicators (tag ids)
 QUOTE_IDS = ['OLK_SRC_BODY_SECTION']
-RE_FWD = re.compile("^[-]+[ ]*Forwarded message[ ]*[-]+$", re.I | re.M)
+RE_FWD = re.compile(r"^[-]+[ ]*Forwarded message[ ]*[-]+$", re.I | re.M)
 # Leading "On ... wrote:" header inside a Gmail quote (classic compose).
 RE_GMAIL_QUOTE_HEADER = re.compile(r"On\s.{0,500}wrote\s*:", re.I | re.S)
 # Leftover greeting/name after removing a gmail_quote that actually wraps the body.
