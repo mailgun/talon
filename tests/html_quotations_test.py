@@ -148,6 +148,60 @@ def test_gmail_quote_compact():
         RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body)))
 
 
+def test_gmail_quote_wrapping_body_keeps_content():
+    """Gmail nested quote wrappers around the body must not strip the message.
+
+    Gmail sometimes wraps the current compose (often a signature template)
+    in div.gmail_quote / gmail_quote_container with only a greeting outside.
+    Cutting that node would leave almost no readable text.
+    """
+    msg_body = (
+        '<div dir="ltr">'
+        '<div><span style="background-color:transparent">Heather,</span></div>'
+        '<div class="gmail_quote gmail_quote_container">'
+        '<div dir="ltr"><div class="gmail_quote">'
+        '<div dir="ltr" class="gmail_signature" data-smartmail="gmail_signature">'
+        '<div>Thank you for applying to our Production Associate opportunity '
+        'here at Waites Sensor Technologies! I reviewed your resume and would '
+        'love to schedule some time to learn more about your background.</div>'
+        '<div>What is your availability for a phone call next week?</div>'
+        '</div></div></div></div></div>'
+    )
+    extracted = quotations.extract_from_html(msg_body)
+    ok_('Thank you for applying' in extracted)
+    ok_('availability for a phone call' in extracted)
+    ok_('Heather,' in extracted)
+
+
+def test_gmail_quote_entire_body_is_kept():
+    """A gmail_quote that wraps the whole message is not cut."""
+    msg_body = (
+        '<div class="gmail_quote">'
+        '<div>Thank you for applying to our Production Associate opportunity.</div>'
+        '</div>'
+    )
+    extracted = quotations.extract_from_html(msg_body)
+    ok_('Thank you for applying' in extracted)
+
+
+def test_gmail_quote_short_reply_to_long_quote():
+    """A short reply to a real Gmail quote is still stripped."""
+    quoted = 'Quoted paragraph from the previous message. ' * 20
+    msg_body = (
+        'OK'
+        '<div class="gmail_quote">'
+        '<div class="gmail_attr">On Mon, Apr 2, 2012 at 6:26 PM, Bob wrote:</div>'
+        '<blockquote class="gmail_quote">'
+        '<div>' + quoted + '</div>'
+        '</blockquote>'
+        '</div>'
+    )
+    extracted = quotations.extract_from_html(msg_body)
+    eq_("<html><head></head><body>OK</body></html>",
+        RE_WHITESPACE.sub('', extracted))
+    ok_('Quoted paragraph' not in extracted)
+
+
 def test_gmail_quote_blockquote():
     msg_body = """Message
 <blockquote class="gmail_quote">
