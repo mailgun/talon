@@ -137,17 +137,17 @@ def test_extract_names():
         '"**Bobby B**" <copymycashsystem@example.com>':
         ['Bobby', 'copymycashsystem'],
         # from crash reports `bad escape`
-        '"M Ali B Azlan \(GHSE/PETH\)" <aliazlan@example.com>':
+        '"M Ali B Azlan (GHSE/PETH)" <aliazlan@example.com>':
         ['Ali', 'Azlan'],
-        ('"Ridthauddin B A Rahim \(DD/PCSB\)"'
+        ('"Ridthauddin B A Rahim (DD/PCSB)"'
          ' <ridthauddin_arahim@example.com>'): ['Ridthauddin', 'Rahim'],
-        ('"Boland, Patrick \(Global Xxx Group, Ireland \)"'
+        ('"Boland, Patrick (Global Xxx Group, Ireland )"'
          ' <Patrick.Boland@example.com>'): ['Boland', 'Patrick'],
-        '"Mates Rate \(Wine\)" <amen@example.com.com>':
+        '"Mates Rate (Wine)" <amen@example.com.com>':
         ['Mates', 'Rate', 'Wine'],
-        ('"Morgan, Paul \(Business Xxx RI, Xxx Xxx Group\)"'
+        ('"Morgan, Paul (Business Xxx RI, Xxx Xxx Group)"'
          ' <paul.morgan@example.com>'): ['Morgan', 'Paul'],
-        '"David DECOSTER \(Domicile\)" <decosterdavid@xxx.be>':
+        '"David DECOSTER (Domicile)" <decosterdavid@xxx.be>':
         ['David', 'DECOSTER', 'Domicile']
         }
 
@@ -155,7 +155,7 @@ def test_extract_names():
         extracted_names = h.extract_names(sender)
         # check that extracted names could be compiled
         try:
-            re.compile("|".join(extracted_names))
+            re.compile(r"|".join(map(re.escape, extracted_names)))
         except Exception as e:
             ok_(False, ("Failed to compile extracted names {}"
                         "\n\nReason: {}").format(extracted_names, e))
