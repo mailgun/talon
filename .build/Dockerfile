@@ -14,7 +14,8 @@ COPY wheel/* /wheel/
 
 RUN mkdir -p ${REPORT_PATH}
 
-RUN python ./setup.py build bdist_wheel -d /wheel && \
+RUN (cd talon-core && python setup.py build bdist_wheel -d /wheel) && \
+    (cd talon && python setup.py build bdist_wheel -d /wheel) && \
     pip install --no-deps /wheel/*
 
 ENTRYPOINT ["/bin/sh", "/app/run_tests.sh"]

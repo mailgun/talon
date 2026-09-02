@@ -1,0 +1,5 @@
+recursive-exclude tests *.pyc *~
+recursive-exclude talon *.pyc *~
+include LICENSE
+include MANIFEST.in
+include README.rst
