@@ -15,10 +15,10 @@ CHECKPOINT_PATTERN = re.compile(CHECKPOINT_PREFIX + r'\d+' + CHECKPOINT_SUFFIX)
 # HTML quote indicators (tag ids)
 QUOTE_IDS = ['OLK_SRC_BODY_SECTION']
 RE_FWD = re.compile(r"^[-]+[ ]*Forwarded message[ ]*[-]+$", re.I | re.M)
-# Leading "On ... wrote:" header inside a Gmail quote (classic compose).
-RE_GMAIL_QUOTE_HEADER = re.compile(r"On\s.{0,500}wrote\s*:", re.I | re.S)
-# Leftover greeting/name after removing a gmail_quote that actually wraps the body.
-GMAIL_QUOTE_STUB_MAX_CHARS = 40
+# Leading "On ... wrote:" header inside a quote wrapper (Gmail, Yahoo, etc.).
+RE_QUOTE_HEADER = re.compile(r"On\s.{0,500}wrote\s*:", re.I | re.S)
+# Leftover greeting/name after removing a quote wrapper that actually wraps the body.
+QUOTE_STUB_MAX_CHARS = 40
 
 
 def add_checkpoint(html_note, counter):
@@ -90,16 +90,36 @@ def _gmail_quote_looks_like_quotation(quote):
     """True if the node looks like quoted history rather than the current body."""
     if cssselect('.gmail_attr', quote) or cssselect('blockquote.gmail_quote', quote):
         return True
-    return bool(RE_GMAIL_QUOTE_HEADER.search(_tree_text(quote)))
+    return bool(RE_QUOTE_HEADER.search(_tree_text(quote)))
 
 
-def _should_preserve_gmail_quote(remaining_text, original_text, looks_like_quotation):
-    """True if cutting the gmail_quote would leave almost no readable text.
+def _yahoo_quote_looks_like_quotation(quote):
+    """True if the node looks like quoted history rather than the current body."""
+    return bool(RE_QUOTE_HEADER.search(_tree_text(quote)))
+
+
+def _quote_is_forward(quote):
+    """True if the quote starts with a forwarded-message header.
+
+    Gmail puts the header in the wrapper's direct text. Yahoo puts it in a
+    child, so also check the first non-empty descendant text node.
+    """
+    if quote.text is not None and RE_FWD.match(quote.text):
+        return True
+    for child in quote.iterdescendants():
+        text = (child.text or '').strip()
+        if text:
+            return bool(RE_FWD.match(text))
+    return False
+
+
+def _should_preserve_quote(remaining_text, original_text, looks_like_quotation):
+    """True if cutting the quote wrapper would leave almost no readable text.
 
     Mirrors cut_from_block's parent_div_is_all_content / _readable_text_empty:
     do not strip when the quote wrapper holds the message. Completely empty
     leftover is always preserved. A short leftover (greeting) is preserved
-    only when the node does not look like a real Gmail quote, so short replies
+    only when the node does not look like a real quotation, so short replies
     to quoted threads are still stripped.
     """
     if not remaining_text:
@@ -107,9 +127,29 @@ def _should_preserve_gmail_quote(remaining_text, original_text, looks_like_quota
     if looks_like_quotation or not original_text:
         return False
     return (
-        len(remaining_text) <= GMAIL_QUOTE_STUB_MAX_CHARS
+        len(remaining_text) <= QUOTE_STUB_MAX_CHARS
         and len(remaining_text) < 0.05 * len(original_text)
     )
+
+
+def _cut_quote_node(html_message, quote, looks_like_quotation):
+    """Remove quote unless it is a forward or cutting would empty the message."""
+    if _quote_is_forward(quote):
+        return False
+
+    parent = quote.getparent()
+    if parent is None:
+        return False
+
+    original_text = _tree_text(html_message)
+    idx = parent.index(quote)
+    parent.remove(quote)
+    remaining_text = _tree_text(html_message)
+
+    if _should_preserve_quote(remaining_text, original_text, looks_like_quotation):
+        parent.insert(idx, quote)
+        return False
+    return True
 
 
 def cut_gmail_quote(html_message):
@@ -121,24 +161,21 @@ def cut_gmail_quote(html_message):
     if not gmail_quote:
         return False
     quote = gmail_quote[0]
-    if quote.text is not None and RE_FWD.match(quote.text):
-        return False
+    return _cut_quote_node(
+        html_message, quote, _gmail_quote_looks_like_quotation(quote))
 
-    parent = quote.getparent()
-    if parent is None:
-        return False
 
-    original_text = _tree_text(html_message)
-    looks_like_quotation = _gmail_quote_looks_like_quotation(quote)
-    idx = parent.index(quote)
-    parent.remove(quote)
-    remaining_text = _tree_text(html_message)
+def cut_yahoo_quote(html_message):
+    ''' Cuts the outermost block element with class yahoo_quoted.
 
-    if _should_preserve_gmail_quote(
-            remaining_text, original_text, looks_like_quotation):
-        parent.insert(idx, quote)
+    Does not cut if that would leave the message with almost no readable text.
+    '''
+    yahoo_quote = cssselect('div.yahoo_quoted', html_message)
+    if not yahoo_quote:
         return False
-    return True
+    quote = yahoo_quote[0]
+    return _cut_quote_node(
+        html_message, quote, _yahoo_quote_looks_like_quotation(quote))
 
 
 def cut_microsoft_quote(html_message):

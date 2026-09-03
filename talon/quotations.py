@@ -399,7 +399,7 @@ def extract_from_html(msg_body):
     Extract not quoted message from provided html message body
     using tags and plain text algorithm.
 
-    Cut out the 'blockquote', 'gmail_quote' tags.
+    Cut out the 'blockquote', 'gmail_quote', 'yahoo_quoted' tags.
     Cut Microsoft quotations.
 
     Then use plain text algorithm to cut out splitter or
@@ -434,7 +434,7 @@ def extract_from_html_tree(html_tree):
     Extract not quoted message from provided parsed html tree using tags and
     plain text algorithm.
 
-    Cut out the 'blockquote', 'gmail_quote' tags.
+    Cut out the 'blockquote', 'gmail_quote', 'yahoo_quoted' tags.
     Cut Microsoft quotations.
 
     Then use plain text algorithm to cut out splitter or
@@ -446,6 +446,7 @@ def extract_from_html_tree(html_tree):
     then deleting necessary tags.
     """
     cut_quotations = (html_quotations.cut_gmail_quote(html_tree) or
+                      html_quotations.cut_yahoo_quote(html_tree) or
                       html_quotations.cut_zimbra_quote(html_tree) or
                       html_quotations.cut_blockquote(html_tree) or
                       html_quotations.cut_microsoft_quote(html_tree) or
