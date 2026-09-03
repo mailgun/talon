@@ -214,6 +214,88 @@ def test_gmail_quote_blockquote():
         RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body)))
 
 
+def test_yahoo_quote():
+    msg_body = """Reply
+<div id="yahoo_quoted_0033794750" class="yahoo_quoted">
+    <div style="font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:13px;color:#26282a;">
+        <div>
+            On Tuesday, June 4, 2019, 5:41:43 PM PDT, John Smith &lt;jsmith@example.com&gt; wrote:
+        </div>
+        <div><br></div>
+        <div><br></div>
+        <div>
+            <div id="yiv3423441790">
+                <div dir="ltr">Test</div>
+            </div>
+        </div>
+    </div>
+</div>
+"""
+    eq_("<html><head></head><body>Reply</body></html>",
+        RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body)))
+
+
+def test_yahoo_quote_wrapping_body_keeps_content():
+    """Yahoo quote wrappers around the body must not strip the message."""
+    msg_body = (
+        '<div dir="ltr">'
+        '<div><span style="background-color:transparent">Heather,</span></div>'
+        '<div class="yahoo_quoted" id="yahoo_quoted_0033794750">'
+        '<div>Thank you for applying to our Production Associate opportunity '
+        'here at Example Sensor Technologies! I reviewed your resume and would '
+        'love to schedule some time to learn more about your background.</div>'
+        '<div>What is your availability for a phone call next week?</div>'
+        '</div></div>'
+    )
+    extracted = quotations.extract_from_html(msg_body)
+    ok_('Thank you for applying' in extracted)
+    ok_('availability for a phone call' in extracted)
+    ok_('Heather,' in extracted)
+
+
+def test_yahoo_quote_entire_body_is_kept():
+    """A yahoo_quoted that wraps the whole message is not cut."""
+    msg_body = (
+        '<div class="yahoo_quoted">'
+        '<div>Thank you for applying to our Production Associate opportunity.</div>'
+        '</div>'
+    )
+    extracted = quotations.extract_from_html(msg_body)
+    ok_('Thank you for applying' in extracted)
+
+
+def test_yahoo_quote_short_reply_to_long_quote():
+    """A short reply to a real Yahoo quote is still stripped."""
+    quoted = 'Quoted paragraph from the previous message. ' * 20
+    msg_body = (
+        'OK'
+        '<div class="yahoo_quoted" id="yahoo_quoted_0033794750">'
+        '<div>On Monday, April 2, 2012, Bob wrote:</div>'
+        '<div>' + quoted + '</div>'
+        '</div>'
+    )
+    extracted = quotations.extract_from_html(msg_body)
+    eq_("<html><head></head><body>OK</body></html>",
+        RE_WHITESPACE.sub('', extracted))
+    ok_('Quoted paragraph' not in extracted)
+
+
+def test_yahoo_forwarded_msg():
+    """Forwarded Yahoo mail keeps the forwarded body (header is in a child)."""
+    msg_body = (
+        '<div dir="ltr"><br>'
+        '<div class="yahoo_quoted" id="yahoo_quoted_0033794750">'
+        '<div>---------- Forwarded message ----------<br>'
+        'From: Bob &lt;bob@example.com&gt;</div>'
+        '<div>eom</div>'
+        '</div><br></div>'
+    )
+    extracted = quotations.extract_from_html(msg_body)
+    eq_(RE_WHITESPACE.sub('', msg_body), RE_WHITESPACE.sub('', extracted))
+    ok_('Forwarded message' in extracted)
+    ok_('eom' in extracted)
+
+
 def test_unicode_in_reply():
     msg_body = u"""Reply \xa0 \xa0 Text<br>
 
@@ -378,6 +460,10 @@ def extract_reply_and_check(filename):
 
 def test_gmail_reply():
     extract_reply_and_check("tests/fixtures/html_replies/gmail.html")
+
+
+def test_yahoo_reply():
+    extract_reply_and_check("tests/fixtures/html_replies/yahoo.html")
 
 
 def test_mail_ru_reply():
