@@ -29,6 +29,16 @@ RE_SPECIAL_CHARS = rc((r'^[\s]*([\*]|#|[\+]|[\^]|-|[\~]|[\&]|[\$]|_|[\!]|'
                        r'[\/]|[\%]|[\:]|[\=]){10,}[\s]*$'))
 
 RE_SIGNATURE_WORDS = rc((r'(T|t)hank.*,|(B|b)est|(R|r)egards|'
+                         r'(A|a)ll the best|'
+                         r'(C|c)ordialement|'
+                         r'(R|r)espectueusement|'
+                         r'(A|a)micalement|'
+                         r'(A|a)mitiés|'
+                         r'(M|m)it freundlichen|'
+                         r'(M|m)it besten|'
+                         r'(V|v)ielen (D|d)ank|'
+                         r'In Erwartung Ihrer Antwort|'
+                         r'(A|a)lles (G|g)ute|'
                          r'^sent[ ]{1}from[ ]{1}my[\s,!\w]*$|BR|(S|s)incerely|'
                          r'(C|c)orporation|Group'))
 
