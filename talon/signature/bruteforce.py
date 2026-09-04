@@ -23,6 +23,18 @@ RE_SIGNATURE = re.compile(r'''
                        ^cheers[\s,!]*$
                        |
                        ^best[ a-z]*[\s,!]*$
+                       |
+                       ^ciao[ a-z]*[\s,!]*$
+                       |
+                       ^saluti[ a-z]*[\s,!]*$
+                       |
+                       ^saluto[ a-z]*[\s,!]*$
+                       |
+                       ^buona[ a-z]*[\s,!]*$
+                       |
+                       ^distinti[ a-z]*[\s,!]*$
+                       |
+                       ^cordiali[ a-z]*[\s,!]*$
                    )
                    .*
                )
@@ -39,6 +51,8 @@ RE_PHONE_SIGNATURE = re.compile(r'''
                        ^sent[ ]([\S]*[ ])?from[ ]my[ ]BlackBerry.*$
                        |
                        ^Enviado[ ]desde[ ]mi[ ]([\S]+[ ]){0,2}BlackBerry.*$
+                       |
+                       ^Inviato[ ]dal[ ]mio[ ]([\S]+[ ]){0,2}Iphone.*$
                    )
                    .*
                )
