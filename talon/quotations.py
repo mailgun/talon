@@ -132,6 +132,8 @@ RE_ORIGINAL_MESSAGE = re.compile(r'[\s]*[-]+[ ]*({})[ ]*[-]+'.format(
     r'|'.join((
         # English
         'Original Message', 'Reply Message',
+        # French
+        'Message original',
         # German
         u'Ursprüngliche Nachricht', 'Antwort Nachricht',
         # Danish
