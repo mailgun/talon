@@ -55,8 +55,7 @@ setup(name='talon',
           "joblib",
           ],
       tests_require=[
-          "mock",
-          "nose",
-          "coverage"
+          "pytest",
+          "pytest-cov"
           ]
       )
