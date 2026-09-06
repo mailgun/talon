@@ -3,6 +3,9 @@ talon
 
 Mailgun library to extract message quotations and signatures.
 
+Plain-text quotation headers are recognized in several languages, including
+Ukrainian reply headers produced by localized mail clients.
+
 If you ever tried to parse message quotations or signatures you know that absence of any formatting standards in this area could make this task a nightmare. Hopefully this library will make your life much easier. The name of the project is inspired by TALON - multipurpose robot designed to perform missions ranging from reconnaissance to combat and operate in a number of hostile environments. That’s what a good quotations and signature parser should be like :smile:
 
 Usage
