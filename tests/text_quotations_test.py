@@ -35,6 +35,22 @@ On 11-Apr-2011, at 6:54 PM, Roman Tkachenko <romant@example.com> wrote:
 
     assert "Test reply" == quotations.extract_from_plain(msg_body)
 
+
+def test_pattern_ukrainian_date_somebody_wrote():
+    msg_body = """Reply
+23 лист. 2015 р. 09:18 "John Smith" <john@example.com> пише:
+
+> Original message"""
+
+    assert "Reply" == quotations.extract_from_plain(msg_body)
+
+
+def test_ukrainian_wrote_word_without_reply_header_is_preserved():
+    msg_body = "Автор пише: це звичайне речення без заголовка відповіді."
+
+    assert msg_body == quotations.extract_from_plain(msg_body)
+
+
 def test_pattern_on_date_polymail():
     msg_body = """Test reply
 

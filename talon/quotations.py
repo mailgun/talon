@@ -167,6 +167,14 @@ RE_ANDROID_WROTE = re.compile(r'[\s]*[-]+.*({})[ ]*[-]+'.format(
 # > wrote:
 RE_POLYMAIL = re.compile(r'On.*\s{2}<\smailto:.*\s> wrote:', re.I)
 
+# 23 лист. 2015 р. 09:18 "John Smith" <john@example.com> пише:
+RE_UKRAINIAN_WROTE = re.compile(
+    r'^[> ]*(?:[^\W\d_]{2,4},[ ]+)?\d{1,2}[ ]+[^\W\d_]+\.?[ ]+'
+    r'\d{4}[ ]+р\.[ ]+(?:о[ ]+)?\d{1,2}:\d{2}(?:[ ]+\S+)?[ ]+'
+    r'.+<[^<>\s]+@[^<>\s]+>[ ]+пише:[ ]*$',
+    re.I | re.M,
+)
+
 SPLITTER_PATTERNS = [
     RE_ORIGINAL_MESSAGE,
     RE_ON_DATE_SMB_WROTE,
@@ -184,7 +192,8 @@ SPLITTER_PATTERNS = [
     # Sent from Samsung MobileName <address@example.com> wrote:
     re.compile(r'Sent from Samsung.* \S+@\S+> wrote'),
     RE_ANDROID_WROTE,
-    RE_POLYMAIL
+    RE_POLYMAIL,
+    RE_UKRAINIAN_WROTE,
     ]
 
 RE_LINK = re.compile(r'<(http://[^>]*)>')
