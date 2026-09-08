@@ -229,8 +229,8 @@ def test_yahoo_quote():
     </div>
 </div>
 """
-    eq_("<html><head></head><body>Reply</body></html>",
-        RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body)))
+    assert "<html><head></head><body>Reply</body></html>" == \
+        RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body))
 
 
 def test_yahoo_quote_wrapping_body_keeps_content():
@@ -246,9 +246,9 @@ def test_yahoo_quote_wrapping_body_keeps_content():
         '</div></div>'
     )
     extracted = quotations.extract_from_html(msg_body)
-    ok_('Thank you for applying' in extracted)
-    ok_('availability for a phone call' in extracted)
-    ok_('Heather,' in extracted)
+    assert 'Thank you for applying' in extracted
+    assert 'availability for a phone call' in extracted
+    assert 'Heather,' in extracted
 
 
 def test_yahoo_quote_entire_body_is_kept():
@@ -259,7 +259,7 @@ def test_yahoo_quote_entire_body_is_kept():
         '</div>'
     )
     extracted = quotations.extract_from_html(msg_body)
-    ok_('Thank you for applying' in extracted)
+    assert 'Thank you for applying' in extracted
 
 
 def test_yahoo_quote_short_reply_to_long_quote():
@@ -273,9 +273,9 @@ def test_yahoo_quote_short_reply_to_long_quote():
         '</div>'
     )
     extracted = quotations.extract_from_html(msg_body)
-    eq_("<html><head></head><body>OK</body></html>",
-        RE_WHITESPACE.sub('', extracted))
-    ok_('Quoted paragraph' not in extracted)
+    assert "<html><head></head><body>OK</body></html>" == \
+        RE_WHITESPACE.sub('', extracted)
+    assert 'Quoted paragraph' not in extracted
 
 
 def test_yahoo_forwarded_msg():
@@ -289,9 +289,9 @@ def test_yahoo_forwarded_msg():
         '</div><br></div>'
     )
     extracted = quotations.extract_from_html(msg_body)
-    eq_(RE_WHITESPACE.sub('', msg_body), RE_WHITESPACE.sub('', extracted))
-    ok_('Forwarded message' in extracted)
-    ok_('eom' in extracted)
+    assert RE_WHITESPACE.sub('', msg_body) == RE_WHITESPACE.sub('', extracted)
+    assert 'Forwarded message' in extracted
+    assert 'eom' in extracted
 
 
 def test_unicode_in_reply():
