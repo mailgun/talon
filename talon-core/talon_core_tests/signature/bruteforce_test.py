@@ -3,7 +3,7 @@
 from __future__ import absolute_import
 from .. import *
 
-from talon.signature import bruteforce
+from talon_core.signature import bruteforce
 
 
 def test_empty_body():

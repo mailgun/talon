@@ -1,0 +1,5 @@
+recursive-exclude talon_core_tests *.pyc *~
+recursive-exclude talon_core *.pyc *~
+include LICENSE
+include MANIFEST.in
+include README.rst

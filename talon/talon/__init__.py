@@ -1,5 +1,5 @@
 from __future__ import absolute_import
-from talon.quotations import register_xpath_extensions
+import talon_core
 try:
     from talon import signature
     ML_ENABLED = True
@@ -8,6 +8,6 @@ except ImportError:
 
 
 def init():
-    register_xpath_extensions()
+    talon_core.init()
     if ML_ENABLED:
         signature.initialize()

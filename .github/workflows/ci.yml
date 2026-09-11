@@ -31,7 +31,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -e . -r test-requirements.txt
+          pip install -e ./talon-core -e ./talon -r test-requirements.txt
 
       - name: Run tests
         env:

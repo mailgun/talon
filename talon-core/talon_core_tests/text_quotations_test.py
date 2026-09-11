@@ -7,7 +7,7 @@ from . fixtures import *
 import os
 
 import email.iterators
-from talon import quotations
+from talon_core import quotations
 import six
 from six.moves import range
 from six import StringIO

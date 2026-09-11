@@ -1,9 +1,2 @@
-cssselect
-html5lib
-joblib
-lxml>=2.3.3
-numpy
-regex>=1
-scikit-learn>=1.0.0
-scipy
-six>=1.10.0
+-e ./talon-core
+-e ./talon

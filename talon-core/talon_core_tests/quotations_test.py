@@ -4,7 +4,7 @@ from __future__ import absolute_import
 from . import *
 from . fixtures import *
 
-from talon import quotations
+from talon_core import quotations
 
 
 @patch.object(quotations, 'extract_from_html')
