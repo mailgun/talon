@@ -135,6 +135,28 @@ Enviado desde mi oficina mÃ³vil BlackBerryÂ® de Telcel"""
         bruteforce.extract_signature(msg_body)
 
 
+def test_english_k9_signature():
+    msg_body = """Hello.
+Sent from my Android device with K-9 Mail. Please excuse my brevity."""
+    assert ('Hello.', 'Sent from my Android device with K-9 Mail. Please excuse my brevity.') == \
+        bruteforce.extract_signature(msg_body)
+
+
+def test_french_k9_signature():
+    msg_body = """Hello.
+Envoyé de mon appareil Android avec Courriel K-9 Mail. Veuillez excuser ma brièveté."""
+    assert ('Hello.', 'Envoyé de mon appareil Android avec Courriel K-9 Mail. Veuillez excuser ma brièveté.') == \
+        bruteforce.extract_signature(msg_body)
+
+
+def test_android_and_k9_words_in_body():
+    msg_body = """Hello.
+I use Android and K-9 Mail. It's great.
+
+Another paragraph."""
+    assert (msg_body, None) == bruteforce.extract_signature(msg_body)
+
+
 @patch.object(bruteforce, 'get_delimiter', Mock(side_effect=Exception()))
 def test_crash_in_extract_signature():
     msg_body = '''Hey!
