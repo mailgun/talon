@@ -295,7 +295,7 @@ def test_yahoo_forwarded_msg():
 
 
 def test_unicode_in_reply():
-    msg_body = u"""Reply \xa0 \xa0 Text<br>
+    msg_body = """Reply \xa0 \xa0 Text<br>
 
 <div>
   <br>

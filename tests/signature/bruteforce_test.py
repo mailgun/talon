@@ -128,10 +128,10 @@ Envoyé sans fil par mon terminal mobile BlackBerry sur le réseau de Bell."""
     assert ('Heeyyoooo.', msg_body[len('Heeyyoooo.\n'):]) == \
         bruteforce.extract_signature(msg_body)
 
-    msg_body = u"""Blah
+    msg_body = """Blah
 Enviado desde mi oficina mÃ³vil BlackBerryÂ® de Telcel"""
 
-    assert ('Blah', u'Enviado desde mi oficina mÃ³vil BlackBerryÂ® de Telcel') == \
+    assert ('Blah', 'Enviado desde mi oficina mÃ³vil BlackBerryÂ® de Telcel') == \
         bruteforce.extract_signature(msg_body)
 
 

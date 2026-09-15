@@ -198,7 +198,7 @@ bla-bla - bla"""
 
 
 def _check_pattern_original_message(original_message_indicator):
-    msg_body = u"""Test reply
+    msg_body = """Test reply
 
 -----{}-----
 
@@ -376,7 +376,7 @@ Blah-blah-blah
 
 def test_french_multiline_from_block():
     assert 'Lorem ipsum' == quotations.extract_from_plain(
-        u"""Lorem ipsum
+        """Lorem ipsum
 
 De : Brendan xxx [mailto:brendan.xxx@xxx.com]
 Envoyé : vendredi 23 janvier 2015 16:39
@@ -388,7 +388,7 @@ Blah-blah-blah
 
 def test_french_from_block():
     assert 'Lorem ipsum' == quotations.extract_from_plain(
-        u"""Lorem ipsum
+        """Lorem ipsum
 
 Le 23 janv. 2015 à 22:03, Brendan xxx <brendan.xxx@xxx.com<mailto:brendan.xxx@xxx.com>> a écrit:
 
@@ -396,7 +396,7 @@ Bonjour!""")
 
 def test_polish_from_block():
     assert 'Lorem ipsum' == quotations.extract_from_plain(
-        u"""Lorem ipsum
+        """Lorem ipsum
 
 W dniu 28 stycznia 2015 01:53 użytkownik Zoe xxx <zoe.xxx@xxx.com>
 napisał:
@@ -418,7 +418,7 @@ Blah-blah-blah
 
 def test_swedish_from_block():
     assert 'Allo! Follow up MIME!' == quotations.extract_from_plain(
-        u"""Allo! Follow up MIME!
+        """Allo! Follow up MIME!
 Från: Anno Sportel [mailto:anno.spoel@hsbcssad.com]
 Skickat: den 26 augusti 2015 14:45
 Till: Isacson Leiff
@@ -437,7 +437,7 @@ Veniam laborum mlkshk kale chips authentic. Normcore mumblecore laboris, fanny p
 
 def test_norwegian_from_line():
     assert 'Lorem' == quotations.extract_from_plain(
-        u"""Lorem
+        """Lorem
 På 14 september 2015 på 02:23:18, Valentino Rudy (valentino@rudy.be) skrev:
 
 Veniam laborum mlkshk kale chips authentic. Normcore mumblecore laboris, fanny pack readymade eu blog chia pop-up freegan enim master cleanse.
@@ -454,7 +454,7 @@ Small batch beard laboris tempor, non listicle hella Tumblr heirloom.
 
 def test_vietnamese_from_block():
     assert 'Hello' == quotations.extract_from_plain(
-        u"""Hello
+        """Hello
 
 Vào 14:24 8 tháng 6, 2017, Hùng Nguyễn <hungnguyen@xxx.com> đã viết:
 

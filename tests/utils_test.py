@@ -26,7 +26,7 @@ Haha
 </body>"""
     text = u.html_to_text(html)
     assert "Hello world! \n\n  * One! \n  * Two \nHaha" == text
-    assert u"привет!" == u.html_to_text("<b>привет!</b>")
+    assert "привет!" == u.html_to_text("<b>привет!</b>")
 
     html = '<body><br/><br/>Hi</body>'
     assert 'Hi' == u.html_to_text(html)
