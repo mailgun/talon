@@ -4,7 +4,12 @@ from __future__ import absolute_import
 
 import os
 
+import pytest
 from six.moves import range
+
+pytestmark = pytest.mark.ml
+pytest.importorskip("numpy")
+pytest.importorskip("sklearn")
 
 from talon.signature import bruteforce, extraction, extract
 from talon.signature import extraction as e

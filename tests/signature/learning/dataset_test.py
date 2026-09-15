@@ -4,6 +4,12 @@ from __future__ import absolute_import
 from ... import *
 import os
 
+import pytest
+
+pytestmark = pytest.mark.ml
+pytest.importorskip("numpy")
+pytest.importorskip("sklearn")
+
 from numpy import genfromtxt
 
 from talon.signature.learning import dataset as d
