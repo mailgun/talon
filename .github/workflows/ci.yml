@@ -10,11 +10,11 @@ permissions:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.python-version == '3.7' && 'ubuntu-22.04' || 'ubuntu-latest' }}
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.11", "3.12", "3.14"]
+        python-version: ["3.7", "3.9", "3.11", "3.12", "3.14"]
         install: [core, ml]
     steps:
       - name: Checkout
@@ -27,6 +27,7 @@ jobs:
           cache: pip
           cache-dependency-path: |
             setup.py
+            pyproject.toml
             test-requirements.txt
 
       - name: Install dependencies

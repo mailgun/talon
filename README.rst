@@ -11,6 +11,8 @@ If you ever tried to parse message quotations or signatures you know that absenc
 Installation
 ------------
 
+Talon supports Python 3.7 and newer.
+
 Quotations and brute-force signature extraction:
 
 .. code:: sh
