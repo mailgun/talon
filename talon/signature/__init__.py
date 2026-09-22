@@ -53,6 +53,9 @@ def __getattr__(name):
         )
     try:
         extraction = importlib.import_module(__name__ + '.extraction')
+        # extraction imports with numpy alone. The classifier also needs
+        # sklearn and joblib; do not export extract until that import works.
+        importlib.import_module(__name__ + '.learning.classifier')
     except ImportError as exc:
         raise ImportError(_ML_EXTRA_ERROR) from exc
     globals()['extraction'] = extraction
