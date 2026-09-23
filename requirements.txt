@@ -1,9 +1,7 @@
 cssselect
 html5lib
-joblib
-lxml>=2.3.3
-numpy
-regex>=1
-scikit-learn>=1.0.0
-scipy
-six>=1.10.0
+lxml<6; python_version < "3.8"
+lxml; python_version >= "3.8"
+regex<2024.5.10; python_version < "3.8"
+regex; python_version >= "3.8"
+six

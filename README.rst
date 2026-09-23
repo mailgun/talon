@@ -8,6 +8,24 @@ Ukrainian reply headers produced by localized mail clients.
 
 If you ever tried to parse message quotations or signatures you know that absence of any formatting standards in this area could make this task a nightmare. Hopefully this library will make your life much easier. The name of the project is inspired by TALON - multipurpose robot designed to perform missions ranging from reconnaissance to combat and operate in a number of hostile environments. That’s what a good quotations and signature parser should be like :smile:
 
+Installation
+------------
+
+Talon supports Python 3.7 and newer.
+
+Quotations and brute-force signature extraction:
+
+.. code:: sh
+
+    pip install talon
+
+Machine-learning signature extraction needs numpy, scipy, scikit-learn, and
+joblib. Install those extras with:
+
+.. code:: sh
+
+    pip install "talon[ml]"
+
 Usage
 -----
 
@@ -72,7 +90,7 @@ machine learning fancy stuff:
     # signature == "--\nBob Smith"
 
 Quick and works like a charm 90% of the time. For other 10% you can use
-the power of machine learning algorithms:
+the power of machine learning algorithms (requires ``talon[ml]``):
 
 .. code:: python
 

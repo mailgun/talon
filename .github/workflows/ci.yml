@@ -10,11 +10,12 @@ permissions:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.python-version == '3.7' && 'ubuntu-22.04' || 'ubuntu-latest' }}
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.11", "3.12", "3.14"]
+        python-version: ["3.7", "3.9", "3.11", "3.12", "3.14"]
+        install: [core, ml]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -26,25 +27,46 @@ jobs:
           cache: pip
           cache-dependency-path: |
             setup.py
+            pyproject.toml
             test-requirements.txt
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -e . -r test-requirements.txt
+          if [ "${{ matrix.install }}" = "ml" ]; then
+            pip install -e ".[ml]" -r test-requirements.txt
+          else
+            pip install -e . -r test-requirements.txt
+          fi
+
+      - name: Check core install has no ML deps
+        if: matrix.install == 'core'
+        run: |
+          python -c "
+          import importlib.util
+          import sys
+          missing_ok = True
+          for name in ('numpy', 'scipy', 'sklearn', 'joblib'):
+              if importlib.util.find_spec(name) is not None:
+                  sys.exit('%s should not be installed without talon[ml]' % name)
+          "
 
       - name: Run tests
         env:
           REPORT_PATH: ${{ github.workspace }}/reports
         run: |
           mkdir -p "$REPORT_PATH"
-          ./run_tests.sh
+          if [ "${{ matrix.install }}" = "ml" ]; then
+            ./run_tests.sh
+          else
+            ./run_tests.sh -m "not ml"
+          fi
 
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-reports-${{ matrix.python-version }}
+          name: test-reports-${{ matrix.python-version }}-${{ matrix.install }}
           path: |
             reports/coverage.xml
             reports/nosetests.xml
