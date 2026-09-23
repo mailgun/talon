@@ -46,7 +46,7 @@ jobs:
           import importlib.util
           import sys
           missing_ok = True
-          for name in ('numpy', 'sklearn', 'joblib'):
+          for name in ('numpy', 'scipy', 'sklearn', 'joblib'):
               if importlib.util.find_spec(name) is not None:
                   sys.exit('%s should not be installed without talon[ml]' % name)
           "
