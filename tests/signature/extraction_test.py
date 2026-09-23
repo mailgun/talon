@@ -10,6 +10,7 @@ from six.moves import range
 pytestmark = pytest.mark.ml
 pytest.importorskip("numpy")
 pytest.importorskip("sklearn")
+pytest.importorskip("joblib")
 
 from talon.signature import bruteforce, extraction, extract
 from talon.signature import extraction as e
