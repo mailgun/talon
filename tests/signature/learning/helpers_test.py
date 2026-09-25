@@ -60,7 +60,7 @@ def test_binary_regex_search():
     assert 0 == h.binary_regex_search(re.compile("12"))("34")
 
 
-def binary_regex_match(prog):
+def test_binary_regex_match():
     assert 1 == h.binary_regex_match(re.compile("12"))("12 3")
     assert 0 == h.binary_regex_match(re.compile("12"))("3 12")
 
