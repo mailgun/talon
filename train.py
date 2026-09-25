@@ -3,7 +3,7 @@ from talon.signature import EXTRACTOR_FILENAME, EXTRACTOR_DATA
 from talon.signature.learning.classifier import train, init
 
 
-def train_model():
+def train_model() -> None:
     """ retrain model and persist """
     train(init(), EXTRACTOR_DATA, EXTRACTOR_FILENAME)
 

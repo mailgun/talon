@@ -3,6 +3,7 @@
 from __future__ import absolute_import
 
 import os
+from typing import Any
 
 import pytest
 from six.moves import range
@@ -18,7 +19,7 @@ from talon.signature.learning import dataset
 from .. import *
 
 
-def test_message_shorter_SIGNATURE_MAX_LINES():
+def test_message_shorter_SIGNATURE_MAX_LINES() -> None:
     sender = "bob@foo.bar"
     body = """Call me ASAP, please.This is about the last changes you deployed.
 
@@ -29,9 +30,9 @@ Bob"""
     assert '\n'.join(body.splitlines()[-2:]) == extracted_signature
 
 
-def test_messages_longer_SIGNATURE_MAX_LINES():
+def test_messages_longer_SIGNATURE_MAX_LINES() -> None:
     import sys
-    kwargs = {}
+    kwargs: dict[str, Any] = {}
     if sys.version_info > (3, 0):
         kwargs["encoding"] = "utf8"
 
@@ -40,6 +41,7 @@ def test_messages_longer_SIGNATURE_MAX_LINES():
         if not filename.endswith('_body'):
             continue
         sender, body = dataset.parse_msg_sender(filename)
+        assert sender is not None and body is not None
         text, extracted_signature = extract(body, sender)
         extracted_signature = extracted_signature or ''
         with open(filename[:-len('body')] + 'signature', **kwargs) as ms:
@@ -49,7 +51,7 @@ def test_messages_longer_SIGNATURE_MAX_LINES():
             assert stripped_msg.strip() == text.strip()
 
 
-def test_text_line_in_signature():
+def test_text_line_in_signature() -> None:
     # test signature should consist of one solid part
     sender = "bob@foo.bar"
     body = """Call me ASAP, please.This is about the last changes you deployed.
@@ -63,7 +65,7 @@ Bob"""
     assert '\n'.join(body.splitlines()[-3:]) == extracted_signature
 
 
-def test_long_line_in_signature():
+def test_long_line_in_signature() -> None:
     sender = "bob@foo.bar"
     body = """Call me ASAP, please.This is about the last changes you deployed.
 
@@ -82,13 +84,13 @@ Bob"""
     ((body, None), extract(body, "david@example.com"))
 
 
-def test_basic():
+def test_basic() -> None:
     msg_body = 'Blah\r\n--\r\n\r\nSergey Obukhov'
     assert ('Blah', '--\r\n\r\nSergey Obukhov') == \
         extract(msg_body, 'Sergey')
 
 
-def test_capitalized():
+def test_capitalized() -> None:
     msg_body = """Hi Mary,
 
 Do you still need a DJ for your wedding? I've included a video demo of one of our DJs available for your wedding date.
@@ -113,7 +115,7 @@ Doe Inc
     assert sig == extract(msg_body, 'Doe')[1]
 
 
-def test_over_2_text_lines_after_signature():
+def test_over_2_text_lines_after_signature() -> None:
     body = """Blah
 
     Bob,
@@ -125,24 +127,25 @@ def test_over_2_text_lines_after_signature():
     assert extracted_signature is None
 
 
-def test_no_signature():
+def test_no_signature() -> None:
     sender, body = "bob@foo.bar", "Hello"
     assert (body, None) == extract(body, sender)
 
 
-def test_handles_unicode():
+def test_handles_unicode() -> None:
     sender, body = dataset.parse_msg_sender(UNICODE_MSG)
+    assert sender is not None and body is not None
     text, extracted_signature = extract(body, sender)
 
 
 @patch.object(extraction, 'has_signature')
-def test_signature_extract_crash(has_signature):
+def test_signature_extract_crash(has_signature: MagicMock) -> None:
     has_signature.side_effect = Exception('Bam!')
     msg_body = u'Blah\r\n--\r\n\r\nСергей'
     assert (msg_body, None) == extract(msg_body, 'Сергей')
 
 
-def test_mark_lines():
+def test_mark_lines() -> None:
     with patch.object(bruteforce, 'SIGNATURE_MAX_LINES', 2):
         # we analyse the 2nd line as well though it's the 6th line
         # (starting from the bottom) because we don't count empty line
@@ -163,7 +166,7 @@ def test_mark_lines():
                            'some text'], 'Bob Smith')
 
 
-def test_process_marked_lines():
+def test_process_marked_lines() -> None:
     # no signature found
     assert (list(range(5)), None) == e._process_marked_lines(list(range(5)), 'telt')
 

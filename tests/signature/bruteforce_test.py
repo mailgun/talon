@@ -6,21 +6,21 @@ from .. import *
 from talon.signature import bruteforce
 
 
-def test_empty_body():
+def test_empty_body() -> None:
     assert ('', None) == bruteforce.extract_signature('')
 
 
-def test_no_signature():
+def test_no_signature() -> None:
     msg_body = 'Hey man!'
     assert (msg_body, None) == bruteforce.extract_signature(msg_body)
 
 
-def test_signature_only():
+def test_signature_only() -> None:
     msg_body = '--\nRoman'
     assert (msg_body, None) == bruteforce.extract_signature(msg_body)
 
 
-def test_signature_separated_by_dashes():
+def test_signature_separated_by_dashes() -> None:
     msg_body = '''Hey man! How r u?
 ---
 Roman'''
@@ -43,7 +43,7 @@ Bob Smith'''
         bruteforce.extract_signature(msg_body)
 
 
-def test_signature_words():
+def test_signature_words() -> None:
     msg_body = '''Hey!
 
 Thanks!
@@ -68,7 +68,7 @@ Roman'''
         bruteforce.extract_signature(msg_body)
 
 
-def test_iphone_signature():
+def test_iphone_signature() -> None:
     msg_body = '''Hey!
 
 Sent from my iPhone!'''
@@ -76,14 +76,14 @@ Sent from my iPhone!'''
         bruteforce.extract_signature(msg_body)
 
 
-def test_mailbox_for_iphone_signature():
+def test_mailbox_for_iphone_signature() -> None:
     msg_body = """Blah
 Sent from Mailbox for iPhone"""
     assert ("Blah", "Sent from Mailbox for iPhone") == \
         bruteforce.extract_signature(msg_body)
 
 
-def test_line_starts_with_signature_word():
+def test_line_starts_with_signature_word() -> None:
     msg_body = '''Hey man!
 Thanks for your attention.
 --
@@ -93,7 +93,7 @@ Roman'''
         bruteforce.extract_signature(msg_body)
 
 
-def test_line_starts_with_dashes():
+def test_line_starts_with_dashes() -> None:
     msg_body = '''Hey man!
 Look at this:
 
@@ -105,7 +105,7 @@ Roman'''
         bruteforce.extract_signature(msg_body)
 
 
-def test_blank_lines_inside_signature():
+def test_blank_lines_inside_signature() -> None:
     msg_body = '''Blah.
 
 -Lev.
@@ -121,7 +121,7 @@ John Doe'''
     assert ('Blah', '--\n\nJohn Doe') == bruteforce.extract_signature(msg_body)
 
 
-def test_blackberry_signature():
+def test_blackberry_signature() -> None:
     msg_body = """Heeyyoooo.
 Sent wirelessly from my BlackBerry device on the Bell network.
 Envoyé sans fil par mon terminal mobile BlackBerry sur le réseau de Bell."""
@@ -135,21 +135,21 @@ Enviado desde mi oficina mÃ³vil BlackBerryÂ® de Telcel"""
         bruteforce.extract_signature(msg_body)
 
 
-def test_english_k9_signature():
+def test_english_k9_signature() -> None:
     msg_body = """Hello.
 Sent from my Android device with K-9 Mail. Please excuse my brevity."""
     assert ('Hello.', 'Sent from my Android device with K-9 Mail. Please excuse my brevity.') == \
         bruteforce.extract_signature(msg_body)
 
 
-def test_french_k9_signature():
+def test_french_k9_signature() -> None:
     msg_body = """Hello.
 Envoyé de mon appareil Android avec Courriel K-9 Mail. Veuillez excuser ma brièveté."""
     assert ('Hello.', 'Envoyé de mon appareil Android avec Courriel K-9 Mail. Veuillez excuser ma brièveté.') == \
         bruteforce.extract_signature(msg_body)
 
 
-def test_android_and_k9_words_in_body():
+def test_android_and_k9_words_in_body() -> None:
     msg_body = """Hello.
 I use Android and K-9 Mail. It's great.
 
@@ -158,13 +158,13 @@ Another paragraph."""
 
 
 @patch.object(bruteforce, 'get_delimiter', Mock(side_effect=Exception()))
-def test_crash_in_extract_signature():
+def test_crash_in_extract_signature() -> None:
     msg_body = '''Hey!
 -roman'''
     assert (msg_body, None) == bruteforce.extract_signature(msg_body)
 
 
-def test_signature_cant_start_from_first_line():
+def test_signature_cant_start_from_first_line() -> None:
     msg_body = """Thanks,
 
 Blah
@@ -177,7 +177,7 @@ John Doe"""
 
 
 @patch.object(bruteforce, 'SIGNATURE_MAX_LINES', 2)
-def test_signature_max_lines_ignores_empty_lines():
+def test_signature_max_lines_ignores_empty_lines() -> None:
     msg_body = """Thanks,
 Blah
 
@@ -189,7 +189,7 @@ John Doe"""
         bruteforce.extract_signature(msg_body)
 
 
-def test_get_signature_candidate():
+def test_get_signature_candidate() -> None:
     # if there aren't at least 2 non-empty lines there should be no signature
     for lines in [], [''], ['', ''], ['abc']:
         assert [] == bruteforce.get_signature_candidate(lines)
@@ -219,7 +219,7 @@ def test_get_signature_candidate():
     assert ['--', 'Bob'] == bruteforce.get_signature_candidate(lines)
 
 
-def test_mark_candidate_indexes():
+def test_mark_candidate_indexes() -> None:
     with patch.object(bruteforce, 'TOO_LONG_SIGNATURE_LINE', 3):
         # spaces are not considered when checking line length
         assert 'clc' == \
@@ -235,7 +235,7 @@ def test_mark_candidate_indexes():
                 [0, 2, 3, 4])
 
 
-def test_process_marked_candidate_indexes():
+def test_process_marked_candidate_indexes() -> None:
     assert [2, 13, 15] == \
         bruteforce._process_marked_candidate_indexes(
             [2, 13, 15], 'dcc')

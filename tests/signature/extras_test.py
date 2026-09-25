@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, annotations
 
 import pytest
 
@@ -6,13 +6,13 @@ import talon
 from talon.signature.bruteforce import extract_signature
 
 
-def test_bruteforce_works_without_ml_extra():
+def test_bruteforce_works_without_ml_extra() -> None:
     text, signature = extract_signature("Wow. Awesome!\n--\nBob Smith")
     assert text == "Wow. Awesome!"
     assert signature == "--\nBob Smith"
 
 
-def test_signature_package_imports_without_ml_extra():
+def test_signature_package_imports_without_ml_extra() -> None:
     import talon.signature as signature
 
     assert signature.EXTRACTOR_FILENAME.endswith("classifier")
@@ -20,14 +20,15 @@ def test_signature_package_imports_without_ml_extra():
 
 
 @pytest.mark.skipif(talon.ML_ENABLED, reason="only without talon[ml]")
-def test_extract_requires_ml_extra():
+def test_extract_requires_ml_extra() -> None:
     import talon.signature as signature
 
     with pytest.raises(ImportError, match=r"talon\[ml\]"):
         signature.extract
 
 
-def test_extract_requires_classifier_not_only_extraction(monkeypatch):
+def test_extract_requires_classifier_not_only_extraction(
+        monkeypatch: pytest.MonkeyPatch) -> None:
     """numpy can import extraction while sklearn and joblib are missing."""
     import importlib
     import types
@@ -36,12 +37,13 @@ def test_extract_requires_classifier_not_only_extraction(monkeypatch):
 
     real_import_module = importlib.import_module
 
-    def import_module(name, package=None):
+    def import_module(name: str,
+                      package: str | None = None) -> types.ModuleType:
         if name == signature.__name__ + ".learning.classifier":
             raise ImportError("No module named sklearn")
         if name == signature.__name__ + ".extraction":
             module = types.ModuleType(name)
-            module.extract = lambda body, sender: (body, None)
+            setattr(module, "extract", lambda body, sender: (body, None))
             return module
         return real_import_module(name, package)
 
@@ -54,7 +56,7 @@ def test_extract_requires_classifier_not_only_extraction(monkeypatch):
 
 
 @pytest.mark.ml
-def test_extract_is_exported_with_ml_extra():
+def test_extract_is_exported_with_ml_extra() -> None:
     from talon.signature import extract
 
     assert callable(extract)

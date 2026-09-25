@@ -5,19 +5,22 @@ The classifier could be used to detect if a certain line of the message
 body belongs to the signature.
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, annotations
+
+from typing import IO
 
 from numpy import genfromtxt
 import joblib
 from sklearn.svm import LinearSVC
 
 
-def init():
+def init() -> LinearSVC:
     """Inits classifier with optimal options."""
     return LinearSVC(C=10.0)
 
 
-def train(classifier, train_data_filename, save_classifier_filename=None):
+def train(classifier: LinearSVC, train_data_filename: str,
+          save_classifier_filename: str | None = None) -> LinearSVC:
     """Trains and saves classifier so that it could be easily loaded later."""
     file_data = genfromtxt(train_data_filename, delimiter=",")
     train_data, labels = file_data[:, :-1], file_data[:, -1]
@@ -28,7 +31,8 @@ def train(classifier, train_data_filename, save_classifier_filename=None):
     return classifier
 
 
-def load(saved_classifier_filename, train_data_filename):
+def load(saved_classifier_filename: str,
+         train_data_filename: str) -> LinearSVC:
     """Loads saved classifier. """
     try:
         return joblib.load(saved_classifier_filename)
@@ -40,7 +44,7 @@ def load(saved_classifier_filename, train_data_filename):
         raise
 
 
-def load_compat(saved_classifier_filename):
+def load_compat(saved_classifier_filename: str) -> LinearSVC:
     import os
     import pickle
     import tempfile
@@ -53,6 +57,7 @@ def load_compat(saved_classifier_filename):
     pickle_file = open(saved_classifier_filename, 'rb')
     classifier = pickle.load(pickle_file, encoding='latin1')
 
+    converted_classifier: str | IO[bytes] = saved_classifier_filename
     try:
         # save our conversion if permissions allow
         joblib.dump(classifier, saved_classifier_filename)
@@ -60,10 +65,10 @@ def load_compat(saved_classifier_filename):
         # can't write to classifier, use a temp file
         tmp = tempfile.SpooledTemporaryFile()
         joblib.dump(classifier, tmp)
-        saved_classifier_filename = tmp
+        converted_classifier = tmp
 
     # important, use joblib.load before switching back to original cwd
-    jb_classifier = joblib.load(saved_classifier_filename)
+    jb_classifier = joblib.load(converted_classifier)
     os.chdir(cwd)
 
     return jb_classifier

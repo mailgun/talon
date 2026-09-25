@@ -2,6 +2,8 @@
 
 from __future__ import absolute_import
 
+from typing import Any
+
 # noinspection PyUnresolvedReferences
 import re
 from unittest.mock import Mock, patch
@@ -15,7 +17,7 @@ RE_WHITESPACE = re.compile(r"\s")
 RE_DOUBLE_WHITESPACE = re.compile(r"\s")
 
 
-def test_quotation_splitter_inside_blockquote():
+def test_quotation_splitter_inside_blockquote() -> None:
     msg_body = """Reply
 <blockquote>
 
@@ -33,7 +35,7 @@ def test_quotation_splitter_inside_blockquote():
         RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body))
 
 
-def test_quotation_splitter_outside_blockquote():
+def test_quotation_splitter_outside_blockquote() -> None:
     msg_body = """Reply
 
 <div>
@@ -50,7 +52,7 @@ def test_quotation_splitter_outside_blockquote():
         RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body))
 
 
-def test_regular_blockquote():
+def test_regular_blockquote() -> None:
     msg_body = """Reply
 <blockquote>Regular</blockquote>
 
@@ -68,7 +70,7 @@ def test_regular_blockquote():
         RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body))
 
 
-def test_no_blockquote():
+def test_no_blockquote() -> None:
     msg_body = """
 <html>
 <body>
@@ -96,11 +98,11 @@ Reply
         RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body))
 
 
-def test_empty_body():
+def test_empty_body() -> None:
     assert '' == quotations.extract_from_html('')
 
 
-def test_validate_output_html():
+def test_validate_output_html() -> None:
     msg_body = """Reply
 <div>
   On 11-Apr-2011, at 6:54 PM, Bob &lt;bob@example.com&gt; wrote:
@@ -121,7 +123,7 @@ def test_validate_output_html():
         'Invalid HTML output - <div/> element is not valid'
 
 
-def test_gmail_quote():
+def test_gmail_quote() -> None:
     msg_body = """Reply
 <div class="gmail_quote">
   <div class="gmail_quote">
@@ -135,7 +137,7 @@ def test_gmail_quote():
         RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body))
 
 
-def test_gmail_quote_compact():
+def test_gmail_quote_compact() -> None:
     msg_body = 'Reply' \
                '<div class="gmail_quote">' \
                '<div class="gmail_quote">On 11-Apr-2011, at 6:54 PM, Bob &lt;bob@example.com&gt; wrote:' \
@@ -146,7 +148,7 @@ def test_gmail_quote_compact():
         RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body))
 
 
-def test_gmail_quote_wrapping_body_keeps_content():
+def test_gmail_quote_wrapping_body_keeps_content() -> None:
     """Gmail nested quote wrappers around the body must not strip the message.
 
     Gmail sometimes wraps the current compose (often a signature template)
@@ -171,7 +173,7 @@ def test_gmail_quote_wrapping_body_keeps_content():
     assert 'Heather,' in extracted
 
 
-def test_gmail_quote_entire_body_is_kept():
+def test_gmail_quote_entire_body_is_kept() -> None:
     """A gmail_quote that wraps the whole message is not cut."""
     msg_body = (
         '<div class="gmail_quote">'
@@ -182,7 +184,7 @@ def test_gmail_quote_entire_body_is_kept():
     assert 'Thank you for applying' in extracted
 
 
-def test_gmail_quote_short_reply_to_long_quote():
+def test_gmail_quote_short_reply_to_long_quote() -> None:
     """A short reply to a real Gmail quote is still stripped."""
     quoted = 'Quoted paragraph from the previous message. ' * 20
     msg_body = (
@@ -200,7 +202,7 @@ def test_gmail_quote_short_reply_to_long_quote():
     assert 'Quoted paragraph' not in extracted
 
 
-def test_gmail_quote_blockquote():
+def test_gmail_quote_blockquote() -> None:
     msg_body = """Message
 <blockquote class="gmail_quote">
   <div class="gmail_default">
@@ -212,7 +214,7 @@ def test_gmail_quote_blockquote():
         RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body))
 
 
-def test_yahoo_quote():
+def test_yahoo_quote() -> None:
     msg_body = """Reply
 <div id="yahoo_quoted_0033794750" class="yahoo_quoted">
     <div style="font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:13px;color:#26282a;">
@@ -233,7 +235,7 @@ def test_yahoo_quote():
         RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body))
 
 
-def test_yahoo_quote_wrapping_body_keeps_content():
+def test_yahoo_quote_wrapping_body_keeps_content() -> None:
     """Yahoo quote wrappers around the body must not strip the message."""
     msg_body = (
         '<div dir="ltr">'
@@ -251,7 +253,7 @@ def test_yahoo_quote_wrapping_body_keeps_content():
     assert 'Heather,' in extracted
 
 
-def test_yahoo_quote_entire_body_is_kept():
+def test_yahoo_quote_entire_body_is_kept() -> None:
     """A yahoo_quoted that wraps the whole message is not cut."""
     msg_body = (
         '<div class="yahoo_quoted">'
@@ -262,7 +264,7 @@ def test_yahoo_quote_entire_body_is_kept():
     assert 'Thank you for applying' in extracted
 
 
-def test_yahoo_quote_short_reply_to_long_quote():
+def test_yahoo_quote_short_reply_to_long_quote() -> None:
     """A short reply to a real Yahoo quote is still stripped."""
     quoted = 'Quoted paragraph from the previous message. ' * 20
     msg_body = (
@@ -278,7 +280,7 @@ def test_yahoo_quote_short_reply_to_long_quote():
     assert 'Quoted paragraph' not in extracted
 
 
-def test_yahoo_forwarded_msg():
+def test_yahoo_forwarded_msg() -> None:
     """Forwarded Yahoo mail keeps the forwarded body (header is in a child)."""
     msg_body = (
         '<div dir="ltr"><br>'
@@ -294,7 +296,7 @@ def test_yahoo_forwarded_msg():
     assert 'eom' in extracted
 
 
-def test_unicode_in_reply():
+def test_unicode_in_reply() -> None:
     msg_body = """Reply \xa0 \xa0 Text<br>
 
 <div>
@@ -310,7 +312,7 @@ def test_unicode_in_reply():
         RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body))
 
 
-def test_blockquote_disclaimer():
+def test_blockquote_disclaimer() -> None:
     msg_body = """
 <html>
   <body>
@@ -348,7 +350,7 @@ def test_blockquote_disclaimer():
         RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body))
 
 
-def test_date_block():
+def test_date_block() -> None:
     msg_body = """
 <div>
   message<br>
@@ -367,7 +369,7 @@ def test_date_block():
         RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body))
 
 
-def test_from_block():
+def test_from_block() -> None:
     msg_body = """<div>
 message<br>
 <div>
@@ -384,7 +386,7 @@ text
         RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body))
 
 
-def test_reply_shares_div_with_from_block():
+def test_reply_shares_div_with_from_block() -> None:
     msg_body = '''
 <body>
   <div>
@@ -402,25 +404,25 @@ def test_reply_shares_div_with_from_block():
         RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body))
 
 
-def test_reply_quotations_share_block():
+def test_reply_quotations_share_block() -> None:
     stripped_html = quotations.extract_from_plain(REPLY_QUOTATIONS_SHARE_BLOCK)
     assert stripped_html
     assert 'From' not in stripped_html
 
 
-def test_OLK_SRC_BODY_SECTION_stripped():
+def test_OLK_SRC_BODY_SECTION_stripped() -> None:
     assert '<html><head></head><body><div>Reply</div></body></html>' == \
         RE_WHITESPACE.sub(
             '', quotations.extract_from_html(OLK_SRC_BODY_SECTION))
 
 
-def test_reply_separated_by_hr():
+def test_reply_separated_by_hr() -> None:
     assert '<html><head></head><body><div>Hi<div>there</div></div></body></html>' == \
         RE_WHITESPACE.sub(
             '', quotations.extract_from_html(REPLY_SEPARATED_BY_HR))
 
 
-def test_from_block_and_quotations_in_separate_divs():
+def test_from_block_and_quotations_in_separate_divs() -> None:
     msg_body = '''
 Reply
 <div>
@@ -440,9 +442,9 @@ Reply
         RE_WHITESPACE.sub('', quotations.extract_from_html(msg_body))
 
 
-def extract_reply_and_check(filename):
+def extract_reply_and_check(filename: str) -> None:
     import sys
-    kwargs = {}
+    kwargs: dict[str, Any] = {}
     if sys.version_info > (3, 0):
         kwargs["encoding"] = "utf8"
 
@@ -451,52 +453,53 @@ def extract_reply_and_check(filename):
     msg_body = f.read()
     reply = quotations.extract_from_html(msg_body)
     plain_reply = u.html_to_text(reply)
+    assert plain_reply is not None
 
     assert RE_WHITESPACE.sub('', "Hi. I am fine.\n\nThanks,\nAlex") == \
         RE_WHITESPACE.sub('', plain_reply)
 
 
-def test_gmail_reply():
+def test_gmail_reply() -> None:
     extract_reply_and_check("tests/fixtures/html_replies/gmail.html")
 
 
-def test_yahoo_reply():
+def test_yahoo_reply() -> None:
     extract_reply_and_check("tests/fixtures/html_replies/yahoo.html")
 
 
-def test_mail_ru_reply():
+def test_mail_ru_reply() -> None:
     extract_reply_and_check("tests/fixtures/html_replies/mail_ru.html")
 
 
-def test_hotmail_reply():
+def test_hotmail_reply() -> None:
     extract_reply_and_check("tests/fixtures/html_replies/hotmail.html")
 
 
-def test_ms_outlook_2003_reply():
+def test_ms_outlook_2003_reply() -> None:
     extract_reply_and_check("tests/fixtures/html_replies/ms_outlook_2003.html")
 
 
-def test_ms_outlook_2007_reply():
+def test_ms_outlook_2007_reply() -> None:
     extract_reply_and_check("tests/fixtures/html_replies/ms_outlook_2007.html")
 
 
-def test_ms_outlook_2010_reply():
+def test_ms_outlook_2010_reply() -> None:
     extract_reply_and_check("tests/fixtures/html_replies/ms_outlook_2010.html")
 
 
-def test_thunderbird_reply():
+def test_thunderbird_reply() -> None:
     extract_reply_and_check("tests/fixtures/html_replies/thunderbird.html")
 
 
-def test_windows_mail_reply():
+def test_windows_mail_reply() -> None:
     extract_reply_and_check("tests/fixtures/html_replies/windows_mail.html")
 
 
-def test_yandex_ru_reply():
+def test_yandex_ru_reply() -> None:
     extract_reply_and_check("tests/fixtures/html_replies/yandex_ru.html")
 
 
-def test_CRLF():
+def test_CRLF() -> None:
     """CR is not converted to '&#13;'
     """
     symbol = '&#13;'
@@ -524,14 +527,14 @@ reply
     assert "<html><head></head><body>My\nreply\n</body></html>" == extracted
 
 
-def test_gmail_forwarded_msg():
+def test_gmail_forwarded_msg() -> None:
     msg_body = """<div dir="ltr"><br><div class="gmail_quote">---------- Forwarded message ----------<br>From: <b class="gmail_sendername">Bob</b> <span dir="ltr">&lt;<a href="mailto:bob@example.com">bob@example.com</a>&gt;</span><br>Date: Fri, Feb 11, 2010 at 5:59 PM<br>Subject: Bob WFH today<br>To: Mary &lt;<a href="mailto:mary@example.com">mary@example.com</a>&gt;<br><br><br><div dir="ltr">eom</div>
 </div><br></div>"""
     extracted = quotations.extract_from_html(msg_body)
     assert RE_WHITESPACE.sub('', msg_body) == RE_WHITESPACE.sub('', extracted)
 
 
-def test_readable_html_empty():
+def test_readable_html_empty() -> None:
     msg_body = """
 <blockquote>
   Reply
@@ -550,12 +553,12 @@ def test_readable_html_empty():
 
 
 @patch.object(quotations, 'html_document_fromstring', Mock(return_value=None))
-def test_bad_html():
+def test_bad_html() -> None:
     bad_html = "<html></html>"
     assert bad_html == quotations.extract_from_html(bad_html)
 
 
-def test_remove_namespaces():
+def test_remove_namespaces() -> None:
     msg_body = """
     <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns="http://www.w3.org/TR/REC-html40">
         <body>
@@ -573,3 +576,12 @@ def test_remove_namespaces():
 
     assert "<o:p>" not in rendered
     assert "<xmlns:o>" not in rendered
+
+
+def test_remove_namespaces_skips_comments() -> None:
+    tree = u.html_document_fromstring(
+        "<div><o:p>Hi</o:p><!-- comment --></div>")
+
+    quotations.remove_namespaces(tree)
+
+    assert [el.tag for el in tree.iter("p")] == ["p"]
