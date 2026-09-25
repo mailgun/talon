@@ -1,9 +1,7 @@
 # coding:utf-8
 from __future__ import annotations
 
-import html5lib
 import regex as re
-from html5lib import HTMLParser
 from lxml.cssselect import CSSSelector
 from lxml.etree import _Element
 from lxml.html import html5parser
@@ -12,9 +10,9 @@ from talon.constants import RE_DELIMITER
 
 
 def get_delimiter(msg_body: str) -> str:
-    delimiter = RE_DELIMITER.search(msg_body)
-    if delimiter:
-        delimiter = delimiter.group()
+    match = RE_DELIMITER.search(msg_body)
+    if match:
+        delimiter = match.group()
     else:
         delimiter = '\n'
 
@@ -23,7 +21,9 @@ def get_delimiter(msg_body: str) -> str:
 
 def html_tree_to_text(tree: _Element) -> str:
     for style in CSSSelector('style')(tree):
-        style.getparent().remove(style)
+        style_parent = style.getparent()
+        if style_parent is not None:
+            style_parent.remove(style)
 
     for c in tree.xpath('//comment()'):
         parent = c.getparent()
@@ -89,11 +89,11 @@ def html_document_fromstring(s: str) -> _Element:
     return html5parser.document_fromstring(s, parser=_html5lib_parser())
 
 
-def cssselect(expr: str, tree: str) -> list[_Element]:
+def cssselect(expr: str, tree: _Element) -> list[_Element]:
     return CSSSelector(expr)(tree)
 
 
-def _contains_charset_spec(s: str) -> str:
+def _contains_charset_spec(s: str) -> bool:
     """Return True if the first 4KB contain charset spec
     """
     return s.lower().find('html; charset=', 0, 4096) != -1
@@ -111,14 +111,13 @@ def _rm_excessive_newlines(s: str) -> str:
     return _RE_EXCESSIVE_NEWLINES.sub("\n\n", s).strip()
 
 
-def _html5lib_parser() -> HTMLParser:
+def _html5lib_parser() -> html5parser.HTMLParser:
     """
     html5lib is a pure-python library that conforms to the WHATWG HTML spec
     and is not vulnarable to certain attacks common for XML libraries
     """
-    return HTMLParser(
-        # build lxml tree
-        html5lib.treebuilders.getTreeBuilder("lxml"),
+    # html5parser.HTMLParser is an html5lib parser that builds an lxml tree
+    return html5parser.HTMLParser(
         # remove namespace value from inside lxml.html.html5paser element tag
         # otherwise it yields something like "{http://www.w3.org/1999/xhtml}div"
         # instead of "div", throwing the algo off

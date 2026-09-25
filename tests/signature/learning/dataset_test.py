@@ -17,17 +17,17 @@ from talon.signature.learning import dataset as d
 from talon.signature.learning.featurespace import features
 
 
-def test_is_sender_filename():
+def test_is_sender_filename() -> None:
     assert not d.is_sender_filename("foo/bar")
     assert not d.is_sender_filename("foo/bar_body")
     assert d.is_sender_filename("foo/bar_sender")
 
 
-def test_build_sender_filename():
+def test_build_sender_filename() -> None:
     assert "foo/bar_sender" == d.build_sender_filename("foo/bar_body")
 
 
-def test_parse_msg_sender():
+def test_parse_msg_sender() -> None:
     sender, msg = d.parse_msg_sender(EML_MSG_FILENAME)
     # if the message in eml format
     with open(EML_MSG_FILENAME) as f:
@@ -42,12 +42,12 @@ def test_parse_msg_sender():
         assert msg == f.read()
 
 
-def test_build_extraction_dataset():
+def test_build_extraction_dataset() -> None:
     if os.path.exists(os.path.join(TMP_DIR, 'extraction.data')):
         os.remove(os.path.join(TMP_DIR, 'extraction.data'))
     d.build_extraction_dataset(os.path.join(EMAILS_DIR, 'P'),
                                os.path.join(TMP_DIR,
-                                            'extraction.data'), 1)
+                                            'extraction.data'), True)
 
     filename = os.path.join(TMP_DIR, 'extraction.data')
     file_data = genfromtxt(filename, delimiter=",")

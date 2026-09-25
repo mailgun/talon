@@ -9,8 +9,9 @@ from talon import quotations
 
 @patch.object(quotations, 'extract_from_html')
 @patch.object(quotations, 'extract_from_plain')
-def test_extract_from_respects_content_type(extract_from_plain,
-                                            extract_from_html):
+def test_extract_from_respects_content_type(extract_from_plain: MagicMock,
+                                            extract_from_html: MagicMock
+                                            ) -> None:
     msg_body = "Hi there"
 
     quotations.extract_from(msg_body, 'text/plain')
@@ -23,10 +24,10 @@ def test_extract_from_respects_content_type(extract_from_plain,
 
 
 @patch.object(quotations, 'extract_from_plain', Mock(side_effect=Exception()))
-def test_crash_inside_extract_from():
+def test_crash_inside_extract_from() -> None:
     msg_body = "Hi there"
     assert msg_body == quotations.extract_from(msg_body, 'text/plain')
 
 
-def test_empty_body():
+def test_empty_body() -> None:
     assert '' == quotations.extract_from_plain('')

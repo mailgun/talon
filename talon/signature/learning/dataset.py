@@ -16,9 +16,10 @@ suffix and the corresponding sender file has the same name except for the
 suffix which should be `_sender`.
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, annotations
 
 import os
+from typing import Any
 
 import regex as re
 from six.moves import range
@@ -35,17 +36,18 @@ REPLY_ANNOTATION = '#reply#'
 ANNOTATIONS = [SIGNATURE_ANNOTATION, REPLY_ANNOTATION]
 
 
-def is_sender_filename(filename):
+def is_sender_filename(filename: str) -> bool:
     """Checks if the file could contain message sender's name."""
     return filename.endswith(SENDER_SUFFIX)
 
 
-def build_sender_filename(msg_filename):
+def build_sender_filename(msg_filename: str) -> str:
     """By the message filename gives expected sender's filename."""
     return msg_filename[:-len(BODY_SUFFIX)] + SENDER_SUFFIX
 
 
-def parse_msg_sender(filename, sender_known=True):
+def parse_msg_sender(filename: str, sender_known: bool = True
+                     ) -> tuple[str | None, str | None]:
     """Given a filename returns the sender and the message.
 
     Here the message is assumed to be a whole MIME message or just
@@ -59,7 +61,7 @@ def parse_msg_sender(filename, sender_known=True):
     >>> parse_msg_sender(filename, False)
     """
     import sys
-    kwargs = {}
+    kwargs: dict[str, Any] = {}
     if sys.version_info > (3, 0):
         kwargs["encoding"] = "utf8"
 
@@ -85,8 +87,8 @@ def parse_msg_sender(filename, sender_known=True):
     return (sender, msg)
 
 
-def build_detection_class(folder, dataset_filename,
-                          label, sender_known=True):
+def build_detection_class(folder: str, dataset_filename: str,
+                          label: int, sender_known: bool = True) -> None:
     """Builds signature detection class.
 
     Signature detection dataset includes patterns for two classes:
@@ -111,8 +113,8 @@ def build_detection_class(folder, dataset_filename,
             dataset.write(labeled_pattern + '\n')
 
 
-def build_detection_dataset(folder, dataset_filename,
-                            sender_known=True):
+def build_detection_dataset(folder: str, dataset_filename: str,
+                            sender_known: bool = True) -> None:
     """Builds signature detection dataset using emails from folder.
 
     folder should have the following structure:
@@ -136,8 +138,8 @@ def build_detection_dataset(folder, dataset_filename,
                           dataset_filename, -1)
 
 
-def build_extraction_dataset(folder, dataset_filename,
-                             sender_known=True):
+def build_extraction_dataset(folder: str, dataset_filename: str,
+                             sender_known: bool = True) -> None:
     """Builds signature extraction dataset using emails in the `folder`.
 
     The emails in the `folder` should be annotated i.e. signature lines

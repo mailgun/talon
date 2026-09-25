@@ -3,8 +3,10 @@ The module's functions operate on message bodies trying to extract original
 messages (without quoted messages) from html
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, annotations
+
 import regex as re
+from lxml.etree import _Element
 
 from talon.utils import cssselect
 
@@ -21,7 +23,7 @@ RE_QUOTE_HEADER = re.compile(r"On\s.{0,500}wrote\s*:", re.I | re.S)
 QUOTE_STUB_MAX_CHARS = 40
 
 
-def add_checkpoint(html_note, counter):
+def add_checkpoint(html_note: _Element, counter: int) -> int:
     """Recursively adds checkpoints to html tree.
     """
     if html_note.text:
@@ -46,7 +48,9 @@ def add_checkpoint(html_note, counter):
     return counter
 
 
-def delete_quotation_tags(html_note, counter, quotation_checkpoints):
+def delete_quotation_tags(html_note: _Element, counter: int,
+                          quotation_checkpoints: list[bool]
+                          ) -> tuple[int, bool]:
     """Deletes tags with quotation checkpoints from html tree.
     """
     tag_in_quotation = True
@@ -81,24 +85,25 @@ def delete_quotation_tags(html_note, counter, quotation_checkpoints):
         return counter, tag_in_quotation
 
 
-def _tree_text(element):
+def _tree_text(element: _Element) -> str:
     """Return concatenated descendant text without mutating the tree."""
-    return (element.xpath('string()') or '').strip()
+    text: str = element.xpath('string()') or ''
+    return text.strip()
 
 
-def _gmail_quote_looks_like_quotation(quote):
+def _gmail_quote_looks_like_quotation(quote: _Element) -> bool:
     """True if the node looks like quoted history rather than the current body."""
     if cssselect('.gmail_attr', quote) or cssselect('blockquote.gmail_quote', quote):
         return True
     return bool(RE_QUOTE_HEADER.search(_tree_text(quote)))
 
 
-def _yahoo_quote_looks_like_quotation(quote):
+def _yahoo_quote_looks_like_quotation(quote: _Element) -> bool:
     """True if the node looks like quoted history rather than the current body."""
     return bool(RE_QUOTE_HEADER.search(_tree_text(quote)))
 
 
-def _quote_is_forward(quote):
+def _quote_is_forward(quote: _Element) -> bool:
     """True if the quote starts with a forwarded-message header.
 
     Gmail puts the header in the wrapper's direct text. Yahoo puts it in a
@@ -113,7 +118,8 @@ def _quote_is_forward(quote):
     return False
 
 
-def _should_preserve_quote(remaining_text, original_text, looks_like_quotation):
+def _should_preserve_quote(remaining_text: str, original_text: str,
+                           looks_like_quotation: bool) -> bool:
     """True if cutting the quote wrapper would leave almost no readable text.
 
     Mirrors cut_from_block's parent_div_is_all_content / _readable_text_empty:
@@ -132,7 +138,8 @@ def _should_preserve_quote(remaining_text, original_text, looks_like_quotation):
     )
 
 
-def _cut_quote_node(html_message, quote, looks_like_quotation):
+def _cut_quote_node(html_message: _Element, quote: _Element,
+                    looks_like_quotation: bool) -> bool:
     """Remove quote unless it is a forward or cutting would empty the message."""
     if _quote_is_forward(quote):
         return False
@@ -152,7 +159,7 @@ def _cut_quote_node(html_message, quote, looks_like_quotation):
     return True
 
 
-def cut_gmail_quote(html_message):
+def cut_gmail_quote(html_message: _Element) -> bool:
     ''' Cuts the outermost block element with class gmail_quote.
 
     Does not cut if that would leave the message with almost no readable text.
@@ -165,7 +172,7 @@ def cut_gmail_quote(html_message):
         html_message, quote, _gmail_quote_looks_like_quotation(quote))
 
 
-def cut_yahoo_quote(html_message):
+def cut_yahoo_quote(html_message: _Element) -> bool:
     ''' Cuts the outermost block element with class yahoo_quoted.
 
     Does not cut if that would leave the message with almost no readable text.
@@ -178,7 +185,7 @@ def cut_yahoo_quote(html_message):
         html_message, quote, _yahoo_quote_looks_like_quotation(quote))
 
 
-def cut_microsoft_quote(html_message):
+def cut_microsoft_quote(html_message: _Element) -> bool:
     ''' Cuts splitter block and all following blocks. '''
     #use EXSLT extensions to have a regex match() function with lxml
     ns = {"re": "http://exslt.org/regular-expressions"}
@@ -233,17 +240,18 @@ def cut_microsoft_quote(html_message):
     return False
 
 
-def cut_by_id(html_message):
+def cut_by_id(html_message: _Element) -> bool:
     found = False
     for quote_id in QUOTE_IDS:
         quote = cssselect('#{}'.format(quote_id), html_message)
-        if quote:
+        parent = quote[0].getparent() if quote else None
+        if parent is not None:
             found = True
-            quote[0].getparent().remove(quote[0])
+            parent.remove(quote[0])
     return found
 
 
-def cut_blockquote(html_message):
+def cut_blockquote(html_message: _Element) -> bool:
     ''' Cuts the last non-nested blockquote with wrapping elements.'''
     quote = html_message.xpath(
         '(.//blockquote)'
@@ -255,8 +263,10 @@ def cut_blockquote(html_message):
         quote.getparent().remove(quote)
         return True
 
+    return False
 
-def cut_from_block(html_message):
+
+def cut_from_block(html_message: _Element) -> bool:
     """Cuts div tag which wraps block starting with "From:"."""
     # handle the case when From: block is enclosed in some tag
     block = html_message.xpath(
@@ -315,8 +325,13 @@ def cut_from_block(html_message):
         block.getparent().remove(block)
         return True
 
-def cut_zimbra_quote(html_message):
+    return False
+
+
+def cut_zimbra_quote(html_message: _Element) -> bool:
     zDivider = html_message.xpath('//hr[@data-marker="__DIVIDER__"]')
     if zDivider:
         zDivider[0].getparent().remove(zDivider[0])
         return True
+
+    return False

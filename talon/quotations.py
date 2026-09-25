@@ -5,18 +5,29 @@ The module's functions operate on message bodies trying to extract
 original messages (without quoted messages)
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, annotations
 
 import logging
 from copy import deepcopy
+from typing import TYPE_CHECKING, cast
 
 import regex as re
 from lxml import etree, html
+from lxml.etree import _Element
 from six.moves import range
 
 from talon import html_quotations
 from talon.utils import (get_delimiter, html_document_fromstring,
                          html_tree_to_text)
+
+if TYPE_CHECKING:
+    from typing import Protocol
+
+    class _XPathContext(Protocol):
+        """The context lxml passes to XPath extension functions."""
+
+        @property
+        def context_node(self) -> _Element: ...
 
 log = logging.getLogger(__name__)
 
@@ -211,7 +222,7 @@ NO_QUOT_LINE = re.compile(r'^[^>].*[\S].*')
 RE_HEADER = re.compile(r": ")
 
 
-def extract_from(msg_body, content_type='text/plain'):
+def extract_from(msg_body: str, content_type: str = 'text/plain') -> str:
     try:
         if content_type == 'text/plain':
             return extract_from_plain(msg_body)
@@ -223,7 +234,7 @@ def extract_from(msg_body, content_type='text/plain'):
     return msg_body
 
 
-def remove_initial_spaces_and_mark_message_lines(lines):
+def remove_initial_spaces_and_mark_message_lines(lines: list[str]) -> str:
     """
     Removes the initial spaces in each line before marking message lines.
 
@@ -236,7 +247,7 @@ def remove_initial_spaces_and_mark_message_lines(lines):
     return mark_message_lines(lines)
 
 
-def mark_message_lines(lines):
+def mark_message_lines(lines: list[str]) -> str:
     """Mark message lines with markers to distinguish quotation lines.
 
     Markers:
@@ -278,7 +289,9 @@ def mark_message_lines(lines):
     return ''.join(markers)
 
 
-def process_marked_lines(lines, markers, return_flags=[False, -1, -1]):
+def process_marked_lines(lines: list[str], markers: str,
+                         return_flags: list[int] = [False, -1, -1]
+                         ) -> list[str]:
     """Run regexes against message's marked lines to strip quotations.
 
     Return only last message lines.
@@ -329,7 +342,8 @@ def process_marked_lines(lines, markers, return_flags=[False, -1, -1]):
     return lines
 
 
-def preprocess(msg_body, delimiter, content_type='text/plain'):
+def preprocess(msg_body: str, delimiter: str,
+               content_type: str = 'text/plain') -> str:
     """Prepares msg_body for being stripped.
 
     Replaces link brackets so that they couldn't be taken for quotation marker.
@@ -345,7 +359,7 @@ def preprocess(msg_body, delimiter, content_type='text/plain'):
     return msg_body
 
 
-def _replace_link_brackets(msg_body):
+def _replace_link_brackets(msg_body: str) -> str:
     """
     Normalize links i.e. replace '<', '>' wrapping the link with some symbols
     so that '>' closing the link couldn't be mistakenly taken for quotation
@@ -353,7 +367,7 @@ def _replace_link_brackets(msg_body):
 
     Converts msg_body into a unicode
     """
-    def link_wrapper(link):
+    def link_wrapper(link: re.Match[str]) -> str:
         newline_index = msg_body[:link.start()].rfind("\n")
         if msg_body[newline_index + 1] == ">":
             return link.group()
@@ -364,12 +378,13 @@ def _replace_link_brackets(msg_body):
     return msg_body
 
 
-def _wrap_splitter_with_newline(msg_body, delimiter, content_type='text/plain'):
+def _wrap_splitter_with_newline(msg_body: str, delimiter: str,
+                                content_type: str = 'text/plain') -> str:
     """
     Splits line in two if splitter pattern preceded by some text on the same
     line (done only for 'On <date> <person> wrote:' pattern.
     """
-    def splitter_wrapper(splitter):
+    def splitter_wrapper(splitter: re.Match[str]) -> str:
         """Wraps splitter with new line"""
         if splitter.start() and msg_body[splitter.start() - 1] != '\n':
             return '%s%s' % (delimiter, splitter.group())
@@ -382,7 +397,7 @@ def _wrap_splitter_with_newline(msg_body, delimiter, content_type='text/plain'):
     return msg_body
 
 
-def postprocess(msg_body):
+def postprocess(msg_body: str) -> str:
     """Make up for changes done at preprocessing message.
 
     Replace link brackets back to '<' and '>'.
@@ -390,7 +405,7 @@ def postprocess(msg_body):
     return re.sub(RE_NORMALIZED_LINK, r'<\1>', msg_body).strip()
 
 
-def extract_from_plain(msg_body):
+def extract_from_plain(msg_body: str) -> str:
     """Extracts a non quoted message from provided plain text."""
     delimiter = get_delimiter(msg_body)
     msg_body = preprocess(msg_body, delimiter)
@@ -405,7 +420,7 @@ def extract_from_plain(msg_body):
     return msg_body
 
 
-def extract_from_html(msg_body):
+def extract_from_html(msg_body: str) -> str:
     """
     Extract not quoted message from provided html message body
     using tags and plain text algorithm.
@@ -440,7 +455,7 @@ def extract_from_html(msg_body):
     return result
 
 
-def extract_from_html_tree(html_tree):
+def extract_from_html_tree(html_tree: _Element) -> str | None:
     """
     Extract not quoted message from provided parsed html tree using tags and
     plain text algorithm.
@@ -488,7 +503,7 @@ def extract_from_html_tree(html_tree):
 
     # Use plain text quotation extracting algorithm
     markers = mark_message_lines(lines)
-    return_flags = []
+    return_flags: list[int] = []
     process_marked_lines(lines, markers, return_flags)
     lines_were_deleted, first_deleted, last_deleted = return_flags
 
@@ -533,14 +548,15 @@ def extract_from_html_tree(html_tree):
     #    of replacing data outside the <tag> which might be essential to
     #    the customer.
     remove_namespaces(html_tree_copy)
-    s = html.tostring(html_tree_copy, encoding="ascii")
+    # html.tostring accepts any element, not only html.HtmlElement
+    s = html.tostring(cast(html.HtmlElement, html_tree_copy), encoding="ascii")
     if not s:
         return None
 
     return s.decode("ascii")
 
 
-def remove_namespaces(root):
+def remove_namespaces(root: _Element) -> _Element:
     """
     Given the root of an HTML document iterate through all the elements
     and remove any namespaces that might have been provided and remove
@@ -580,7 +596,7 @@ def remove_namespaces(root):
     return root
 
 
-def split_emails(msg):
+def split_emails(msg: str) -> str:
     """
     Given a message (which may consist of an email conversation thread with
     multiple emails), mark the lines to identify split lines, content lines and
@@ -605,7 +621,7 @@ def split_emails(msg):
     return markers
 
 
-def _mark_quoted_email_splitlines(markers, lines):
+def _mark_quoted_email_splitlines(markers: str, lines: list[str]) -> str:
     """
     When there are headers indented with '>' characters, this method will
     attempt to identify if the header is a splitline header. If it is, then we
@@ -625,7 +641,7 @@ def _mark_quoted_email_splitlines(markers, lines):
     return "".join(markerlist)
 
 
-def _correct_splitlines_in_headers(markers, lines):
+def _correct_splitlines_in_headers(markers: str, lines: list[str]) -> str:
     """
     Corrects markers by removing splitlines deemed to be inside header blocks.
     """
@@ -655,11 +671,11 @@ def _correct_splitlines_in_headers(markers, lines):
     return updated_markers
 
 
-def _readable_text_empty(html_tree):
+def _readable_text_empty(html_tree: _Element) -> bool:
     return not bool(html_tree_to_text(html_tree).strip())
 
 
-def is_splitter(line):
+def is_splitter(line: str) -> re.Match[str] | None:
     """
     Returns Matcher object if provided string is a splitter and
     None otherwise.
@@ -668,19 +684,21 @@ def is_splitter(line):
         matcher = re.match(pattern, line)
         if matcher:
             return matcher
+    return None
 
 
-def text_content(context):
+def text_content(context: _XPathContext) -> str:
     """XPath Extension function to return a node text content."""
-    return context.context_node.xpath("string()").strip()
+    text: str = context.context_node.xpath("string()")
+    return text.strip()
 
 
-def tail(context):
+def tail(context: _XPathContext) -> str:
     """XPath Extension function to return a node tail text."""
     return context.context_node.tail or ''
 
 
-def register_xpath_extensions():
+def register_xpath_extensions() -> None:
     ns = etree.FunctionNamespace("http://mailgun.net")
     ns.prefix = 'mg'
     ns['text_content'] = text_content

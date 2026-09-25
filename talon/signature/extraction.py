@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
+from __future__ import absolute_import, annotations
 
 import logging
+from typing import TYPE_CHECKING, TypeVar
 
 import numpy
 import regex as re
@@ -11,9 +12,14 @@ from talon.signature.learning.featurespace import features, build_pattern
 from talon.signature.learning.helpers import has_signature
 from talon.utils import get_delimiter
 
+if TYPE_CHECKING:
+    from sklearn.svm import LinearSVC
+
 log = logging.getLogger(__name__)
 
-EXTRACTOR = None
+_T = TypeVar('_T')
+
+EXTRACTOR: LinearSVC | None = None
 
 # regex signature pattern for reversed lines
 # assumes that all long lines have been excluded
@@ -30,13 +36,13 @@ RE_REVERSE_SIGNATURE = re.compile(r'''
 ''', re.I | re.X | re.M | re.S)
 
 
-def is_signature_line(line, sender, classifier):
+def is_signature_line(line: str, sender: str, classifier: LinearSVC) -> bool:
     '''Checks if the line belongs to signature. Returns True or False.'''
     data = numpy.array(build_pattern(line, features(sender))).reshape(1, -1)
-    return classifier.predict(data) > 0
+    return bool(classifier.predict(data)[0] > 0)
 
 
-def extract(body, sender):
+def extract(body: str, sender: str) -> tuple[str, str | None]:
     """Strips signature from the body of the message.
 
     Returns stripped body and signature as a tuple.
@@ -54,16 +60,16 @@ def extract(body, sender):
             text, signature = _process_marked_lines(lines, markers)
 
             if signature:
-                text = delimiter.join(text)
-                if text.strip():
-                    return (text, delimiter.join(signature))
+                joined_text = delimiter.join(text)
+                if joined_text.strip():
+                    return (joined_text, delimiter.join(signature))
     except Exception as e:
         log.exception('ERROR when extracting signature with classifiers')
 
     return (body, None)
 
 
-def _mark_lines(lines, sender):
+def _mark_lines(lines: list[str], sender: str) -> str:
     """Mark message lines with markers to distinguish signature lines.
 
     Markers:
@@ -98,7 +104,8 @@ def _mark_lines(lines, sender):
     return "".join(markers)
 
 
-def _process_marked_lines(lines, markers):
+def _process_marked_lines(lines: list[_T], markers: str
+                          ) -> tuple[list[_T], list[_T] | None]:
     """Run regexes against message's marked lines to strip signature.
 
     >>> _process_marked_lines(['Some text', '', 'Bob'], 'tes')

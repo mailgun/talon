@@ -6,7 +6,7 @@ from ... import *
 from talon.signature.learning import featurespace as fs
 
 
-def test_apply_features():
+def test_apply_features() -> None:
     s = '''This is John Doe
 
 Tuesday @3pm suits. I'll chat to you then.
@@ -34,7 +34,7 @@ john@example.com'''
         assert result == new_result
 
 
-def test_build_pattern():
+def test_build_pattern() -> None:
     s = '''John Doe
 
 VP Research and Development, Xxxx Xxxx Xxxxx

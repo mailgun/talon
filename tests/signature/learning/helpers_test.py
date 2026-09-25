@@ -43,34 +43,34 @@ VALID = '''
 VALID_PHONE_NUMBERS = [e.strip() for e in VALID.splitlines() if e.strip()]
 
 
-def test_match_phone_numbers():
+def test_match_phone_numbers() -> None:
     for phone in VALID_PHONE_NUMBERS:
         assert RE_RELAX_PHONE.search(phone), "{} should be matched".format(phone)
 
 
-def test_match_names():
+def test_match_names() -> None:
     names = ['John R. Doe']
     for name in names:
         assert RE_NAME.match(name), "{} should be matched".format(name)
 
 
 # Now test helpers functions
-def test_binary_regex_search():
+def test_binary_regex_search() -> None:
     assert 1 == h.binary_regex_search(re.compile("12"))("12")
     assert 0 == h.binary_regex_search(re.compile("12"))("34")
 
 
-def test_binary_regex_match():
+def test_binary_regex_match() -> None:
     assert 1 == h.binary_regex_match(re.compile("12"))("12 3")
     assert 0 == h.binary_regex_match(re.compile("12"))("3 12")
 
 
-def test_flatten_list():
+def test_flatten_list() -> None:
     assert [1, 2, 3, 4, 5] == h.flatten_list([[1, 2], [3, 4, 5]])
 
 
-@patch.object(h.re, 'compile')
-def test_contains_sender_names(re_compile):
+@patch.object(re, 'compile')
+def test_contains_sender_names(re_compile: MagicMock) -> None:
     with patch.object(h, 'extract_names',
                       Mock(return_value=['bob', 'smith'])) as extract_names:
         has_sender_names = h.contains_sender_names("bob.smith@example.com")
@@ -89,7 +89,7 @@ def test_contains_sender_names(re_compile):
         assert not has_sender_names('')
 
 
-def test_extract_names():
+def test_extract_names() -> None:
     senders_names = {
         # from example dataset
         ('Jay Rickerts <eCenter@example.com>@EXAMPLE <XXX-Jay+20Rickerts'
@@ -174,7 +174,7 @@ def test_extract_names():
     assert h.extract_names("sergey <sergey@example.com") == ["sergey"]
 
 
-def test_categories_percent():
+def test_categories_percent() -> None:
     assert 0.0 == h.categories_percent("qqq ggg hhh", ["Po"])
     assert 50.0 == h.categories_percent("q,w.", ["Po"])
     assert 0.0 == h.categories_percent("qqq ggg hhh", ["Nd"])
@@ -184,12 +184,12 @@ def test_categories_percent():
 
 
 @patch.object(h, 'categories_percent')
-def test_punctuation_percent(categories_percent):
+def test_punctuation_percent(categories_percent: MagicMock) -> None:
     h.punctuation_percent("qqq")
     categories_percent.assert_called_with("qqq", ['Po'])
 
 
-def test_capitalized_words_percent():
+def test_capitalized_words_percent() -> None:
     assert 0.0 == h.capitalized_words_percent('')
     assert 100.0 == h.capitalized_words_percent('Example Corp')
     assert 50.0 == h.capitalized_words_percent('Qqq qqq Aqs 123 sss')
@@ -199,7 +199,7 @@ def test_capitalized_words_percent():
     assert 50.0 == h.capitalized_words_percent('Password: REMARKABLE')
 
 
-def test_has_signature():
+def test_has_signature() -> None:
     assert h.has_signature('sender', 'sender@example.com')
     assert h.has_signature('http://www.example.com\n555 555 5555',
                            'sender@example.com')
