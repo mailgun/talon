@@ -568,6 +568,10 @@ def remove_namespaces(root):
             if key.rfind("U0003A") != -1:
                 child.attrib.pop(key)
 
+        # Comments and processing instructions have non-string tags
+        if not isinstance(child.tag, str):
+            continue
+
         # If the tag includes a colon
         idx = child.tag.rfind("U0003A")
         if idx != -1:

@@ -573,3 +573,12 @@ def test_remove_namespaces():
 
     assert "<o:p>" not in rendered
     assert "<xmlns:o>" not in rendered
+
+
+def test_remove_namespaces_skips_comments():
+    tree = u.html_document_fromstring(
+        "<div><o:p>Hi</o:p><!-- comment --></div>")
+
+    quotations.remove_namespaces(tree)
+
+    assert [el.tag for el in tree.iter("p")] == ["p"]
