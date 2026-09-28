@@ -6,7 +6,6 @@ import os
 from typing import Any
 
 import pytest
-from six.moves import range
 
 pytestmark = pytest.mark.ml
 pytest.importorskip("numpy")
