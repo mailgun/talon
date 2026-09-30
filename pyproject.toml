@@ -12,6 +12,7 @@ files = ["talon", "tests", "train.py"]
 strict = true
 
 [[tool.mypy.overrides]]
-# These ML dependencies do not ship type information.
-module = ["joblib.*", "sklearn.*"]
+# joblib and sklearn do not ship type information. numpy is ignored only
+# when it is not installed (core extra); the ml extra still typechecks it.
+module = ["joblib.*", "numpy.*", "sklearn.*"]
 ignore_missing_imports = true
