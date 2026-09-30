@@ -27,6 +27,11 @@ trained against, don't forget to regenerate:
 from __future__ import absolute_import
 import importlib
 import os
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from talon.signature import extraction
+    from talon.signature.extraction import extract as extract
 
 _ML_EXTRA_ERROR = (
     "talon ML extras are not installed. Install them with: pip install 'talon[ml]'"
@@ -37,16 +42,17 @@ EXTRACTOR_FILENAME = os.path.join(_DATA_DIR, 'classifier')
 EXTRACTOR_DATA = os.path.join(_DATA_DIR, 'train.data')
 
 
-def initialize():
+def initialize() -> None:
     try:
-        extraction = importlib.import_module(__name__ + '.extraction')
+        # Any: mypy does not allow setting attributes on a ModuleType
+        extraction: Any = importlib.import_module(__name__ + '.extraction')
         classifier = importlib.import_module(__name__ + '.learning.classifier')
     except ImportError as exc:
         raise ImportError(_ML_EXTRA_ERROR) from exc
     extraction.EXTRACTOR = classifier.load(EXTRACTOR_FILENAME, EXTRACTOR_DATA)
 
 
-def __getattr__(name):
+def __getattr__(name: str) -> Any:
     if name not in ('extract', 'extraction'):
         raise AttributeError(
             "module {!r} has no attribute {!r}".format(__name__, name)

@@ -26,6 +26,11 @@ joblib. Install those extras with:
 
     pip install "talon[ml]"
 
+Talon includes inline type annotations (`PEP 561`_), so type checkers such as
+mypy pick them up automatically.
+
+.. _PEP 561: https://peps.python.org/pep-0561/
+
 Usage
 -----
 

@@ -7,7 +7,8 @@ The body and the message sender string are converted into unicode before
 applying features to them.
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, annotations
+
 from talon.signature.constants import (SIGNATURE_MAX_LINES,
                                        TOO_LONG_SIGNATURE_LINE)
 from talon.signature.learning.helpers import *
@@ -15,7 +16,7 @@ from six.moves import zip
 from functools import reduce
 
 
-def features(sender=''):
+def features(sender: str = '') -> list[Feature]:
     '''Returns a list of signature features.'''
     return [
         # This one isn't from paper.
@@ -47,7 +48,7 @@ def features(sender=''):
         ]
 
 
-def apply_features(body, features):
+def apply_features(body: str, features: list[Feature]) -> list[list[int]]:
     '''Applies features to message body lines.
 
     Returns list of lists. Each of the lists corresponds to the body line
@@ -66,7 +67,7 @@ def apply_features(body, features):
             [[0 for f in features]])
 
 
-def build_pattern(body, features):
+def build_pattern(body: str, features: list[Feature]) -> list[int]:
     '''Converts body into a pattern i.e. a point in the features space.
 
     Applies features to the body lines and sums up the results.

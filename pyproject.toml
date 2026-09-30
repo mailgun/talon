@@ -6,3 +6,12 @@ requires = [
   "wheel; python_version>='3.8'",
 ]
 build-backend = "setuptools.build_meta"
+
+[tool.mypy]
+files = ["talon", "tests", "train.py"]
+strict = true
+
+[[tool.mypy.overrides]]
+# These ML dependencies do not ship type information.
+module = ["joblib.*", "sklearn.*"]
+ignore_missing_imports = true

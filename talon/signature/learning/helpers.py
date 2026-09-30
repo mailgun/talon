@@ -5,11 +5,19 @@
 * regexp's constants used when evaluating signature's features
 
 """
+from __future__ import annotations
+
 import unicodedata
+from typing import Callable, Iterable, TypeVar
 
 import regex as re
 
 from talon.signature.constants import SIGNATURE_MAX_LINES
+
+# A feature maps a message line to 1 if the feature is present and 0 otherwise.
+Feature = Callable[[str], int]
+
+_T = TypeVar('_T')
 
 rc = re.compile
 
@@ -50,7 +58,7 @@ BAD_SENDER_NAMES = [
     ]
 
 
-def binary_regex_search(prog):
+def binary_regex_search(prog: re.Pattern[str]) -> Feature:
     """Returns a function that returns 1 or 0 depending on regex search result.
 
     If regular expression compiled into prog is present in a string
@@ -66,7 +74,7 @@ def binary_regex_search(prog):
     return lambda s: 1 if prog.search(s) else 0
 
 
-def binary_regex_match(prog):
+def binary_regex_match(prog: re.Pattern[str]) -> Feature:
     """Returns a function that returns 1 or 0 depending on regex match result.
 
     If a string matches regular expression compiled into prog
@@ -82,7 +90,7 @@ def binary_regex_match(prog):
     return lambda s: 1 if prog.match(s) else 0
 
 
-def flatten_list(list_to_flatten):
+def flatten_list(list_to_flatten: Iterable[Iterable[_T]]) -> list[_T]:
     """Simple list comprehension to flatten list.
 
     >>> flatten_list([[1, 2], [3, 4, 5]])
@@ -97,7 +105,7 @@ def flatten_list(list_to_flatten):
     return [e for sublist in list_to_flatten for e in sublist]
 
 
-def contains_sender_names(sender):
+def contains_sender_names(sender: str) -> Feature:
     """Returns a functions to search sender\'s name or it\'s part.
 
     >>> feature = contains_sender_names("Sergey N.  Obukhov <xxx@example.com>")
@@ -120,7 +128,7 @@ def contains_sender_names(sender):
     return lambda s: 0
 
 
-def extract_names(sender):
+def extract_names(sender: str) -> list[str]:
     """Tries to extract sender's names from `From:` header.
 
     It could extract not only the actual names but e.g.
@@ -148,7 +156,7 @@ def extract_names(sender):
     return names
 
 
-def categories_percent(s, categories):
+def categories_percent(s: str, categories: list[str]) -> float:
     """Returns category characters percent.
 
     >>> categories_percent("qqq ggg hhh", ["Po"])
@@ -169,7 +177,7 @@ def categories_percent(s, categories):
     return 100 * float(count) / len(s) if len(s) else 0
 
 
-def punctuation_percent(s):
+def punctuation_percent(s: str) -> float:
     """Returns punctuation percent.
 
     >>> punctuation_percent("qqq ggg hhh")
@@ -180,7 +188,7 @@ def punctuation_percent(s):
     return categories_percent(s, ['Po'])
 
 
-def capitalized_words_percent(s):
+def capitalized_words_percent(s: str) -> float:
     """Returns capitalized words percent."""
     words = re.split(r'\s', s)
     words = [w for w in words if w.strip()]
@@ -198,7 +206,7 @@ def capitalized_words_percent(s):
     return 0
 
 
-def many_capitalized_words(s):
+def many_capitalized_words(s: str) -> int:
     """Returns a function to check percentage of capitalized words.
 
     The function returns 1 if percentage greater then 65% and 0 otherwise.
@@ -206,7 +214,7 @@ def many_capitalized_words(s):
     return 1 if capitalized_words_percent(s) > 66 else 0
 
 
-def has_signature(body, sender):
+def has_signature(body: str, sender: str) -> bool:
     """Checks if the body has signature. Returns True or False."""
     non_empty = [line for line in body.splitlines() if line.strip()]
     candidate = non_empty[-SIGNATURE_MAX_LINES:]

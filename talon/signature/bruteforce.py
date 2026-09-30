@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, annotations
 
 import logging
 
@@ -65,7 +65,7 @@ RE_SIGNATURE_CANDIDATE = re.compile(r'''
 ''', re.I | re.X | re.M | re.S)
 
 
-def extract_signature(msg_body):
+def extract_signature(msg_body: str) -> tuple[str, str | None]:
     '''
     Analyzes message for a presence of signature block (by common patterns)
     and returns tuple with two elements: message text without signature block
@@ -86,22 +86,21 @@ def extract_signature(msg_body):
         phone_signature = None
 
         # strip off phone signature
-        phone_signature = RE_PHONE_SIGNATURE.search(msg_body)
-        if phone_signature:
-            stripped_body = stripped_body[:phone_signature.start()]
-            phone_signature = phone_signature.group()
+        phone_signature_match = RE_PHONE_SIGNATURE.search(msg_body)
+        if phone_signature_match:
+            stripped_body = stripped_body[:phone_signature_match.start()]
+            phone_signature = phone_signature_match.group()
 
         # decide on signature candidate
         lines = stripped_body.splitlines()
-        candidate = get_signature_candidate(lines)
-        candidate = delimiter.join(candidate)
+        candidate = delimiter.join(get_signature_candidate(lines))
 
         # try to extract signature
-        signature = RE_SIGNATURE.search(candidate)
-        if not signature:
+        signature_match = RE_SIGNATURE.search(candidate)
+        if not signature_match:
             return (stripped_body.strip(), phone_signature)
         else:
-            signature = signature.group()
+            signature = signature_match.group()
             # when we splitlines() and then join them
             # we can lose a new line at the end
             # we did it when identifying a candidate
@@ -119,7 +118,7 @@ def extract_signature(msg_body):
         return (msg_body, None)
 
 
-def get_signature_candidate(lines):
+def get_signature_candidate(lines: list[str]) -> list[str]:
     """Return lines that could hold signature
 
     The lines should:
@@ -146,13 +145,12 @@ def get_signature_candidate(lines):
 
     # get actual lines for the candidate instead of indexes
     if candidate:
-        candidate = lines[candidate[0]:]
-        return candidate
+        return lines[candidate[0]:]
 
     return []
 
 
-def _mark_candidate_indexes(lines, candidate):
+def _mark_candidate_indexes(lines: list[str], candidate: list[int]) -> str:
     """Mark candidate indexes with markers
 
     Markers:
@@ -179,7 +177,8 @@ def _mark_candidate_indexes(lines, candidate):
     return "".join(markers)
 
 
-def _process_marked_candidate_indexes(candidate, markers):
+def _process_marked_candidate_indexes(candidate: list[int],
+                                      markers: str) -> list[int]:
     """
     Run regexes against candidate's marked indexes to strip
     signature candidate.
