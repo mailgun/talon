@@ -11,6 +11,10 @@ permissions:
 jobs:
   typecheck:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        install: [core, ml]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -28,7 +32,11 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -e ".[ml]" -r test-requirements.txt
+          if [ "${{ matrix.install }}" = "ml" ]; then
+            pip install -e ".[ml]" -r test-requirements.txt
+          else
+            pip install -e . -r test-requirements.txt
+          fi
 
       - name: Run mypy
         run: mypy
