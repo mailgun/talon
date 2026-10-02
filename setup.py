@@ -29,7 +29,6 @@ setup(name='talon',
           "regex<2024.5.10; python_version < '3.8'",
           "regex; python_version >= '3.8'",
           "cssselect",
-          "six",
           "html5lib",
           ],
       extras_require={

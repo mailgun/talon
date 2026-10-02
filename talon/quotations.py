@@ -14,7 +14,6 @@ from typing import TYPE_CHECKING, cast
 import regex as re
 from lxml import etree, html
 from lxml.etree import _Element
-from six.moves import range
 
 from talon import html_quotations
 from talon.utils import (get_delimiter, html_document_fromstring,

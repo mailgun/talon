@@ -22,7 +22,6 @@ import os
 from typing import Any
 
 import regex as re
-from six.moves import range
 
 from talon.signature.constants import SIGNATURE_MAX_LINES
 from talon.signature.learning.featurespace import build_pattern, features

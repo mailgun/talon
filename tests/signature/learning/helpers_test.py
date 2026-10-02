@@ -7,7 +7,6 @@ import regex as re
 
 from talon.signature.learning import helpers as h
 from talon.signature.learning.helpers import *
-from six.moves import range
 
 # First testing regex constants.
 VALID = '''

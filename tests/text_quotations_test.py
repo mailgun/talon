@@ -10,9 +10,6 @@ import email.iterators
 from email.message import Message
 from typing import Iterator
 from talon import quotations
-import six
-from six.moves import range
-from six import StringIO
 
 
 @patch.object(quotations, 'MAX_LINES_COUNT', 1)
@@ -206,7 +203,7 @@ def _check_pattern_original_message(original_message_indicator: str) -> None:
 
 Test"""
     assert 'Test reply' == quotations.extract_from_plain(
-        msg_body.format(six.text_type(original_message_indicator)))
+        msg_body.format(original_message_indicator))
 
 def test_english_original_message() -> None:
     _check_pattern_original_message('Original Message')
