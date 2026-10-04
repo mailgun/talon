@@ -36,7 +36,13 @@ RE_SEPARATOR = rc(r'^[\s]*---*[\s]*$')
 RE_SPECIAL_CHARS = rc((r'^[\s]*([\*]|#|[\+]|[\^]|-|[\~]|[\&]|[\$]|_|[\!]|'
                        r'[\/]|[\%]|[\:]|[\=]){10,}[\s]*$'))
 
-RE_SIGNATURE_WORDS = rc((r'(T|t)hank.*,|(B|b)est|(R|r)egards|'
+# `best` is a whole-line sign-off ("Best,", "Best regards,", "All the best,").
+# An unanchored match treats prose such as "the best feature" as a signature
+# word, and that feature alone is enough for the classifier to mark the line.
+RE_SIGNATURE_WORDS = rc((r'(T|t)hank.*,|'
+                         r'(?i:^[\s]*(?:all[\s]+the[\s]+)?'
+                         r'best(?:[\s]+[a-z]+){0,3}[\s,!]*$)|'
+                         r'(R|r)egards|'
                          r'^sent[ ]{1}from[ ]{1}my[\s,!\w]*$|BR|(S|s)incerely|'
                          r'(C|c)orporation|Group'))
 

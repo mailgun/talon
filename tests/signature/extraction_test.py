@@ -126,6 +126,12 @@ def test_over_2_text_lines_after_signature() -> None:
     assert extracted_signature is None
 
 
+def test_prose_best_is_not_signature_line() -> None:
+    line = "the start_at time was probably the best feature added today."
+    assert not e.is_signature_line(line, "", e.EXTRACTOR)
+    assert e.is_signature_line("Best regards,", "", e.EXTRACTOR)
+
+
 def test_no_signature() -> None:
     sender, body = "bob@foo.bar", "Hello"
     assert (body, None) == extract(body, sender)

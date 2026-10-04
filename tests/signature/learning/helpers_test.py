@@ -47,6 +47,15 @@ def test_match_phone_numbers() -> None:
         assert RE_RELAX_PHONE.search(phone), "{} should be matched".format(phone)
 
 
+def test_signature_words_best_is_a_signoff() -> None:
+    has_signature_words = h.binary_regex_search(h.RE_SIGNATURE_WORDS)
+    prose = "the start_at time was probably the best feature added today."
+    assert 0 == has_signature_words(prose)
+    for line in ("Best", "Best,", "Best regards,", "Best wishes",
+                 "All the best,"):
+        assert 1 == has_signature_words(line), line
+
+
 def test_match_names() -> None:
     names = ['John R. Doe']
     for name in names:
