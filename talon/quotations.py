@@ -233,6 +233,29 @@ def extract_from(msg_body: str, content_type: str = 'text/plain') -> str:
     return msg_body
 
 
+def extract_quotation(msg_body: str, content_type: str = 'text/plain') -> str:
+    """Return the quoted span removed from a plain-text message.
+
+    The span includes the splitter (``On … wrote:``,
+    ``-----Original Message-----``, ``>`` lines). Text after the quote, such
+    as a signature, stays in the reply. Returns an empty string when nothing
+    was stripped. Only ``text/plain`` messages are split.
+    """
+    try:
+        if content_type == 'text/plain':
+            return extract_quotation_plain(msg_body)
+    except Exception:
+        log.exception('ERROR extracting quotation')
+
+    return ''
+
+
+def extract_quotation_plain(msg_body: str) -> str:
+    """Return the quoted span removed from a plain-text message."""
+    _reply, quotation = _split_plain(msg_body)
+    return quotation
+
+
 def remove_initial_spaces_and_mark_message_lines(lines: list[str]) -> str:
     """
     Removes the initial spaces in each line before marking message lines.
@@ -404,19 +427,33 @@ def postprocess(msg_body: str) -> str:
     return re.sub(RE_NORMALIZED_LINK, r'<\1>', msg_body).strip()
 
 
-def extract_from_plain(msg_body: str) -> str:
-    """Extracts a non quoted message from provided plain text."""
+def _split_plain(msg_body: str) -> tuple[str, str]:
+    """Split a plain-text body into ``(reply, quotation)``.
+
+    Both parts use the same preprocessing as extract_from_plain.
+    ``quotation`` is empty when no lines were removed.
+    """
     delimiter = get_delimiter(msg_body)
     msg_body = preprocess(msg_body, delimiter)
     # don't process too long messages
     lines = msg_body.splitlines()[:MAX_LINES_COUNT]
     markers = mark_message_lines(lines)
-    lines = process_marked_lines(lines, markers)
+    return_flags: list[int] = [False, -1, -1]
+    reply_lines = process_marked_lines(lines, markers, return_flags)
+    deleted, first, last = return_flags
 
-    # concatenate lines, change links back, strip and return
-    msg_body = delimiter.join(lines)
-    msg_body = postprocess(msg_body)
-    return msg_body
+    reply = postprocess(delimiter.join(reply_lines))
+    if deleted and first >= 0:
+        quotation = postprocess(delimiter.join(lines[first:last]))
+    else:
+        quotation = ''
+    return reply, quotation
+
+
+def extract_from_plain(msg_body: str) -> str:
+    """Extracts a non quoted message from provided plain text."""
+    reply, _quotation = _split_plain(msg_body)
+    return reply
 
 
 def extract_from_html(msg_body: str) -> str:

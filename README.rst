@@ -55,6 +55,29 @@ message:
     reply = quotations.extract_from_plain(text)
     # reply == "Reply"
 
+A signature can follow the quote. ``extract_from`` keeps that signature
+with the reply. ``extract_quotation`` returns the quoted span between them,
+including the splitter line:
+
+.. code:: python
+
+    text = """Reply
+
+    On 11-Apr-2011, at 6:54 PM, Bob <bob@example.com> wrote:
+
+    > Quote
+
+    --
+    Bob Smith"""
+
+    reply = quotations.extract_from_plain(text)
+    # reply == "Reply\n\n--\nBob Smith"
+
+    quotation = quotations.extract_quotation(text, 'text/plain')
+    # -- OR --
+    quotation = quotations.extract_quotation_plain(text)
+    # quotation == "On 11-Apr-2011, at 6:54 PM, Bob <bob@example.com> wrote:\n\n> Quote"
+
 To extract a reply from html:
 
 .. code:: python
