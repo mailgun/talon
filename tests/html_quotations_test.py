@@ -11,7 +11,7 @@ from unittest.mock import Mock, patch
 from tests.fixtures import (OLK_SRC_BODY_SECTION,
                             REPLY_QUOTATIONS_SHARE_BLOCK,
                             REPLY_SEPARATED_BY_HR)
-from talon import quotations, utils as u
+from talon import html_quotations, quotations, utils as u
 
 RE_WHITESPACE = re.compile(r"\s")
 RE_DOUBLE_WHITESPACE = re.compile(r"\s")
@@ -592,8 +592,8 @@ _HEADER_AND_BLOCKQUOTE = """Reply
 """
 
 
-@patch.object(quotations.html_quotations, 'collect_quotation_fragments',
-              wraps=quotations.html_quotations.collect_quotation_fragments)
+@patch.object(html_quotations, 'collect_quotation_fragments',
+              wraps=html_quotations.collect_quotation_fragments)
 def test_extract_from_html_skips_quotation_collection(
         collect_quotation_fragments: Mock) -> None:
     reply = quotations.extract_from_html(_HEADER_AND_BLOCKQUOTE)
@@ -602,8 +602,8 @@ def test_extract_from_html_skips_quotation_collection(
     collect_quotation_fragments.assert_not_called()
 
 
-@patch.object(quotations.html_quotations, 'collect_quotation_fragments',
-              wraps=quotations.html_quotations.collect_quotation_fragments)
+@patch.object(html_quotations, 'collect_quotation_fragments',
+              wraps=html_quotations.collect_quotation_fragments)
 def test_extract_quotation_html_collects_fragments(
         collect_quotation_fragments: Mock) -> None:
     compact = RE_WHITESPACE.sub(
