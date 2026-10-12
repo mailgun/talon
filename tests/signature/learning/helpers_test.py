@@ -207,6 +207,16 @@ def test_capitalized_words_percent() -> None:
     assert 50.0 == h.capitalized_words_percent('Password: REMARKABLE')
 
 
+def test_is_url_only_line() -> None:
+    long_url = 'http://example.com/' + 'o' * 80
+    assert h.is_url_only_line(long_url)
+    assert h.is_url_only_line('<' + long_url + '>')
+    assert h.is_url_only_line('https://example.com/a')
+    assert h.is_url_only_line('www.example.com/a')
+    assert not h.is_url_only_line('see ' + long_url + ' for the notes')
+    assert not h.is_url_only_line('Bob Smith')
+
+
 def test_has_signature() -> None:
     assert h.has_signature('sender', 'sender@example.com')
     assert h.has_signature('http://www.example.com\n555 555 5555',
@@ -217,6 +227,11 @@ def test_has_signature() -> None:
                                'sender@example.com')
     long_line = ''.join(['q' for e in range(28)])
     assert not h.has_signature(long_line + ' sender', 'sender@example.com')
+    long_url = 'http://example.com/' + 'o' * 80
+    assert h.has_signature(long_url + '\n' + long_url, 'sender@example.com')
+    assert not h.has_signature(
+        'see ' + long_url + ' for the notes from today',
+        'sender@example.com')
     # wont crash on an empty string
     assert not h.has_signature('', '')
     # dont consider empty strings when analysing signature

@@ -6,6 +6,7 @@ import regex as re
 
 from talon.signature.constants import (SIGNATURE_MAX_LINES,
                                        TOO_LONG_SIGNATURE_LINE)
+from talon.signature.learning.helpers import is_url_only_line
 from talon.utils import get_delimiter
 
 log = logging.getLogger(__name__)
@@ -124,8 +125,9 @@ def get_signature_candidate(lines: list[str]) -> list[str]:
     The lines should:
 
     * be among last SIGNATURE_MAX_LINES non-empty lines.
+      A URL-only line does not consume one of those slots.
     * not include first line
-    * be shorter than TOO_LONG_SIGNATURE_LINE
+    * be shorter than TOO_LONG_SIGNATURE_LINE, unless the line is a URL
     * not include more than one line that starts with dashes
     """
     # non empty lines indexes
@@ -136,9 +138,17 @@ def get_signature_candidate(lines: list[str]) -> list[str]:
         return []
 
     # we don't expect signature to start at the 1st line
-    candidate = non_empty[1:]
-    # signature shouldn't be longer then SIGNATURE_MAX_LINES
-    candidate = candidate[-SIGNATURE_MAX_LINES:]
+    tail = non_empty[1:]
+    # URL-only lines stay in the slice but do not use the line budget,
+    # same as blank lines. Otherwise a stack of long links pushes the
+    # signature header (for example "--") out of the window.
+    substantive = [i for i in tail if not is_url_only_line(lines[i])]
+    budget = substantive[-SIGNATURE_MAX_LINES:]
+    if budget:
+        start = budget[0]
+        candidate = [i for i in tail if i >= start]
+    else:
+        candidate = tail
 
     markers = _mark_candidate_indexes(lines, candidate)
     candidate = _process_marked_candidate_indexes(candidate, markers)
@@ -167,12 +177,12 @@ def _mark_candidate_indexes(lines: list[str], candidate: list[int]) -> str:
 
     # mark lines starting from bottom up
     for i, line_idx in reversed(list(enumerate(candidate))):
-        if len(lines[line_idx].strip()) > TOO_LONG_SIGNATURE_LINE:
+        line = lines[line_idx].strip()
+        # Long links are signature content. Long prose still splits it.
+        if len(line) > TOO_LONG_SIGNATURE_LINE and not is_url_only_line(line):
             markers[i] = 'l'
-        else:
-            line = lines[line_idx].strip()
-            if line.startswith('-') and line.strip("-"):
-                markers[i] = 'd'
+        elif line.startswith('-') and line.strip("-"):
+            markers[i] = 'd'
 
     return "".join(markers)
 

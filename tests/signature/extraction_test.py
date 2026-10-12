@@ -64,6 +64,34 @@ Bob"""
     assert '\n'.join(body.splitlines()[-3:]) == extracted_signature
 
 
+def test_signature_with_long_urls() -> None:
+    long_url = (
+        '<http://example.com/soooooome/'
+        'loooooooooooooooooooooooooooooooooooooooooooooooooooong/path'
+        '?t=loooooooooooooooooooooooooooooooooooooooooooooong>'
+    )
+    body = """Some text
+
+--
+
+John Smith
+Co-Founder and CEO
+Xxxxxxxxx
+
+mobile: 555.115.4274 | book a mtg
+%s
+ | @handle
+%s
+ | linkedin
+%s
+ | video
+%s""" % (long_url, long_url, long_url, long_url)
+    text, extracted_signature = extract(body, 'John Smith')
+    # The blank line between the body and "--" stays on the body side.
+    assert text.strip() == 'Some text'
+    assert extracted_signature == body.split('\n\n', 1)[1]
+
+
 def test_long_line_in_signature() -> None:
     sender = "bob@foo.bar"
     body = """Call me ASAP, please.This is about the last changes you deployed.
