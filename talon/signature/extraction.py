@@ -9,7 +9,7 @@ import numpy
 import regex as re
 from talon.signature.bruteforce import get_signature_candidate
 from talon.signature.learning.featurespace import features, build_pattern
-from talon.signature.learning.helpers import has_signature
+from talon.signature.learning.helpers import has_signature, is_url_only_line
 from talon.utils import get_delimiter
 
 if TYPE_CHECKING:
@@ -22,7 +22,8 @@ _T = TypeVar('_T')
 EXTRACTOR: LinearSVC | None = None
 
 # regex signature pattern for reversed lines
-# assumes that all long lines have been excluded
+# long prose lines are excluded from the candidate; URL-only lines are
+# marked as signature lines so they do not count as text lines here
 RE_REVERSE_SIGNATURE = re.compile(r'''
 # signature should consists of blocks like this
 (?:
@@ -98,6 +99,10 @@ def _mark_lines(lines: list[str], sender: str) -> str:
         j = len(lines) - len(candidate) + i
         if not line.strip():
             markers[j] = 'e'
+        elif is_url_only_line(line):
+            # The line classifier treats "longer than 60" as a negative
+            # feature, so a long link would stay text and split the block.
+            markers[j] = 's'
         elif is_signature_line(line, sender, EXTRACTOR):
             markers[j] = 's'
 

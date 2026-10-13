@@ -218,6 +218,49 @@ def test_get_signature_candidate() -> None:
     lines = ['List:,', '- item 1', '- item 2', '--', 'Bob']
     assert ['--', 'Bob'] == bruteforce.get_signature_candidate(lines)
 
+    # a long URL stays in the candidate and does not end it
+    long_url = 'http://example.com/' + 'o' * 80
+    lines = ['Hello', '--', 'Bob', long_url]
+    assert ['--', 'Bob', long_url] == bruteforce.get_signature_candidate(lines)
+
+    # prose that merely contains a URL still ends the candidate
+    prose = 'See ' + long_url + ' for the notes from the meeting today.'
+    lines = ['Hello', prose, 'Bob']
+    assert ['Bob'] == bruteforce.get_signature_candidate(lines)
+
+    # URL-only lines do not consume the signature line budget
+    with patch.object(bruteforce, 'SIGNATURE_MAX_LINES', 2):
+        lines = ['Hello', 'Thanks,', 'Bob', long_url, long_url]
+        assert ['Thanks,', 'Bob', long_url, long_url] == \
+            bruteforce.get_signature_candidate(lines)
+
+
+def test_signature_with_long_urls() -> None:
+    long_url = (
+        '<http://example.com/soooooome/'
+        'loooooooooooooooooooooooooooooooooooooooooooooooooooong/path'
+        '?t=loooooooooooooooooooooooooooooooooooooooooooooong>'
+    )
+    msg_body = """Some text
+
+--
+
+John Smith
+Co-Founder and CEO
+Xxxxxxxxx
+
+mobile: 555.115.4274 | book a mtg
+%s
+ | @handle
+%s
+ | linkedin
+%s
+ | video
+%s""" % (long_url, long_url, long_url, long_url)
+    text, signature = bruteforce.extract_signature(msg_body)
+    assert text == 'Some text'
+    assert signature == msg_body.split('\n\n', 1)[1]
+
 
 def test_mark_candidate_indexes() -> None:
     with patch.object(bruteforce, 'TOO_LONG_SIGNATURE_LINE', 3):

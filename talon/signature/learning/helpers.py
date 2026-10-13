@@ -24,6 +24,12 @@ rc = re.compile
 RE_EMAIL = rc(r'\S@\S')
 RE_RELAX_PHONE = rc(r'(\(? ?[\d]{2,3} ?\)?.{,3}?){2,}')
 RE_URL = rc(r"""https?://|www\.[\S]+\.[\S]""")
+# A whole line that is one URL, optionally wrapped in angle brackets.
+# A sentence that merely contains a URL does not match.
+RE_URL_ONLY_LINE = rc(
+    r'^\s*<?\s*(?:https?://\S+|www\.[\S]+\.[\S]+)\s*>?\s*$',
+    re.I,
+)
 
 # Taken from:
 # http://www.cs.cmu.edu/~vitor/papers/sigFilePaper_finalversion.pdf
@@ -62,6 +68,15 @@ BAD_SENDER_NAMES = [
     # bad words
     'mailto'
     ]
+
+
+def is_url_only_line(line: str) -> bool:
+    """Return True when `line` is a single URL, not prose that contains one.
+
+    Angle brackets around the URL are ignored so mail clients that wrap
+    links as ``<http://...>`` still count.
+    """
+    return RE_URL_ONLY_LINE.match(line) is not None
 
 
 def binary_regex_search(prog: re.Pattern[str]) -> Feature:
@@ -227,6 +242,12 @@ def has_signature(body: str, sender: str) -> bool:
     upvotes = 0
     sender_check = contains_sender_names(sender)
     for line in candidate:
+        # A long URL is still a signature cue. Phone, email, and sender
+        # checks stay limited to short lines so a paragraph cannot match.
+        if is_url_only_line(line):
+            upvotes += 1
+            continue
+
         # we check lines for sender's name, phone, email and url,
         # those signature lines don't take more then 27 lines
         if len(line.strip()) > 27:
