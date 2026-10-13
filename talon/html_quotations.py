@@ -5,6 +5,8 @@ messages (without quoted messages) from html
 
 from __future__ import absolute_import, annotations
 
+from copy import deepcopy
+
 import regex as re
 from lxml.etree import _Element
 
@@ -85,6 +87,62 @@ def delete_quotation_tags(html_note: _Element, counter: int,
         return counter, tag_in_quotation
 
 
+def _remember(removed: list[_Element] | None, *elements: _Element) -> None:
+    if removed is not None:
+        removed.extend(elements)
+
+
+def _tail_position(node: _Element, positions: dict[_Element, int]) -> float:
+    """Sort key for a tail, after this element's descendants."""
+    last = positions[node]
+    for descendant in node.iter():
+        last = max(last, positions[descendant])
+    return last + 0.5
+
+
+def collect_quotation_fragments(
+    html_note: _Element, counter: int,
+    quotation_checkpoints: list[bool],
+    positions: dict[_Element, int],
+    pieces: list[tuple[float, _Element | str]]
+) -> tuple[int, bool]:
+    """Record quotation text and elements marked by checkpoint flags.
+
+    Walks the tree in the same order as delete_quotation_tags and does not
+    modify it. A fully quoted node is recorded by its parent as one subtree.
+    """
+    tag_in_quotation = True
+
+    text_in_quotation = quotation_checkpoints[counter]
+    if not text_in_quotation:
+        tag_in_quotation = False
+    counter += 1
+
+    quoted_children: list[_Element] = []
+    for child in html_note.iterchildren():
+        counter, child_tag_in_quotation = collect_quotation_fragments(
+            child, counter, quotation_checkpoints, positions, pieces
+        )
+        if child_tag_in_quotation:
+            quoted_children.append(child)
+
+    tail_in_quotation = quotation_checkpoints[counter]
+    if not tail_in_quotation:
+        tag_in_quotation = False
+    counter += 1
+
+    if tag_in_quotation:
+        return counter, True
+
+    if text_in_quotation and html_note.text:
+        pieces.append((positions[html_note] + 0.1, html_note.text))
+    for child in quoted_children:
+        pieces.append((float(positions[child]), deepcopy(child)))
+    if tail_in_quotation and html_note.tail:
+        pieces.append((_tail_position(html_note, positions), html_note.tail))
+    return counter, False
+
+
 def _tree_text(element: _Element) -> str:
     """Return concatenated descendant text without mutating the tree."""
     text: str = element.xpath('string()') or ''
@@ -139,7 +197,8 @@ def _should_preserve_quote(remaining_text: str, original_text: str,
 
 
 def _cut_quote_node(html_message: _Element, quote: _Element,
-                    looks_like_quotation: bool) -> bool:
+                    looks_like_quotation: bool,
+                    removed: list[_Element] | None = None) -> bool:
     """Remove quote unless it is a forward or cutting would empty the message."""
     if _quote_is_forward(quote):
         return False
@@ -156,10 +215,12 @@ def _cut_quote_node(html_message: _Element, quote: _Element,
     if _should_preserve_quote(remaining_text, original_text, looks_like_quotation):
         parent.insert(idx, quote)
         return False
+    _remember(removed, quote)
     return True
 
 
-def cut_gmail_quote(html_message: _Element) -> bool:
+def cut_gmail_quote(html_message: _Element,
+                    removed: list[_Element] | None = None) -> bool:
     ''' Cuts the outermost block element with class gmail_quote.
 
     Does not cut if that would leave the message with almost no readable text.
@@ -169,10 +230,11 @@ def cut_gmail_quote(html_message: _Element) -> bool:
         return False
     quote = gmail_quote[0]
     return _cut_quote_node(
-        html_message, quote, _gmail_quote_looks_like_quotation(quote))
+        html_message, quote, _gmail_quote_looks_like_quotation(quote), removed)
 
 
-def cut_yahoo_quote(html_message: _Element) -> bool:
+def cut_yahoo_quote(html_message: _Element,
+                    removed: list[_Element] | None = None) -> bool:
     ''' Cuts the outermost block element with class yahoo_quoted.
 
     Does not cut if that would leave the message with almost no readable text.
@@ -182,10 +244,11 @@ def cut_yahoo_quote(html_message: _Element) -> bool:
         return False
     quote = yahoo_quote[0]
     return _cut_quote_node(
-        html_message, quote, _yahoo_quote_looks_like_quotation(quote))
+        html_message, quote, _yahoo_quote_looks_like_quotation(quote), removed)
 
 
-def cut_microsoft_quote(html_message: _Element) -> bool:
+def cut_microsoft_quote(html_message: _Element,
+                        removed: list[_Element] | None = None) -> bool:
     ''' Cuts splitter block and all following blocks. '''
     #use EXSLT extensions to have a regex match() function with lxml
     ns = {"re": "http://exslt.org/regular-expressions"}
@@ -230,28 +293,36 @@ def cut_microsoft_quote(html_message: _Element) -> bool:
 
     if len(splitter):
         parent = splitter.getparent()
+        nodes = [splitter]
         after_splitter = splitter.getnext()
         while after_splitter is not None:
-            parent.remove(after_splitter)
-            after_splitter = splitter.getnext()
+            nodes.append(after_splitter)
+            after_splitter = after_splitter.getnext()
+        for node in nodes[1:]:
+            parent.remove(node)
         parent.remove(splitter)
+        _remember(removed, *nodes)
         return True
 
     return False
 
 
-def cut_by_id(html_message: _Element) -> bool:
+def cut_by_id(html_message: _Element,
+              removed: list[_Element] | None = None) -> bool:
     found = False
     for quote_id in QUOTE_IDS:
         quote = cssselect('#{}'.format(quote_id), html_message)
         parent = quote[0].getparent() if quote else None
         if parent is not None:
             found = True
-            parent.remove(quote[0])
+            node = quote[0]
+            parent.remove(node)
+            _remember(removed, node)
     return found
 
 
-def cut_blockquote(html_message: _Element) -> bool:
+def cut_blockquote(html_message: _Element,
+                   removed: list[_Element] | None = None) -> bool:
     ''' Cuts the last non-nested blockquote with wrapping elements.'''
     quote = html_message.xpath(
         '(.//blockquote)'
@@ -261,12 +332,14 @@ def cut_blockquote(html_message: _Element) -> bool:
     if quote:
         quote = quote[0]
         quote.getparent().remove(quote)
+        _remember(removed, quote)
         return True
 
     return False
 
 
-def cut_from_block(html_message: _Element) -> bool:
+def cut_from_block(html_message: _Element,
+                   removed: list[_Element] | None = None) -> bool:
     """Cuts div tag which wraps block starting with "From:"."""
     # handle the case when From: block is enclosed in some tag
     block = html_message.xpath(
@@ -292,10 +365,12 @@ def cut_from_block(html_message: _Element) -> bool:
             if not parent_div_is_all_content:
                 parent = block.getparent()
                 next_sibling = block.getnext()
+                nodes: list[_Element] = []
 
                 # remove all tags after found From block
                 # (From block and quoted message are in separate divs)
                 while next_sibling is not None:
+                    nodes.append(block)
                     parent.remove(block)
                     block = next_sibling
                     next_sibling = block.getnext()
@@ -303,8 +378,10 @@ def cut_from_block(html_message: _Element) -> bool:
                 # remove the last sibling (or the
                 # From block if no siblings)
                 if block is not None:
+                    nodes.append(block)
                     parent.remove(block)
 
+                _remember(removed, *nodes)
                 return True
         else:
             return False
@@ -319,19 +396,29 @@ def cut_from_block(html_message: _Element) -> bool:
 
         if RE_FWD.match(block.getparent().text or ''):
             return False
-        
-        while(block.getnext() is not None):
-            block.getparent().remove(block.getnext())
-        block.getparent().remove(block)
+
+        parent = block.getparent()
+        nodes = [block]
+        sibling = block.getnext()
+        while sibling is not None:
+            nodes.append(sibling)
+            sibling = sibling.getnext()
+        for node in nodes[1:]:
+            parent.remove(node)
+        parent.remove(block)
+        _remember(removed, *nodes)
         return True
 
     return False
 
 
-def cut_zimbra_quote(html_message: _Element) -> bool:
+def cut_zimbra_quote(html_message: _Element,
+                     removed: list[_Element] | None = None) -> bool:
     zDivider = html_message.xpath('//hr[@data-marker="__DIVIDER__"]')
     if zDivider:
-        zDivider[0].getparent().remove(zDivider[0])
+        divider = zDivider[0]
+        divider.getparent().remove(divider)
+        _remember(removed, divider)
         return True
 
     return False
