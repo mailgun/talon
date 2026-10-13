@@ -233,6 +233,50 @@ def extract_from(msg_body: str, content_type: str = 'text/plain') -> str:
     return msg_body
 
 
+def extract_quotation(msg_body: str, content_type: str = 'text/plain') -> str:
+    """Return the quoted span removed from a plain-text message.
+
+    The span includes the splitter (``On … wrote:``,
+    ``-----Original Message-----``, ``>`` lines). Text after the quote, such
+    as a signature, stays in the reply. Returns an empty string when nothing
+    was stripped. Only ``text/plain`` messages are split.
+    """
+    try:
+        if content_type == 'text/plain':
+            return extract_quotation_plain(msg_body)
+    except Exception:
+        log.exception('ERROR extracting quotation')
+
+    return ''
+
+
+def extract_quotation_plain(msg_body: str) -> str:
+    """Return the quoted span removed from a plain-text message."""
+    _reply, quotation = _split_plain(msg_body)
+    return quotation
+
+
+def extract_quotation_html(msg_body: str) -> str:
+    """Return the quoted part of an HTML message as an HTML fragment.
+
+    The fragment is the markup extract_from_html removes, in document order.
+    Returns an empty string when the reply is left intact.
+    """
+    if msg_body.strip() == '':
+        return ''
+    try:
+        html_tree = _html_tree_from_body(msg_body)
+        if html_tree is None:
+            return ''
+        reply, quotation = _split_html_tree(html_tree, collect_quotation=True)
+        if not reply:
+            return ''
+        return quotation
+    except Exception:
+        log.exception('ERROR extracting quotation')
+        return ''
+
+
 def remove_initial_spaces_and_mark_message_lines(lines: list[str]) -> str:
     """
     Removes the initial spaces in each line before marking message lines.
@@ -404,19 +448,33 @@ def postprocess(msg_body: str) -> str:
     return re.sub(RE_NORMALIZED_LINK, r'<\1>', msg_body).strip()
 
 
-def extract_from_plain(msg_body: str) -> str:
-    """Extracts a non quoted message from provided plain text."""
+def _split_plain(msg_body: str) -> tuple[str, str]:
+    """Split a plain-text body into ``(reply, quotation)``.
+
+    Both parts use the same preprocessing as extract_from_plain.
+    ``quotation`` is empty when no lines were removed.
+    """
     delimiter = get_delimiter(msg_body)
     msg_body = preprocess(msg_body, delimiter)
     # don't process too long messages
     lines = msg_body.splitlines()[:MAX_LINES_COUNT]
     markers = mark_message_lines(lines)
-    lines = process_marked_lines(lines, markers)
+    return_flags: list[int] = [False, -1, -1]
+    reply_lines = process_marked_lines(lines, markers, return_flags)
+    deleted, first, last = return_flags
 
-    # concatenate lines, change links back, strip and return
-    msg_body = delimiter.join(lines)
-    msg_body = postprocess(msg_body)
-    return msg_body
+    reply = postprocess(delimiter.join(reply_lines))
+    if deleted and first >= 0:
+        quotation = postprocess(delimiter.join(lines[first:last]))
+    else:
+        quotation = ''
+    return reply, quotation
+
+
+def extract_from_plain(msg_body: str) -> str:
+    """Extracts a non quoted message from provided plain text."""
+    reply, _quotation = _split_plain(msg_body)
+    return reply
 
 
 def extract_from_html(msg_body: str) -> str:
@@ -440,18 +498,23 @@ def extract_from_html(msg_body: str) -> str:
     if msg_body.strip() == "":
         return msg_body
 
-    msg_body = msg_body.replace("\r\n", "\n")
-    # Cut out xml and doctype tags to avoid conflict with unicode decoding.
-    msg_body = re.sub(r"\<\?xml.+\?\>|\<\!DOCTYPE.+]\>", "", msg_body)
-    html_tree = html_document_fromstring(msg_body)
+    html_tree = _html_tree_from_body(msg_body)
     if html_tree is None:
         return msg_body
 
-    result = extract_from_html_tree(html_tree)
-    if not result:
+    reply, _quotation = _split_html_tree(html_tree)
+    if not reply:
         return msg_body
 
-    return result
+    return reply
+
+
+def _html_tree_from_body(msg_body: str) -> _Element | None:
+    """Parse an HTML message body into a document tree."""
+    msg_body = msg_body.replace("\r\n", "\n")
+    # Cut out xml and doctype tags to avoid conflict with unicode decoding.
+    msg_body = re.sub(r"\<\?xml.+\?\>|\<\!DOCTYPE.+]\>", "", msg_body)
+    return html_document_fromstring(msg_body)
 
 
 def extract_from_html_tree(html_tree: _Element) -> str | None:
@@ -470,15 +533,40 @@ def extract_from_html_tree(html_tree: _Element) -> str | None:
     then checking deleted checkpoints,
     then deleting necessary tags.
     """
-    cut_quotations = (html_quotations.cut_gmail_quote(html_tree) or
-                      html_quotations.cut_yahoo_quote(html_tree) or
-                      html_quotations.cut_zimbra_quote(html_tree) or
-                      html_quotations.cut_blockquote(html_tree) or
-                      html_quotations.cut_microsoft_quote(html_tree) or
-                      html_quotations.cut_by_id(html_tree) or
-                      html_quotations.cut_from_block(html_tree)
+    reply, _quotation = _split_html_tree(html_tree)
+    return reply
+
+
+def _split_html_tree(html_tree: _Element,
+                     collect_quotation: bool = False) -> tuple[str | None, str]:
+    """Return ``(reply_html, quotation_html)`` for a parsed HTML document.
+
+    ``reply_html`` is None when the message is left intact. The quotation
+    fragment is built only when ``collect_quotation`` is true.
+    """
+    removed: list[_Element] | None = [] if collect_quotation else None
+    preorder: dict[_Element, int] = (
+        {element: index for index, element in enumerate(html_tree.iter())}
+        if collect_quotation else {}
+    )
+    cut_quotations = (html_quotations.cut_gmail_quote(html_tree, removed) or
+                      html_quotations.cut_yahoo_quote(html_tree, removed) or
+                      html_quotations.cut_zimbra_quote(html_tree, removed) or
+                      html_quotations.cut_blockquote(html_tree, removed) or
+                      html_quotations.cut_microsoft_quote(html_tree, removed) or
+                      html_quotations.cut_by_id(html_tree, removed) or
+                      html_quotations.cut_from_block(html_tree, removed)
                       )
+    pieces: list[tuple[float, _Element | str]] = []
+    if removed is not None:
+        pieces = [(float(preorder[element]), element) for element in removed]
     html_tree_copy = deepcopy(html_tree)
+    copy_positions: dict[_Element, int] = {}
+    if collect_quotation:
+        copy_positions = {
+            copy: preorder[source]
+            for source, copy in zip(html_tree.iter(), html_tree_copy.iter())
+        }
 
     number_of_checkpoints = html_quotations.add_checkpoint(html_tree, 0)
     quotation_checkpoints = [False] * number_of_checkpoints
@@ -488,7 +576,7 @@ def extract_from_html_tree(html_tree: _Element) -> str | None:
 
     # Don't process too long messages
     if len(lines) > MAX_LINES_COUNT:
-        return None
+        return None, ''
 
     # Collect checkpoints on each line
     line_checkpoints = [
@@ -507,7 +595,7 @@ def extract_from_html_tree(html_tree: _Element) -> str | None:
     lines_were_deleted, first_deleted, last_deleted = return_flags
 
     if not lines_were_deleted and not cut_quotations:
-        return None
+        return None, ''
 
     if lines_were_deleted:
         #collect checkpoints from deleted lines
@@ -515,13 +603,17 @@ def extract_from_html_tree(html_tree: _Element) -> str | None:
             for checkpoint in line_checkpoints[i]:
                 quotation_checkpoints[checkpoint] = True
 
+        if collect_quotation:
+            html_quotations.collect_quotation_fragments(
+                html_tree_copy, 0, quotation_checkpoints, copy_positions, pieces
+            )
         # Remove tags with quotation checkpoints
         html_quotations.delete_quotation_tags(
             html_tree_copy, 0, quotation_checkpoints
         )
 
     if _readable_text_empty(html_tree_copy):
-        return None
+        return None, ''
 
     # NOTE: We remove_namespaces() because we are using an HTML5 Parser, HTML
     # parsers do not recognize namespaces in HTML tags. As such the rendered
@@ -550,9 +642,40 @@ def extract_from_html_tree(html_tree: _Element) -> str | None:
     # html.tostring accepts any element, not only html.HtmlElement
     s = html.tostring(cast(html.HtmlElement, html_tree_copy), encoding="ascii")
     if not s:
-        return None
+        return None, ''
 
-    return s.decode("ascii")
+    quotation = _render_quotation_pieces(pieces) if collect_quotation else ''
+    return s.decode("ascii"), quotation
+
+
+def _render_quotation_pieces(pieces: list[tuple[float, _Element | str]]) -> str:
+    """Serialize quotation elements and text in document order."""
+    parts: list[str] = []
+    for _position, piece in sorted(pieces, key=lambda item: item[0]):
+        if isinstance(piece, str):
+            rendered = _render_html_text(piece)
+        else:
+            remove_namespaces(piece)
+            raw = html.tostring(cast(html.HtmlElement, piece), encoding="ascii")
+            rendered = raw.decode("ascii") if raw else ''
+        if rendered:
+            parts.append(rendered)
+    return ''.join(parts).strip()
+
+
+def _render_html_text(text: str) -> str:
+    """Escape text the same way element serialization does."""
+    holder = html.Element('span')
+    holder.text = text
+    raw = html.tostring(holder, encoding='ascii', with_tail=False)
+    if not raw:
+        return ''
+    outer = raw.decode('ascii')
+    prefix = '<span>'
+    suffix = '</span>'
+    if outer.startswith(prefix) and outer.endswith(suffix):
+        return outer[len(prefix):-len(suffix)]
+    return text
 
 
 def remove_namespaces(root: _Element) -> _Element:

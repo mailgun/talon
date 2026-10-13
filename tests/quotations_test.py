@@ -31,3 +31,23 @@ def test_crash_inside_extract_from() -> None:
 
 def test_empty_body() -> None:
     assert '' == quotations.extract_from_plain('')
+
+
+@patch.object(quotations, 'extract_quotation_plain')
+def test_extract_quotation_respects_content_type(
+        extract_quotation_plain: MagicMock
+        ) -> None:
+    msg_body = "Hi there"
+
+    quotations.extract_quotation(msg_body, 'text/plain')
+    extract_quotation_plain.assert_called_with(msg_body)
+
+    assert '' == quotations.extract_quotation(msg_body, 'text/html')
+    extract_quotation_plain.assert_called_once()
+
+    assert '' == quotations.extract_quotation(msg_body, 'text/blah')
+
+
+@patch.object(quotations, 'extract_quotation_plain', Mock(side_effect=Exception()))
+def test_crash_inside_extract_quotation() -> None:
+    assert '' == quotations.extract_quotation('Hi there', 'text/plain')

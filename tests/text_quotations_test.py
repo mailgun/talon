@@ -855,3 +855,57 @@ Address: 130 Fox St
 Please bring in your ID."""
     parsed = quotations.extract_from_plain(msg_body)
     assert msg_body == parsed
+
+
+def test_quotation_between_reply_and_signature() -> None:
+    # Reply, then quote, then signature. extract_from keeps the signature.
+    msg_body = """Reply
+
+On 11-Apr-2011, at 6:54 PM, Roman Tkachenko <romant@example.com> wrote:
+
+> Test
+
+--
+Bob Smith"""
+    assert "Reply\n\n--\nBob Smith" == quotations.extract_from_plain(msg_body)
+    assert (
+        "On 11-Apr-2011, at 6:54 PM, Roman Tkachenko <romant@example.com> wrote:"
+        "\n\n> Test"
+    ) == quotations.extract_quotation_plain(msg_body)
+
+
+def test_original_message_quotation_is_the_suffix() -> None:
+    msg_body = """Reply
+
+-----Original Message-----
+
+Quote"""
+    assert "Reply" == quotations.extract_from_plain(msg_body)
+    assert "-----Original Message-----\n\nQuote" == (
+        quotations.extract_quotation_plain(msg_body))
+
+
+def test_extract_quotation_plain_empty_when_nothing_stripped() -> None:
+    assert '' == quotations.extract_quotation_plain('Just a reply\n\nThanks')
+    assert '' == quotations.extract_quotation_plain('')
+
+    inline = """On Wed, Apr 4, 2012 at 3:59 PM, bob@example.com wrote:
+> quoted line
+> another quoted line
+inline reply
+> trailing quote"""
+    assert inline == quotations.extract_from_plain(inline)
+    assert '' == quotations.extract_quotation_plain(inline)
+
+    forwarded = """FYI
+
+---------- Forwarded message ----------
+From: bob@example.com
+Date: Tue, Sep 4, 2012 at 1:35 PM
+Subject: Two
+line subject
+To: rob@example.com
+
+Text"""
+    assert forwarded == quotations.extract_from_plain(forwarded)
+    assert '' == quotations.extract_quotation_plain(forwarded)

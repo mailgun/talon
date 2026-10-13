@@ -11,7 +11,7 @@ from unittest.mock import Mock, patch
 from tests.fixtures import (OLK_SRC_BODY_SECTION,
                             REPLY_QUOTATIONS_SHARE_BLOCK,
                             REPLY_SEPARATED_BY_HR)
-from talon import quotations, utils as u
+from talon import html_quotations, quotations, utils as u
 
 RE_WHITESPACE = re.compile(r"\s")
 RE_DOUBLE_WHITESPACE = re.compile(r"\s")
@@ -576,6 +576,162 @@ def test_remove_namespaces() -> None:
 
     assert "<o:p>" not in rendered
     assert "<xmlns:o>" not in rendered
+
+
+_HEADER_AND_BLOCKQUOTE = """Reply
+
+<div>
+  On 11-Apr-2011, at 6:54 PM, Bob &lt;bob@example.com&gt; wrote:
+</div>
+
+<blockquote>
+  <div>
+    Test
+  </div>
+</blockquote>
+"""
+
+
+@patch.object(html_quotations, 'collect_quotation_fragments',
+              wraps=html_quotations.collect_quotation_fragments)
+def test_extract_from_html_skips_quotation_collection(
+        collect_quotation_fragments: Mock) -> None:
+    reply = quotations.extract_from_html(_HEADER_AND_BLOCKQUOTE)
+    assert "<html><head></head><body>Reply</body></html>" == \
+        RE_WHITESPACE.sub('', reply)
+    collect_quotation_fragments.assert_not_called()
+
+
+@patch.object(html_quotations, 'collect_quotation_fragments',
+              wraps=html_quotations.collect_quotation_fragments)
+def test_extract_quotation_html_collects_fragments(
+        collect_quotation_fragments: Mock) -> None:
+    compact = RE_WHITESPACE.sub(
+        '', quotations.extract_quotation_html(_HEADER_AND_BLOCKQUOTE))
+    assert compact.index('wrote:') < compact.index('<blockquote>')
+    assert 'Test' in compact
+    assert 'Reply' not in compact
+    collect_quotation_fragments.assert_called()
+
+
+def test_extract_quotation_html_gmail_quote() -> None:
+    msg_body = """Reply
+<div class="gmail_quote">
+  <div class="gmail_quote">
+    On 11-Apr-2011, at 6:54 PM, Bob &lt;bob@example.com&gt; wrote:
+    <div>
+      Test
+    </div>
+  </div>
+</div>"""
+    compact = RE_WHITESPACE.sub('', quotations.extract_quotation_html(msg_body))
+    assert 'class="gmail_quote"' in compact
+    assert 'Test' in compact
+    assert 'Reply' not in compact
+
+
+def test_extract_quotation_html_header_precedes_blockquote() -> None:
+    msg_body = """Reply
+
+<div>
+  On 11-Apr-2011, at 6:54 PM, Bob &lt;bob@example.com&gt; wrote:
+</div>
+
+<blockquote>
+  <div>
+    Test
+  </div>
+</blockquote>
+"""
+    compact = RE_WHITESPACE.sub('', quotations.extract_quotation_html(msg_body))
+    assert compact.index('wrote:') < compact.index('<blockquote>')
+    assert 'Test' in compact
+    assert 'Reply' not in compact
+
+
+def test_extract_quotation_html_keeps_non_quote_blockquote() -> None:
+    msg_body = """Reply
+<blockquote>Regular</blockquote>
+
+<div>
+  On 11-Apr-2011, at 6:54 PM, Bob &lt;bob@example.com&gt; wrote:
+</div>
+
+<blockquote>
+  <div>
+    <blockquote>Nested</blockquote>
+  </div>
+</blockquote>
+"""
+    compact = RE_WHITESPACE.sub('', quotations.extract_quotation_html(msg_body))
+    assert 'Regular' not in compact
+    assert 'Nested' in compact
+
+
+def test_extract_quotation_html_empty_when_quote_is_kept() -> None:
+    whole_body = (
+        '<div class="gmail_quote">'
+        '<div>Thank you for applying to our Production Associate opportunity.</div>'
+        '</div>'
+    )
+    assert '' == quotations.extract_quotation_html(whole_body)
+
+    forwarded = (
+        '<div dir="ltr"><br><div class="gmail_quote">'
+        '---------- Forwarded message ----------<br>eom'
+        '</div><br></div>'
+    )
+    assert '' == quotations.extract_quotation_html(forwarded)
+    assert '' == quotations.extract_quotation_html('')
+
+
+def test_extract_quotation_html_olk_src_body_section() -> None:
+    quotation = quotations.extract_quotation_html(OLK_SRC_BODY_SECTION)
+    assert 'OLK_SRC_BODY_SECTION' in quotation
+    assert 'Reply' not in RE_WHITESPACE.sub('', quotation)
+
+
+def test_extract_quotation_html_from_tail_in_shared_div() -> None:
+    msg_body = '''
+<body>
+  <div>
+
+    Blah<br><br>
+
+    <hr>Date: Tue, 22 May 2012 18:29:16 -0600<br>
+    To: xx@hotmail.ca<br>
+    From: quickemail@ashleymadison.com<br>
+    Subject: You Have New Mail From x!<br><br>
+
+  </div>
+</body>'''
+    quotation = quotations.extract_quotation_html(msg_body)
+    compact = RE_WHITESPACE.sub('', quotation)
+    assert 'Blah' not in compact
+    assert 'From:quickemail@ashleymadison.com' in compact
+    assert 'Blah' in quotations.extract_from_html(msg_body)
+
+
+def test_extract_quotation_html_from_block_siblings() -> None:
+    msg_body = '''
+Reply
+<div>
+  <hr/>
+  <div>
+    <font>
+      <b>From: bob@example.com</b>
+      <b>Date: Thu, 24 Mar 2016 08:07:12 -0700</b>
+    </font>
+  </div>
+  <div>
+    Quoted message
+  </div>
+</div>
+'''
+    compact = RE_WHITESPACE.sub('', quotations.extract_quotation_html(msg_body))
+    assert 'From:bob@example.com' in compact
+    assert 'Quotedmessage' in compact
+    assert compact.index('From:') < compact.index('Quotedmessage')
 
 
 def test_remove_namespaces_skips_comments() -> None:
